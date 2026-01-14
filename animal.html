@@ -3249,10 +3249,31 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
 
 
+        function dimensionValues() {
+            return ['2D', '3D'];
+        }
+
         function pickRandom(list) {
             if (!Array.isArray(list) || list.length === 0) return null;
             const index = Math.floor(Math.random() * list.length);
             return list[index];
+        }
+
+        function randomizeDimensionAndStyle() {
+            const dimension = pickRandom(dimensionValues());
+            if (!dimension) return;
+            const dimensionInput = document.querySelector(`input[name="dimension"][value="${dimension}"]`);
+            if (dimensionInput) {
+                dimensionInput.checked = true;
+            }
+            updateStyleOptions();
+            const candidates = presets.filter(p => p.dimension === dimension);
+            const presetChoice = pickRandom(candidates);
+            if (presetChoice) {
+                const styleSelect = document.getElementById('art-style');
+                if (styleSelect) styleSelect.value = presetChoice.id;
+                applyPreset(presetChoice.id);
+            }
         }
 
         function shuffleArray(list) {
@@ -3271,10 +3292,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
                 return pickRandom(allowedExpressions);
             };
 
-            const presetChoice = pickRandom(presets);
-            if (presetChoice) {
-                applyPreset(presetChoice.id);
-            }
+            randomizeDimensionAndStyle();
 
             const genderChoice = pickRandom(genders);
             if (genderChoice) {
