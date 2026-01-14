@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Studio Launcher</title>
+    <style>
+        :root {
+            font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+            background-color: #0d0d0f;
+            color: #fff;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .tab-bar {
+            display: flex;
+            gap: 4px;
+            padding: 8px;
+            background: #18181b;
+            border-bottom: 1px solid #333;
+        }
+        .tab-bar button {
+            flex: 1;
+            padding: 10px 12px;
+            border: none;
+            border-radius: 6px;
+            background: transparent;
+            color: #c4c4c4;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+        .tab-bar button.active {
+            color: #fff;
+        }
+        .tab-panels {
+            flex: 1;
+            min-height: 0;
+        }
+        .tab-panel {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: none;
+        }
+        .tab-panel.active {
+            display: block;
+        }
+        .tab-content {
+            position: relative;
+            height: calc(100vh - 50px);
+        }
+        @media (max-width: 640px) {
+            .tab-bar {
+                flex-wrap: wrap;
+            }
+            .tab-bar button {
+                flex: 1 1 calc(50% - 8px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="tab-bar" role="tablist">
+        <button class="tab-button active" data-target="tab-cartoon" data-highlight="#e50914" role="tab">Cartoon</button>
+        <button class="tab-button" data-target="tab-animal" data-highlight="#E600DF" role="tab">Animal</button>
+        <button class="tab-button" data-target="tab-human" data-highlight="#E1A607" role="tab">Human</button>
+        <button class="tab-button" data-target="tab-robot" data-highlight="#00f3ff" role="tab">Robot</button>
+        <button class="tab-button" data-target="tab-scene" data-highlight="#4125D0" role="tab">Scene</button>
+        <button class="tab-button" data-target="tab-chatgpt" data-external="https://chatgpt.com/" data-highlight="#14b8a6" role="tab">ChatGPT</button>
+        <button class="tab-button" data-external="https://grok.com/imagine" data-highlight="#ec4899" role="tab">Grok Imagine</button>
+        <button class="tab-button" data-external="https://gemini.google.com/app" data-highlight="#0ea5e9" role="tab">Gemini</button>
+    </div>
+    <div class="tab-content">
+        <iframe id="tab-cartoon" class="tab-panel active" src="cartoon.html" title="Cartoon Generator" loading="lazy"></iframe>
+        <iframe id="tab-animal" class="tab-panel" src="animal.html" title="Animal Creator" loading="lazy"></iframe>
+        <iframe id="tab-human" class="tab-panel" src="Human.html" title="Human Creator" loading="lazy"></iframe>
+        <iframe id="tab-robot" class="tab-panel" src="Robot.html" title="Robot Creator" loading="lazy"></iframe>
+        <iframe id="tab-scene" class="tab-panel" src="Scene.html" title="Scene Creator" loading="lazy"></iframe>
+    </div>
+    <script>
+        const buttons = document.querySelectorAll('.tab-button');
+        const panels = document.querySelectorAll('.tab-panel');
+
+        function setButtonHighlight(button, active) {
+            const highlight = button.dataset.highlight || '#e50914';
+            button.style.backgroundColor = active ? highlight : 'transparent';
+        }
+
+        function activateTab(targetId) {
+            buttons.forEach(button => {
+                const active = button.dataset.target === targetId;
+                button.classList.toggle('active', active);
+                button.setAttribute('aria-selected', active);
+                button.tabIndex = active ? 0 : -1;
+                setButtonHighlight(button, active);
+            });
+            panels.forEach(panel => {
+                const active = panel.id === targetId;
+                panel.classList.toggle('active', active);
+            });
+        }
+
+        buttons.forEach(button => {
+            setButtonHighlight(button, button.classList.contains('active'));
+            button.addEventListener('click', () => {
+                if (button.dataset.external) {
+                    window.open(button.dataset.external, '_blank', 'noreferrer');
+                    return;
+                }
+                activateTab(button.dataset.target);
+            });
+        });
+
+        document.addEventListener('keydown', event => {
+            if (event.key !== 'Tab') return;
+            const activeButton = document.querySelector('.tab-button.active');
+            activeButton?.focus();
+        });
+    </script>
+</body>
+</html>

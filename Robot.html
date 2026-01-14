@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robot Prompt Studio | The Foundry</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Adicionei Space Grotesk (300 e 700) para o Logo -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400&family=Space+Grotesk:wght@300;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #050505;
+            --card-bg: #0f1115;
+            --accent: #00f3ff; /* CIANO NEON */
+            --accent-dim: rgba(0, 243, 255, 0.1);
+            --text-gray: #9ca3af;
+            --border-color: #1f2937;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: white;
+            background-image: 
+                linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        /* Scrollbar customizada */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+        /* Dark Panel */
+        .dark-panel {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+        }
+        .dark-panel:hover {
+            border-color: #374151;
+        }
+        
+        /* Option Card Styles */
+        .option-card {
+            background-color: #000; 
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .option-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.15);
+        }
+        .option-card.selected {
+            border-color: var(--accent);
+            background-color: var(--accent-dim);
+            box-shadow: inset 0 0 20px rgba(0, 243, 255, 0.05);
+        }
+        .option-card.selected svg {
+            color: var(--accent);
+            filter: drop-shadow(0 0 5px var(--accent));
+        }
+
+        /* Color Swatch Styles */
+        .material-swatch {
+            width: 100%;
+            height: 48px;
+            border-radius: 6px; 
+            cursor: pointer;
+            border: 1px solid #333;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .material-swatch:hover {
+            transform: scale(1.05);
+            z-index: 10;
+            border-color: white;
+        }
+        .material-swatch.selected {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--card-bg), 0 0 0 4px var(--accent);
+        }
+        
+        .texture-overlay {
+            position: absolute;
+            inset: 0;
+            opacity: 0.4;
+            mix-blend-mode: overlay;
+        }
+
+        /* Custom Inputs */
+        .feature-check:checked {
+            background-color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        /* Tech Header Line */
+        .tech-line {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            width: 100%;
+            opacity: 0.5;
+        }
+
+        /* Toast notification */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: var(--accent);
+            color: #000;
+            text-align: center;
+            border-radius: 4px;
+            padding: 12px 16px;
+            position: fixed;
+            z-index: 50;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            opacity: 0;
+            font-weight: 700;
+            font-size: 0.875rem;
+            transition: opacity 0.3s, bottom 0.3s;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.4);
+        }
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+            bottom: 50px;
+        }
+
+        /* Output Text */
+        .scanline-text {
+            font-family: 'JetBrains Mono', monospace;
+            text-shadow: 0 0 2px rgba(0, 243, 255, 0.3);
+            line-height: 1.5;
+        }
+
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center pb-20">
+
+    <!-- HEADER -->
+    <header class="w-full border-b border-[#1f2937] bg-black/90 backdrop-blur-md z-20 sticky top-0">
+        <div class="w-full max-w-7xl mx-auto px-6 py-4 flex items-center gap-4 justify-start">
+            <!-- Logo Marca Ciano -->
+            <div class="w-3 h-8 bg-[#00f3ff] rounded-sm shadow-[0_0_15px_rgba(0,243,255,0.5)]"></div>
+            <div>
+                <!-- LOGO ALTERADO: Estrutura solicitada com cor Ciano e fonte Space Grotesk -->
+                <h1 class="text-xl font-bold tracking-tight text-white" style="font-family: 'Space Grotesk', sans-serif;">
+                    ROBOT PROMPT <span class="text-[#00f3ff] font-light">STUDIO</span>
+                </h1>
+                <p class="text-[10px] text-[#555] uppercase tracking-[0.3em] font-['JetBrains_Mono']">The Foundry // v.2.6</p>
+            </div>
+            <div class="hidden md:flex ml-auto gap-4 text-xs text-gray-500 font-mono">
+                <span>SYS.STATUS: <span class="text-green-500">ONLINE</span></span>
+                <span>CORE: <span class="text-[#00f3ff]">STABLE</span></span>
+            </div>
+        </div>
+    </header>
+    <div class="tech-line"></div>
+
+    <main class="w-full mt-8">
+        <div class="w-full max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Controls Section -->
+        <div class="lg:col-span-7 space-y-6">
+            
+            <!-- Dimension Switch -->
+            <div class="dark-panel p-5 rounded-lg border-l-2 border-l-[#00f3ff]">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2 font-mono">
+                    <i class="fa-solid fa-layer-group text-[#00f3ff]"></i> Dimensão & Render
+                </h3>
+                <div class="flex gap-4">
+                    <label class="flex-1 cursor-pointer group">
+                        <input type="radio" name="dimension" value="3D" class="peer sr-only" checked onchange="updateStyleOptions(); updatePrompt();">
+                        <div class="p-4 rounded bg-black border border-[#333] peer-checked:border-[#00f3ff] peer-checked:bg-[#00f3ff]/5 flex flex-col items-center justify-center gap-2 transition-all group-hover:border-gray-500">
+                            <i class="fa-solid fa-cube text-xl text-gray-500 peer-checked:text-[#00f3ff]"></i>
+                            <span class="font-bold text-xs text-gray-400 peer-checked:text-white uppercase">3D Realista / CGI</span>
+                        </div>
+                    </label>
+                    <label class="flex-1 cursor-pointer group">
+                        <input type="radio" name="dimension" value="2D" class="peer sr-only" onchange="updateStyleOptions(); updatePrompt();">
+                        <div class="p-4 rounded bg-black border border-[#333] peer-checked:border-[#00f3ff] peer-checked:bg-[#00f3ff]/5 flex flex-col items-center justify-center gap-2 transition-all group-hover:border-gray-500">
+                            <i class="fa-solid fa-compass-drafting text-xl text-gray-500 peer-checked:text-[#00f3ff]"></i>
+                            <span class="font-bold text-xs text-gray-400 peer-checked:text-white uppercase">Conceito 2D / Blueprint</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Style Modifiers -->
+            <div class="dark-panel p-5 rounded-lg">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2 font-mono">
+                    <i class="fa-solid fa-palette text-[#00f3ff]"></i> Estilo Visual
+                </h3>
+                <div class="relative">
+                    <select id="art-style" class="w-full p-3 rounded bg-black border border-[#333] text-gray-200 text-sm focus:border-[#00f3ff] focus:outline-none transition-colors appearance-none cursor-pointer font-mono" onchange="applyArtStylePreset(this.value)">
+                        <!-- Populated by JS -->
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-[#00f3ff]">
+                        <i class="fa-solid fa-chevron-down text-xs"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chassis Archetype -->
+            <div class="dark-panel p-5 rounded-lg">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2 font-mono">
+                    <i class="fa-solid fa-users-gear text-[#00f3ff]"></i> Arquétipo de Chassis
+                </h3>
+                <div class="grid grid-cols-3 sm:grid-cols-5 gap-3" id="archetype-grid">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Frame Build -->
+            <div class="dark-panel p-5 rounded-lg">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2 font-mono">
+                    <i class="fa-solid fa-shapes text-[#00f3ff]"></i> Estrutura & Frame
+                </h3>
+                <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="frame-grid">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Material & Finish -->
+            <div class="dark-panel p-5 rounded-lg">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2 font-mono">
+                    <i class="fa-solid fa-spray-can text-[#00f3ff]"></i> Material Principal
+                </h3>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="material-grid">
+                    <!-- Populated by JS -->
+                </div>
+                
+                <!-- Wear & Tear Slider -->
+                <div class="mt-6">
+                    <div class="flex justify-between text-xs text-gray-500 mb-2 font-mono">
+                        <span>IMPECÁVEL (NOVO)</span>
+                        <span>DANIFICADO (SUCATA)</span>
+                    </div>
+                    <input type="range" id="wear-slider" min="0" max="4" step="1" value="1" class="w-full h-2 bg-[#333] rounded-lg appearance-none cursor-pointer accent-[#00f3ff]" onchange="updatePrompt()">
+                </div>
+            </div>
+
+            <!-- Head Shape -->
+            <div class="dark-panel p-5 rounded-lg">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2 font-mono">
+                    <i class="fa-solid fa-microchip text-[#00f3ff]"></i> Formato da Unidade Craniana
+                    <button type="button" data-lock-btn="head" onclick="toggleLock('head')" class="ml-auto text-[10px] text-gray-500 hover:text-white border border-[#333] px-2 py-1 rounded font-sans">TRAVAR</button>
+                </h3>
+                <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="head-shape-grid">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Optics -->
+            <div class="dark-panel p-5 rounded-lg">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2 font-mono">
+                    <i class="fa-solid fa-eye text-[#00f3ff]"></i> Sensores Óticos
+                    <button type="button" data-lock-btn="optics" onclick="toggleLock('optics')" class="ml-auto text-[10px] text-gray-500 hover:text-white border border-[#333] px-2 py-1 rounded font-sans">TRAVAR</button>
+                </h3>
+                <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="optics-grid">
+                    <!-- Populated by JS -->
+                </div>
+                
+                <!-- Optics Color -->
+                <div class="mt-4 pt-4 border-t border-[#333]">
+                    <span class="text-xs font-mono text-gray-500 block mb-2">COR DO LED / SENSOR:</span>
+                    <div class="flex gap-2 flex-wrap" id="optic-color-row">
+                        <!-- JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attachments -->
+            <div class="dark-panel p-5 rounded-lg">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2 font-mono">
+                    <i class="fa-solid fa-wifi text-[#00f3ff]"></i> Acessórios Cranianos
+                </h3>
+                <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="attachments-grid">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Mouth -->
+            <div class="dark-panel p-5 rounded-lg">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2 font-mono">
+                    <i class="fa-solid fa-volume-high text-[#00f3ff]"></i> Áudio / Ventilação (Boca)
+                </h3>
+                <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="mouth-grid">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Tech Details -->
+            <div class="dark-panel p-5 rounded-lg">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2 font-mono">
+                    <i class="fa-solid fa-screwdriver-wrench text-[#00f3ff]"></i> Detalhes Técnicos
+                </h3>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+                        <input type="checkbox" class="feature-check w-4 h-4 text-[#00f3ff] rounded bg-black border-gray-600 focus:ring-0" value="exposed high-voltage wiring" onchange="updatePrompt()">
+                        <span class="text-xs text-gray-400 group-hover:text-white font-mono">Fios Expostos</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+                        <input type="checkbox" class="feature-check w-4 h-4 text-[#00f3ff] rounded bg-black border-gray-600 focus:ring-0" value="moving hydraulic pistons" onchange="updatePrompt()">
+                        <span class="text-xs text-gray-400 group-hover:text-white font-mono">Pistões Hidráulicos</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+                        <input type="checkbox" class="feature-check w-4 h-4 text-[#00f3ff] rounded bg-black border-gray-600 focus:ring-0" value="industrial warning decals" onchange="updatePrompt()">
+                        <span class="text-xs text-gray-400 group-hover:text-white font-mono">Decalques Aviso</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+                        <input type="checkbox" class="feature-check w-4 h-4 text-[#00f3ff] rounded bg-black border-gray-600 focus:ring-0" value="leaking steam pressure" onchange="updatePrompt()">
+                        <span class="text-xs text-gray-400 group-hover:text-white font-mono">Vapor/Fumaça</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+                        <input type="checkbox" class="feature-check w-4 h-4 text-[#00f3ff] rounded bg-black border-gray-600 focus:ring-0" value="heavy oil stains" onchange="updatePrompt()">
+                        <span class="text-xs text-gray-400 group-hover:text-white font-mono">Manchas Óleo</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+                        <input type="checkbox" class="feature-check w-4 h-4 text-[#00f3ff] rounded bg-black border-gray-600 focus:ring-0" value="engraved glowing neon runes" onchange="updatePrompt()">
+                        <span class="text-xs text-gray-400 group-hover:text-white font-mono">Runas Neon</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+                        <input type="checkbox" class="feature-check w-4 h-4 text-[#00f3ff] rounded bg-black border-gray-600 focus:ring-0" value="transparent chassis casing" onchange="updatePrompt()">
+                        <span class="text-xs text-gray-400 group-hover:text-white font-mono">Carcaça Transparente</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+                        <input type="checkbox" class="feature-check w-4 h-4 text-[#00f3ff] rounded bg-black border-gray-600 focus:ring-0" value="stenciled serial numbers" onchange="updatePrompt()">
+                        <span class="text-xs text-gray-400 group-hover:text-white font-mono">Números de Série</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+                        <input type="checkbox" class="feature-check w-4 h-4 text-[#00f3ff] rounded bg-black border-gray-600 focus:ring-0" value="electric sparks, short circuit arcing" onchange="updatePrompt()">
+                        <span class="text-xs text-gray-400 group-hover:text-white font-mono">Faíscas Elétricas</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Pose -->
+            <div class="dark-panel p-5 rounded-lg">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2 font-mono">
+                    <i class="fa-solid fa-person-running text-[#00f3ff]"></i> Protocolo de Ação (Pose)
+                    <button type="button" data-lock-btn="action" onclick="toggleLock('action')" class="ml-auto text-[10px] text-gray-500 hover:text-white border border-[#333] px-2 py-1 rounded font-sans">TRAVAR</button>
+                </h3>
+                <div class="space-y-3">
+                    <select id="pose-select" class="w-full p-3 rounded bg-black border border-[#333] text-gray-200 text-sm focus:border-[#00f3ff] focus:outline-none font-mono" onchange="selectPose(this.value)">
+                    </select>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Output Section -->
+        <div class="lg:col-span-5 space-y-6">
+            <div class="sticky top-24">
+                <div class="bg-[#0f1115] border border-[#1f2937] rounded-lg p-1 shadow-2xl relative overflow-hidden">
+                    <!-- Top Bar Decoration (Ciano) -->
+                    <div class="h-1 w-full bg-gradient-to-r from-transparent via-[#00f3ff] to-transparent opacity-50"></div>
+                    
+                    <div class="p-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xs font-bold text-[#00f3ff] uppercase tracking-wider bg-[#00f3ff]/10 px-2 py-1 rounded border border-[#00f3ff]/30 font-mono">
+                                Log_Saída_Sistema
+                            </h2>
+                            <button onclick="randomize()" class="text-[#00f3ff] hover:text-white text-[10px] uppercase tracking-wider bg-black hover:bg-[#1a1a1a] border border-[#333] hover:border-[#00f3ff] px-3 py-1.5 rounded transition-all flex items-center gap-2 font-mono">
+                                <i class="fa-solid fa-shuffle"></i> Aleatório
+                            </button>
+                        </div>
+
+                        <div class="relative group">
+                            <textarea id="prompt-output" class="scanline-text w-full h-96 bg-black border border-[#333] rounded p-4 text-xs text-gray-300 focus:outline-none focus:border-[#00f3ff] focus:text-[#00f3ff] transition-colors font-mono resize-none leading-relaxed" readonly></textarea>
+                            <!-- Decorative corner -->
+                            <div class="absolute bottom-2 right-2 w-3 h-3 border-r border-b border-[#00f3ff] opacity-50"></div>
+                        </div>
+
+                        <div class="mt-4 pt-4 text-[#555] text-[10px]">
+                            <p class="mb-2 uppercase tracking-wide font-bold text-gray-500 font-mono">Protocolo Negativo (Exclusão):</p>
+                            <textarea id="negativePrompt" class="w-full bg-black border border-[#333] rounded p-2 text-[11px] text-gray-400 focus:outline-none focus:border-[#00f3ff] transition-colors font-mono resize-none" rows="3">human, skin, organic, biological, cute, soft, cartoon, anime, low quality, blurry, watermark, logo, text, signature, extra limbs, deformed, broken anatomy</textarea>
+                        </div>
+
+                        <button onclick="copyToClipboard()" class="w-full mt-4 bg-[#00f3ff] hover:bg-[#00c2cc] text-black font-bold py-3 px-6 rounded transition-all uppercase text-xs tracking-widest shadow-[0_0_15px_rgba(0,243,255,0.3)] flex justify-center items-center gap-2 font-mono">
+                            <i class="fa-regular fa-copy"></i> Copiar Dados
+                        </button>
+
+                        <div class="mt-3 grid grid-cols-1 gap-3">
+                            <button onclick="exportCharacter()" class="w-full bg-black hover:bg-[#1a1a1a] text-gray-400 hover:text-[#00f3ff] font-semibold py-2.5 px-4 rounded border border-[#333] transition-all text-[11px] uppercase tracking-wider flex items-center justify-center gap-2 font-mono">
+                                <i class="fa-solid fa-floppy-disk"></i> Salvar Blueprint (JSON)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Helper Tip -->
+                <div class="mt-4 p-4 border border-[#333] rounded bg-black/50 text-xs text-gray-500 font-mono">
+                    <p class="flex gap-2"><i class="fa-solid fa-circle-info mt-0.5 text-[#00f3ff]"></i> <span>Resolução Recomendada: <strong>1024x1024</strong> ou <strong>832x1216</strong> para retratos.</span></p>
+                </div>
+            </div>
+        </div>
+        </div>
+    </main>
+
+    <!-- Toast -->
+    <div id="toast" class="font-mono">DADOS COPIADOS COM SUCESSO</div>
+
+    <script>
+        // --- DADOS ROBÓTICOS ---
+        
+        // Archetypes (Subject) - Updated with more rich descriptions
+        const archetypes = [
+            { id: 'soldier', label: 'Unidade de Combate', value: 'heavy-duty combat robot, advanced military droid, armored tactical enforcer' },
+            { id: 'worker', label: 'Industrial', value: 'industrial construction robot, heavy-duty engineering platform, automated utility machine' },
+            { id: 'android', label: 'Androide', value: 'synthetic humanoid android, advanced artificial human replica, cybernetic organism' },
+            { id: 'drone', label: 'Batedor/Drone', value: 'autonomous hovering scout droid, high-tech surveillance unit, aerodynamic aerial drone' },
+            { id: 'medic', label: 'Médico', value: 'medical assistance droid, sterile surgical robot, advanced healthcare automaton' },
+            { id: 'assassin', label: 'Furtivo', value: 'stealth infiltration unit, lethal assassin robot, high-mobility shadow operative' },
+            // NOVOS ARQUÉTIPOS ADICIONADOS
+            { id: 'hacker', label: 'Netrunner', value: 'cyber-warfare unit, electronic hacking droid, multiple data ports, signal jammers, sleek tech-wear style' },
+            { id: 'titan', label: 'Classe Titã', value: 'massive siege robot, towering colossus, heavy artillery platform, thickest armor plating, intimidating scale' },
+            { id: 'pet', label: 'Companheiro/Pet', value: 'small service droid, robotic pet companion, cute aesthetic, compact frame, friendly design' },
+            { id: 'hazmat', label: 'Explorador', value: 'hazardous environment explorer, radiation shielded chassis, heavy duty environmental suit, survival gear' }
+        ];
+
+        // Frames (Body) - Updated with enriched details
+        const frames = [
+            { id: 'humanoid', label: 'Humanoide Padrão', value: 'standard bipedal humanoid chassis, fully articulated mechanical joints, reinforced endoskeleton, human-like proportions' },
+            { id: 'bulky', label: 'Tanque Pesado', value: 'massive heavy-mech chassis, thick reinforced plating, broad hydraulic shoulders, tank-like durability, walking fortress' },
+            { id: 'skeletal', label: 'Esquelético', value: 'exposed skeletal chassis, raw mechanical endoskeleton, visible hydraulic pistons, complex internal wiring, no external armor plating' },
+            { id: 'floating', label: 'Flutuante/Sem Pernas', value: 'legless anti-gravity chassis, hovering propulsion engine, streamlined fuselage, floating stabilization thrusters' },
+            { id: 'quadruped', label: 'Quadrúpede', value: 'four-legged mechanical beast frame, reinforced hydraulic limbs, piston-driven joints, bulky industrial proportions' },
+            { id: 'spherical', label: 'Compacto/Orbe', value: 'compact spherical droid body, floating orb chassis, self-contained sensor unit' },
+            { id: 'lanky', label: 'Esguio/Alto', value: 'elongated slender frame, extended mechanical limbs, strider proportions, towering height' },
+            { id: 'wheeled', label: 'Rodas/Esteiras', value: 'heavy duty tank tracks chassis, all-terrain wheels, mobile platform base, stabilized rolling unit' }
+        ];
+
+        // Materials (was Skin) - Enriched
+        const materials = [
+            { id: 'steel', label: 'Aço Escovado', value: 'brushed stainless steel plating, cold metallic texture, machined metal finish, industrial steel alloy', color: '#9ca3af' },
+            { id: 'rusty', label: 'Ferro Enferrujado', value: 'heavily rusted iron, oxidized metal texture, orange corrosion patina, ancient worn machinery', color: '#8d5524' },
+            { id: 'plastic', label: 'Plástico Branco', value: 'pristine matte white high-polymer plastic, sterile laboratory finish, clean synthetic materials', color: '#f3f4f6' },
+            { id: 'gold', label: 'Ouro Polido', value: 'polished gold plating, luxurious metallic finish, reflective aurum alloy, ornate detailing', color: '#fbbf24' },
+            { id: 'carbon', label: 'Fibra de Carbono', value: 'black carbon fiber weave, matte black composite material, lightweight tactical stealth coating', color: '#1f2937' },
+            { id: 'painted', label: 'Pintura Descascada', value: 'industrial yellow painted metal, heavy chipped paint edges, worn safety coating, warning hazard stripes', color: '#fbbf24' },
+            { id: 'chrome', label: 'Cromo Espelhado', value: 'highly reflective mirror chrome, liquid mercury finish, polished silver surface', color: '#e5e7eb' },
+            { id: 'copper', label: 'Cobre Envelhecido', value: 'oxidized copper plating, steampunk bronze alloy, verdigris tarnish, vintage metal texture', color: '#b45309' }
+        ];
+
+        // Head Shapes
+        const headShapes = [
+            { id: 'dome', label: 'Cúpula de Vidro', value: 'transparent reinforced glass dome, visible internal computer brain, glowing circuitry core' },
+            { id: 'box', label: 'Quadrado / TV', value: 'retro-tech boxy head unit, CRT monitor faceplate, analog television aesthetic' },
+            { id: 'helmet', label: 'Capacete Tático', value: 'streamlined tactical ballistic helmet, reinforced sensor array, military-grade face shield' },
+            { id: 'skull', label: 'Caveira Mecânica', value: 'metallic skeletal faceplate, terrifying mechanical skull, terminator-style cranium' },
+            { id: 'flat', label: 'Sensor Plano', value: 'no distinct head unit, integrated flat sensor array, torso-mounted optics' },
+            { id: 'insectoid', label: 'Insetoide', value: 'angular insect-like head, segmented plating, metallic mandibles' },
+            { id: 'cylindrical', label: 'Cilindro', value: 'cylindrical sensor can, 360-degree vision module, utilitarian robot head' },
+            { id: 'pyramid', label: 'Piramidal', value: 'sharp pyramidal sensor head, geometric triangular cranium, angular design, abstract faceplate' }
+        ];
+
+        // Optics (was Eyes)
+        const optics = [
+            { id: 'visor', label: 'Visor Único', value: 'glowing horizontal visor strip, smooth glass sensor band, futuristic scanner' },
+            { id: 'mono', label: 'Mono-Olho', value: 'large single cyclops camera lens, mechanical aperture iris, focused optical sensor' },
+            { id: 'human_sim', label: 'Olhos Simulados', value: 'synthetic humanoid eyes, realistic glass lenses, glowing artificial pupils' },
+            { id: 'matrix', label: 'Matriz de LED', value: 'digital dot matrix LED display, pixelated emotive expression, scrolling text display' },
+            { id: 'multi', label: 'Olhos de Aranha', value: 'cluster of multiple camera lenses, arachnid compound sensor array, multi-spectrum optics' },
+            { id: 'faceless', label: 'Sem Ótica', value: 'smooth featureless faceplate, blind sensor dome, blank facade' },
+            { id: 'hollow', label: 'Órbitas Vazias', value: 'dark empty eye sockets, ominous hollow cranial voids, ghostly internal glow' },
+            { id: 'vertical', label: 'Sensor Vertical', value: 'vertical glowing sensor slit, ominous vertical eye line, machine vision scanner' }
+        ];
+
+        // Head Attachments
+        const attachments = [
+            { id: 'none', label: 'Blindagem Lisa', value: 'smooth seamless cranial plating, clean aerodynamic design' },
+            { id: 'antennas', label: 'Conjunto de Antenas', value: 'multiple high-gain radio antennas, long-range communication dish' },
+            { id: 'cables', label: 'Cabos de Dados', value: 'thick bundle of data cables, hanging hydraulic wires, synthetic dreadlocks' },
+            { id: 'vents', label: 'Ventilação', value: 'industrial thermal exhaust vents, heat-sink fins, open cooling grill' },
+            { id: 'ears', label: 'Sensores de Áudio', value: 'large pointed mechanical audio receptors, radar-dish ears' },
+            { id: 'spikes', label: 'Espinhos de Sinal', value: 'metallic tesla coil spikes, electrostatic discharge nodes' },
+            // NOVOS ACESSÓRIOS
+            { id: 'radar', label: 'Radar Giratório', value: 'rotating radar dish attachment, mechanical scanner unit, signal receiver' },
+            { id: 'fins', label: 'Barbatanas de Energia', value: 'sleek aerodynamic energy fins, mechanical cranial stabilizers, swept-back sensor wings' }
+        ];
+
+        // Mouths
+        const mouths = [
+            { id: 'none', label: 'Sem Boca', value: 'solid faceplate covering mouth area, seamless chin' },
+            { id: 'speaker', label: 'Grade de Alto-falante', value: 'circular vocal speaker grille, audio output module' },
+            { id: 'jaw', label: 'Mandíbula Hidráulica', value: 'exposed powerful hydraulic jaw mechanism, serrated metal teeth' },
+            { id: 'vents', label: 'Fendas de Exaustão', value: 'vertical facial exhaust slits, steam release vents' },
+            { id: 'screen', label: 'Boca de LED', value: 'digital LED waveform display, animated mouth visualizer' },
+            // NOVAS OPÇÕES
+            { id: 'synth', label: 'Sintetizador Vocal', value: 'rectangular vocal synthesizer box, retro audio module, digital voice unit' },
+            { id: 'breather', label: 'Unidade de Respiração', value: 'industrial breathing unit, gas mask filter mouth, heavy filtration system' },
+            { id: 'mandibles', label: 'Mandíbulas', value: 'mechanical insect mandibles, sharp pincer mouth, aggressive clamping jaw' }
+        ];
+
+        // Optic Colors
+        const opticColors = [
+            { id: 'red', color: '#ef4444', value: 'glowing red optical sensors, menacing crimson light, active combat mode' },
+            { id: 'blue', color: '#3b82f6', value: 'glowing blue optical sensors, calm azure light, stable system status' },
+            { id: 'green', color: '#22c55e', value: 'glowing green optical sensors, active scanning beam, emerald night vision' },
+            { id: 'cyan', color: '#06b6d4', value: 'glowing cyan neon optical sensors, electric blue energy, high-tech vibe' },
+            { id: 'yellow', color: '#eab308', value: 'glowing yellow searchlights, amber warning LEDs, industrial illumination' },
+            { id: 'purple', color: '#a855f7', value: 'glowing purple UV sensors, violet ultraviolet energy' },
+            { id: 'white', color: '#ffffff', value: 'blinding white tactical lights, pure spectrum illumination' },
+            { id: 'off', color: '#111111', value: 'dark powered down optics, black glass lenses, inactive mode' }
+        ];
+
+        // Poses - Enriched
+        const poses = [
+            { id: 'idle', label: 'Modo de Espera', value: 'idle standby pose, weight resting naturally, arms and actuators relaxed, machine powered but not moving' },
+            { id: 'combat', label: 'Pronto para Combate', value: 'dynamic combat stance, weapon systems active, aggressive forward lean, ready to strike' },
+            { id: 'repair', label: 'Manutenção', value: 'sitting in repair bay, connected to diagnostic cables, powered down, chest panel open' },
+            { id: 'flying', label: 'Aéreo/Voo', value: 'aerial flight pose, thrusters fully active, hovering mid-air, landing gear retracted' },
+            { id: 'scanning', label: 'Escaneando', value: 'active scanning pose, investigating environment, interacting with holographic interface' },
+            { id: 'damaged', label: 'Criticamente Danificado', value: 'collapsed defeated pose, sparking wires, leaning heavily against wall, critical system failure' },
+            { id: 'running', label: 'Corrida em Alta Velocidade', value: 'high speed running pose, motion blur, kinetic energy, mechanical sprinting' }
+        ];
+
+        const artStyles = [
+            // 3D REALISTIC
+            {
+                id: 'cinematic',
+                label: 'CGI Cinematográfico (Filme)',
+                dimension: '3D',
+                value: 'cinematic movie still, hollywood blockbuster aesthetic, IMAX quality',
+                camera: 'full body shot, low-angle cinematic view, 35mm lens, slight perspective distortion for scale, robot centered, dramatic framing',
+                lighting: 'cinematic lighting, rim-light on metal edges, volumetric fog, high contrast shadows',
+                environment: 'dark atmospheric background, subtle depth of field',
+                negativePrompt: 'cartoon, painting, drawing, low poly, illustration'
+            },
+            {
+                id: 'concept',
+                label: 'Arte Conceitual Digital',
+                dimension: '3D',
+                value: 'high quality digital concept art, ArtStation trending, clean sharp focus, intricate mechanical engineering',
+                camera: 'three-quarter view, orthographic design style, clean composition',
+                lighting: 'studio softbox lighting, even illumination, professional product render',
+                environment: 'neutral grey studio background, subtle floor reflection',
+                negativePrompt: 'sketch, rough, blur'
+            },
+            {
+                id: 'cyberpunk',
+                label: 'Cyberpunk Neon',
+                dimension: '3D',
+                value: 'cyberpunk aesthetic, high-tech low-life vibe, neon-soaked atmosphere',
+                camera: 'dutch angle, dynamic action camera, wide angle lens',
+                lighting: 'neon pink and blue area lights, dark moody shadows, rain reflections',
+                environment: 'futuristic night city street, wet pavement, holographic signs in background',
+                negativePrompt: 'daylight, nature, rustic'
+            },
+            {
+                id: 'steampunk',
+                label: 'Steampunk (Latão)',
+                dimension: '3D',
+                value: 'steampunk aesthetic, Victorian industrial technology, brass and copper gears, exposed steam pipes, wooden mechanical accents, heavy machinery vibe',
+                camera: 'eye-level portrait, vintage photography style',
+                lighting: 'warm tungsten industrial light, volumetric god-rays through steam, soft yellow fill',
+                environment: 'dark industrial workshop, Victorian factory interior, dusty atmosphere',
+                negativePrompt: 'neon, sci-fi, plastic, led'
+            },
+            {
+                id: 'retro',
+                label: 'Ficção Científica Retrô (Anos 70/80)',
+                dimension: '3D',
+                value: 'retro sci-fi aesthetic, cassette futurism, 1980s Syd Mead style, beige plastic casings, chunky analog technology',
+                camera: 'static tripod shot, grain film effect',
+                lighting: 'flat high-key lighting, retro fluorescent glow',
+                environment: 'retro spaceship interior, white padded walls, analog control panels',
+                negativePrompt: 'modern, sleek, hologram, nanotech'
+            },
+            
+            // 2D
+            {
+                id: 'blueprint',
+                label: 'Blueprint Técnico',
+                dimension: '2D',
+                value: 'technical blueprint drawing, white lines on blue background, schematic view, engineering diagram style',
+                camera: 'orthographic front view, flat 2D plane',
+                lighting: 'no lighting, flat shading',
+                environment: 'blueprint grid background, measurement lines',
+                negativePrompt: '3d, shading, realistic, photo'
+            },
+            {
+                id: 'anime',
+                label: 'Mecha Anime (Gundam)',
+                dimension: '2D',
+                value: 'mecha anime style, cel shaded, bold lines, Sunrise studio style, Gundam aesthetic, dynamic shading',
+                camera: 'dynamic action angle, anime opening composition',
+                lighting: 'dramatic anime lighting, lens flares, speed lines',
+                environment: 'space battle background, starry void, laser beams',
+                negativePrompt: 'photorealistic, 3d render, western comic'
+            },
+            {
+                id: 'comic',
+                label: 'Quadrinhos Sci-Fi',
+                dimension: '2D',
+                value: 'Western sci-fi comic book style, heavy inking, cross-hatching shadows, vibrant colors, graphic novel aesthetic',
+                camera: 'comic panel composition, dramatic perspective',
+                lighting: 'high contrast ink shadows, bold highlights',
+                environment: 'detailed comic background, urban sci-fi setting',
+                negativePrompt: '3d, realistic, blurry'
+            }
+        ];
+
+        // State variables
+        let selectedArchetypeId = archetypes[0].id;
+        let selectedFrameId = frames[0].id;
+        let selectedMaterialId = materials[0].id;
+        let selectedHeadId = headShapes[2].id;
+        let selectedOpticId = optics[0].id;
+        let selectedOpticColorId = opticColors[3].id; // Cyan default
+        let selectedAttachmentId = attachments[0].id;
+        let selectedMouthId = mouths[0].id;
+        let selectedPoseId = poses[0].id;
+        let wearLevel = 1;
+        let selectedArtStyleId = artStyles[0].id;
+        
+        let lockState = {
+            head: false,
+            optics: false,
+            action: false
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderArchetypes();
+            renderFrames();
+            renderMaterials();
+            renderHeadShapes();
+            renderOptics();
+            renderOpticColors();
+            renderAttachments();
+            renderMouths();
+            renderPoses();
+            
+            // Initial Select
+            clickOption('archetype-grid', 0);
+            clickOption('frame-grid', 0);
+            clickMaterial(0);
+            clickOption('head-shape-grid', 2);
+            clickOption('optics-grid', 0);
+            clickOption('attachments-grid', 0);
+            clickOption('mouth-grid', 0);
+            
+            updateStyleOptions();
+            updatePrompt();
+        });
+
+        // --- RENDER FUNCTIONS ---
+
+        function renderArchetypes() {
+            const container = document.getElementById('archetype-grid');
+            container.innerHTML = '';
+            archetypes.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = `option-card p-3 rounded-lg text-center text-xs group`;
+                div.innerHTML = `${getSvgArchetype(item.id)}<span class="block mt-2 font-mono text-gray-500 group-hover:text-white transition-colors">${item.label}</span>`;
+                div.onclick = () => {
+                    selectOption(div, 'archetype-grid');
+                    selectedArchetypeId = item.id;
+                    updatePrompt();
+                };
+                container.appendChild(div);
+            });
+        }
+
+        function renderFrames() {
+            const container = document.getElementById('frame-grid');
+            container.innerHTML = '';
+            frames.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = `option-card p-3 rounded-lg text-center text-xs group`;
+                div.innerHTML = `${getSvgFrame(item.id)}<span class="block mt-2 font-mono text-gray-500 group-hover:text-white transition-colors">${item.label}</span>`;
+                div.onclick = () => {
+                    selectOption(div, 'frame-grid');
+                    selectedFrameId = item.id;
+                    updatePrompt();
+                };
+                container.appendChild(div);
+            });
+        }
+
+        function renderMaterials() {
+            const container = document.getElementById('material-grid');
+            container.innerHTML = '';
+            materials.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = `material-swatch group flex items-end p-2`;
+                div.style.backgroundColor = item.color;
+                div.innerHTML = `
+                    <div class="texture-overlay"></div>
+                    <span class="relative z-10 text-[10px] font-bold uppercase drop-shadow-md text-white mix-blend-difference">${item.label}</span>
+                `;
+                div.onclick = () => {
+                    document.querySelectorAll('.material-swatch').forEach(el => el.classList.remove('selected'));
+                    div.classList.add('selected');
+                    selectedMaterialId = item.id;
+                    updatePrompt();
+                };
+                container.appendChild(div);
+            });
+        }
+
+        function renderHeadShapes() {
+            const container = document.getElementById('head-shape-grid');
+            container.innerHTML = '';
+            headShapes.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = `option-card p-3 rounded-lg text-center text-xs group`;
+                div.innerHTML = `${getSvgHead(item.id)}<span class="block mt-2 font-mono text-gray-500 group-hover:text-white transition-colors">${item.label}</span>`;
+                div.onclick = () => {
+                    selectOption(div, 'head-shape-grid');
+                    selectedHeadId = item.id;
+                    updatePrompt();
+                };
+                container.appendChild(div);
+            });
+        }
+
+        function renderOptics() {
+            const container = document.getElementById('optics-grid');
+            container.innerHTML = '';
+            optics.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = `option-card p-3 rounded-lg text-center text-xs group`;
+                div.innerHTML = `${getSvgOptic(item.id)}<span class="block mt-2 font-mono text-gray-500 group-hover:text-white transition-colors">${item.label}</span>`;
+                div.onclick = () => {
+                    selectOption(div, 'optics-grid');
+                    selectedOpticId = item.id;
+                    updatePrompt();
+                };
+                container.appendChild(div);
+            });
+        }
+
+        function renderOpticColors() {
+            const container = document.getElementById('optic-color-row');
+            container.innerHTML = '';
+            opticColors.forEach(item => {
+                const btn = document.createElement('div');
+                btn.className = `w-6 h-6 rounded-full cursor-pointer border-2 border-transparent hover:scale-110 transition-transform`;
+                btn.style.backgroundColor = item.color;
+                btn.onclick = () => {
+                    document.querySelectorAll('#optic-color-row div').forEach(b => b.style.borderColor = 'transparent');
+                    btn.style.borderColor = 'white';
+                    selectedOpticColorId = item.id;
+                    updatePrompt();
+                };
+                if(item.id === selectedOpticColorId) btn.style.borderColor = 'white';
+                container.appendChild(btn);
+            });
+        }
+
+        function renderAttachments() {
+            const container = document.getElementById('attachments-grid');
+            container.innerHTML = '';
+            attachments.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = `option-card p-3 rounded-lg text-center text-xs group`;
+                div.innerHTML = `${getSvgAttachment(item.id)}<span class="block mt-2 font-mono text-gray-500 group-hover:text-white transition-colors">${item.label}</span>`;
+                div.onclick = () => {
+                    selectOption(div, 'attachments-grid');
+                    selectedAttachmentId = item.id;
+                    updatePrompt();
+                };
+                container.appendChild(div);
+            });
+        }
+
+        function renderMouths() {
+            const container = document.getElementById('mouth-grid');
+            container.innerHTML = '';
+            mouths.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = `option-card p-3 rounded-lg text-center text-xs group`;
+                div.innerHTML = `${getSvgMouth(item.id)}<span class="block mt-2 font-mono text-gray-500 group-hover:text-white transition-colors">${item.label}</span>`;
+                div.onclick = () => {
+                    selectOption(div, 'mouth-grid');
+                    selectedMouthId = item.id;
+                    updatePrompt();
+                };
+                container.appendChild(div);
+            });
+        }
+
+        function renderPoses() {
+            const select = document.getElementById('pose-select');
+            select.innerHTML = '';
+            poses.forEach(item => {
+                const opt = document.createElement('option');
+                opt.value = item.id;
+                opt.textContent = item.label;
+                select.appendChild(opt);
+            });
+        }
+
+        // --- UTILS ---
+
+        function clickOption(gridId, index) {
+            const grid = document.getElementById(gridId);
+            if(grid && grid.children[index]) grid.children[index].click();
+        }
+
+        function clickMaterial(index) {
+            const grid = document.getElementById('material-grid');
+            if(grid && grid.children[index]) grid.children[index].click();
+        }
+
+        function selectOption(element, gridId) {
+            const grid = document.getElementById(gridId);
+            Array.from(grid.children).forEach(c => c.classList.remove('selected'));
+            element.classList.add('selected');
+        }
+
+        function toggleLock(key) {
+            lockState[key] = !lockState[key];
+            const btn = document.querySelector(`button[data-lock-btn="${key}"]`);
+            if(btn) {
+                btn.textContent = lockState[key] ? 'TRAVADO' : 'TRAVAR';
+                btn.classList.toggle('text-[#00f3ff]', lockState[key]);
+                btn.classList.toggle('border-[#00f3ff]', lockState[key]);
+            }
+        }
+
+        function updateStyleOptions() {
+            const dimension = document.querySelector('input[name="dimension"]:checked').value;
+            const select = document.getElementById('art-style');
+            const currentVal = select.value;
+            select.innerHTML = '';
+            
+            const list = artStyles.filter(style => style.dimension === dimension);
+            list.forEach(style => {
+                const option = document.createElement('option');
+                option.value = style.id;
+                option.textContent = style.label;
+                select.appendChild(option);
+            });
+            select.value = list[0].id;
+            selectedArtStyleId = list[0].id;
+        }
+
+        function applyArtStylePreset(id) {
+            selectedArtStyleId = id;
+            updatePrompt();
+        }
+
+        function selectPose(val) {
+            selectedPoseId = val;
+            updatePrompt();
+        }
+
+        // --- SVG FACTORY (GEOMETRIC SHAPES) ---
+        const svgBase = 'width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"';
+        
+        function getSvgArchetype(id) {
+            if(id === 'soldier') return `<svg ${svgBase}><rect x="5" y="4" width="14" height="16" rx="2"/><line x1="12" y1="4" x2="12" y2="20"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
+            if(id === 'worker') return `<svg ${svgBase}><path d="M4 20h16v-6l-3-10h-10l-3 10z"/><line x1="4" y1="14" x2="20" y2="14"/></svg>`;
+            if(id === 'android') return `<svg ${svgBase}><circle cx="12" cy="8" r="4"/><path d="M8 12h8v10h-8z"/></svg>`;
+            if(id === 'drone') return `<svg ${svgBase}><circle cx="12" cy="12" r="3"/><path d="M4 12h5"/><path d="M15 12h5"/><path d="M12 4v5"/><path d="M12 15v5"/></svg>`;
+            
+            // NOVOS ÍCONES
+            if(id === 'hacker') return `<svg ${svgBase}><rect x="7" y="4" width="10" height="16" rx="2"/><path d="M12 16v4"/><path d="M9 20h6"/><path d="M15 7l3-2"/><path d="M9 7l-3-2"/></svg>`;
+            if(id === 'titan') return `<svg ${svgBase}><path d="M4 8h16v12h-16z" stroke-width="2"/><rect x="8" y="2" width="8" height="6"/></svg>`;
+            if(id === 'pet') return `<svg ${svgBase}><circle cx="12" cy="14" r="6"/><circle cx="7" cy="8" r="3"/><circle cx="17" cy="8" r="3"/></svg>`;
+            if(id === 'hazmat') return `<svg ${svgBase}><circle cx="12" cy="10" r="5"/><path d="M6 16h12v6h-12z"/><path d="M12 16v6"/></svg>`;
+
+            return `<svg ${svgBase}><rect x="6" y="6" width="12" height="12"/></svg>`;
+        }
+
+        function getSvgFrame(id) {
+            if(id === 'bulky') return `<svg ${svgBase}><rect x="4" y="6" width="16" height="14" stroke-width="2"/></svg>`;
+            if(id === 'skeletal') return `<svg ${svgBase}><line x1="12" y1="4" x2="12" y2="20"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="16" x2="16" y2="16"/></svg>`;
+            if(id === 'floating') return `<svg ${svgBase}><path d="M6 6h12v10l-6 6l-6-6z"/></svg>`;
+            if(id === 'wheeled') return `<svg ${svgBase}><rect x="5" y="4" width="14" height="10" rx="2"/><circle cx="8" cy="17" r="3"/><circle cx="16" cy="17" r="3"/><path d="M5 14h14" stroke-dasharray="2 2"/></svg>`;
+            return `<svg ${svgBase}><rect x="8" y="4" width="8" height="16"/></svg>`;
+        }
+
+        function getSvgHead(id) {
+            if(id === 'dome') return `<svg ${svgBase}><path d="M4 18h16v-4c0-4.4-3.6-8-8-8s-8 3.6-8 8v4z"/><path d="M8 18v-2"/><path d="M16 18v-2"/></svg>`;
+            if(id === 'box') return `<svg ${svgBase}><rect x="5" y="6" width="14" height="12"/><rect x="8" y="9" width="8" height="6"/></svg>`;
+            if(id === 'cyclops') return `<svg ${svgBase}><rect x="6" y="5" width="12" height="14" rx="2"/><circle cx="12" cy="10" r="3"/></svg>`;
+            // NOVO ÍCONE
+            if(id === 'pyramid') return `<svg ${svgBase}><path d="M12 3L4 19h16L12 3z" stroke-linejoin="round"/><circle cx="12" cy="13" r="2"/></svg>`;
+            return `<svg ${svgBase}><circle cx="12" cy="12" r="7"/></svg>`;
+        }
+
+        function getSvgOptic(id) {
+            if(id === 'visor') return `<svg ${svgBase}><rect x="4" y="10" width="16" height="4" fill="currentColor" fill-opacity="0.3"/></svg>`;
+            if(id === 'mono') return `<svg ${svgBase}><circle cx="12" cy="12" r="4" fill="currentColor" fill-opacity="0.3"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>`;
+            if(id === 'matrix') return `<svg ${svgBase}><circle cx="8" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="16" cy="12" r="1"/></svg>`;
+            if(id === 'vertical') return `<svg ${svgBase}><rect x="11" y="6" width="2" height="12" rx="1" fill="currentColor"/></svg>`;
+            return `<svg ${svgBase}><circle cx="8" cy="12" r="2"/><circle cx="16" cy="12" r="2"/></svg>`;
+        }
+
+        function getSvgAttachment(id) {
+            if(id === 'antennas') return `<svg ${svgBase}><path d="M4 20l8-14l8 14"/><circle cx="12" cy="6" r="1"/></svg>`;
+            if(id === 'cables') return `<svg ${svgBase}><path d="M6 4c0 8 4 12 6 16"/><path d="M18 4c0 8-4 12-6 16"/></svg>`;
+            if(id === 'radar') return `<svg ${svgBase}><path d="M12 14v6"/><path d="M5 10a7 7 0 0 1 14 0" stroke-linecap="round"/><circle cx="12" cy="14" r="2"/></svg>`;
+            if(id === 'fins') return `<svg ${svgBase}><path d="M12 20V10"/><path d="M12 10L4 4"/><path d="M12 10l8-6"/></svg>`;
+            return `<svg ${svgBase}><rect x="4" y="10" width="16" height="4"/></svg>`;
+        }
+
+        function getSvgMouth(id) {
+            if(id === 'speaker') return `<svg ${svgBase}><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>`;
+            if(id === 'jaw') return `<svg ${svgBase}><rect x="6" y="6" width="12" height="12"/><line x1="6" y1="12" x2="18" y2="12"/></svg>`;
+            
+            // NOVOS ÍCONES
+            if(id === 'synth') return `<svg ${svgBase}><rect x="6" y="10" width="12" height="6" rx="1"/><line x1="9" y1="13" x2="9" y2="13.01" stroke-width="2"/><line x1="12" y1="13" x2="12" y2="13.01" stroke-width="2"/><line x1="15" y1="13" x2="15" y2="13.01" stroke-width="2"/></svg>`;
+            if(id === 'breather') return `<svg ${svgBase}><path d="M12 8l-5 5v5h10v-5z"/><circle cx="12" cy="15" r="2" fill="currentColor" fill-opacity="0.5"/></svg>`;
+            if(id === 'mandibles') return `<svg ${svgBase}><path d="M5 8c0 6 4 10 7 10"/><path d="M19 8c0 6-4 10-7 10"/></svg>`;
+
+            return `<svg ${svgBase}><line x1="8" y1="12" x2="16" y2="12"/></svg>`;
+        }
+
+        // --- PROMPT GENERATION ---
+
+        function updatePrompt() {
+            const archetype = archetypes.find(a => a.id === selectedArchetypeId);
+            const frame = frames.find(f => f.id === selectedFrameId);
+            const material = materials.find(m => m.id === selectedMaterialId);
+            const head = headShapes.find(h => h.id === selectedHeadId);
+            const optic = optics.find(o => o.id === selectedOpticId);
+            const opticColor = opticColors.find(c => c.id === selectedOpticColorId);
+            const attachment = attachments.find(a => a.id === selectedAttachmentId);
+            const mouth = mouths.find(m => m.id === selectedMouthId);
+            const pose = poses.find(p => p.id === selectedPoseId);
+            const artStyle = artStyles.find(a => a.id === selectedArtStyleId);
+            const wearSlider = document.getElementById('wear-slider');
+            const wearVal = parseInt(wearSlider.value);
+            
+            const wearMap = [
+                'pristine condition, factory new, clean',
+                'slightly worn, light surface scratches',
+                'used condition, some grease, scratched edges',
+                'battle damaged, heavy wear, chipped paint, dents',
+                'scrap metal condition, heavily rusted, broken parts, leaking oil, exposed internals'
+            ];
+
+            const dimension = document.querySelector('input[name="dimension"]:checked').value;
+            
+            // --- HEADER ---
+            let header = "";
+            if(dimension === '3D') {
+                header = "(masterpiece), ultra-detailed, cinematic, photorealistic, Unreal Engine 5, ray-traced lighting, 8K";
+            } else {
+                header = "(masterpiece), high quality concept art, detailed digital illustration, 2D flat design, crisp lines";
+            }
+
+            // --- SECTIONS ---
+            
+            // 1. Style
+            const sectionStyle = `Style:\n${artStyle.value}`;
+            
+            // 2. Subject
+            const sectionSubject = `Subject:\n${archetype.value}`;
+            
+            // 3. Body
+            // Combine frame with hazard colors if industrial
+            let bodyText = frame.value;
+            if (archetype.id === 'worker' || archetype.id === 'soldier') {
+                bodyText += ', industrial utilitarian design';
+            }
+            const sectionBody = `Body:\n${bodyText}`;
+            
+            // 4. Head
+            let headDetails = [];
+            headDetails.push(head.value);
+            if(optic.id !== 'faceless' && optic.id !== 'hollow') {
+                headDetails.push(optic.value);
+                headDetails.push(opticColor.value);
+            }
+            if(attachment.id !== 'none') headDetails.push(attachment.value);
+            if(mouth.id !== 'none') headDetails.push(mouth.value);
+            const sectionHead = `Head:\n${headDetails.join(', ')}`;
+
+            // 5. Materials
+            // Features checkboxes added here or Body? Let's put in Materials & Wear or separate.
+            // Let's stick to the requested structure: "Materials & Wear"
+            const checks = document.querySelectorAll('.feature-check:checked');
+            let techDetails = "";
+            if(checks.length > 0) {
+                techDetails = ", " + Array.from(checks).map(c => c.value).join(', ');
+            }
+            const sectionMaterials = `Materials & Wear:\n${material.value}, ${wearMap[wearVal]}${techDetails}`;
+            
+            // 6. Pose
+            const sectionPose = `Pose:\n${pose.value}`;
+            
+            // 7. Camera (from Art Style)
+            const sectionCamera = `Camera:\n${artStyle.camera || 'centered, sharp focus'}`;
+            
+            // 8. Lighting (from Art Style)
+            const sectionLighting = `Lighting:\n${artStyle.lighting || 'neutral studio lighting'}`;
+            
+            // 9. Environment (from Art Style)
+            const sectionEnv = `Environment:\n${artStyle.environment || 'simple background'}`;
+
+            // Final Assembly with double newlines
+            const finalPrompt = [
+                header,
+                sectionStyle,
+                sectionSubject,
+                sectionBody,
+                sectionHead,
+                sectionMaterials,
+                sectionPose,
+                sectionCamera,
+                sectionLighting,
+                sectionEnv
+            ].join('\n\n');
+
+            document.getElementById('prompt-output').value = finalPrompt;
+        }
+
+        function copyToClipboard() {
+            // Captura ambos os prompts
+            const positiveText = document.getElementById("prompt-output").value;
+            const negativeText = document.getElementById("negativePrompt").value;
+            
+            // Constrói o texto final formatado
+            let fullText = positiveText;
+            
+            // Adiciona o prompt negativo apenas se houver conteúdo, com a etiqueta padrão
+            if (negativeText && negativeText.trim() !== "") {
+                fullText += "\n\nNegative prompt:\n" + negativeText.trim();
+            }
+            
+            // Método robusto compatível com iframes e navegadores antigos
+            const tempInput = document.createElement("textarea");
+            tempInput.value = fullText;
+            tempInput.style.position = "fixed"; // Evita scroll
+            tempInput.style.opacity = "0";
+            document.body.appendChild(tempInput);
+            
+            tempInput.select();
+            tempInput.setSelectionRange(0, 99999); // Para mobile
+
+            try {
+                document.execCommand("copy");
+                showToast();
+            } catch (e) {
+                console.error("Copy failed", e);
+                alert("Erro ao copiar. Por favor selecione o texto manualmente.");
+            }
+
+            document.body.removeChild(tempInput);
+        }
+
+        function showToast() {
+            const toast = document.getElementById("toast");
+            toast.className = "show";
+            setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+
+        function randomize() {
+            const locks = lockState;
+            
+            // Randomize Logic
+            if(!locks.head) {
+                clickOption('head-shape-grid', Math.floor(Math.random() * headShapes.length));
+                clickOption('attachments-grid', Math.floor(Math.random() * attachments.length));
+            }
+            
+            if(!locks.optics) {
+                clickOption('optics-grid', Math.floor(Math.random() * optics.length));
+                const colorDivs = document.getElementById('optic-color-row').children;
+                colorDivs[Math.floor(Math.random() * colorDivs.length)].click();
+            }
+
+            clickOption('archetype-grid', Math.floor(Math.random() * archetypes.length));
+            clickOption('frame-grid', Math.floor(Math.random() * frames.length));
+            clickMaterial(Math.floor(Math.random() * materials.length));
+            clickOption('mouth-grid', Math.floor(Math.random() * mouths.length));
+
+            if(!locks.action) {
+                const poseSelect = document.getElementById('pose-select');
+                poseSelect.selectedIndex = Math.floor(Math.random() * poses.length);
+                selectedPoseId = poseSelect.value;
+            }
+
+            // Random features
+            document.querySelectorAll('.feature-check').forEach(c => {
+                c.checked = Math.random() < 0.3;
+            });
+            
+            // Random wear
+            document.getElementById('wear-slider').value = Math.floor(Math.random() * 5);
+
+            updatePrompt();
+        }
+
+        function exportCharacter() {
+            const data = {
+                app: "Robot Prompt Studio",
+                prompt: document.getElementById('prompt-output').value,
+                settings: {
+                    archetype: selectedArchetypeId,
+                    frame: selectedFrameId,
+                    material: selectedMaterialId,
+                    optics: selectedOpticId
+                },
+                timestamp: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `robot_blueprint_${Date.now()}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+    </script>
+</body>
+</html>

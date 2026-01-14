@@ -1,0 +1,1418 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Human Prompt Studio | Character Designer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #050505;
+            --card-bg: #0f0f0f;
+            --panel-border: #1f1f1f;
+            --accent: #E1A607; /* Mantendo o branding dourado solicitado */
+            --accent-dim: rgba(225, 166, 7, 0.1);
+            --text-main: #e5e5e5;
+            --text-muted: #737373;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            /* Textura sutil de ruído para remeter a fotografia/filme */
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+        /* Panels */
+        .dark-panel {
+            background-color: var(--card-bg);
+            border: 1px solid var(--panel-border);
+            transition: border-color 0.2s ease;
+        }
+        .dark-panel:hover {
+            border-color: #333;
+        }
+
+        /* Option Cards */
+        .option-card {
+            background-color: #0a0a0a;
+            border: 1px solid var(--panel-border);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .option-card:hover {
+            transform: translateY(-2px);
+            border-color: #444;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+        .option-card.selected {
+            border-color: var(--accent);
+            background-color: var(--accent-dim);
+            box-shadow: 0 0 0 1px var(--accent);
+        }
+        .option-card.selected svg, .option-card.selected i {
+            color: var(--accent);
+        }
+        
+        /* Color Swatches */
+        .color-swatch {
+            width: 100%;
+            height: 36px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 1px solid var(--panel-border);
+            position: relative;
+            transition: transform 0.2s;
+        }
+        .color-swatch:hover { transform: scale(1.05); z-index: 10; border-color: white;}
+        .color-swatch.selected {
+            border: 2px solid white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        /* Inputs & Selects */
+        select, input[type="text"], input[type="number"], textarea {
+            background-color: #0a0a0a;
+            border: 1px solid var(--panel-border);
+            color: var(--text-main);
+            transition: border-color 0.2s;
+        }
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .feature-check:checked {
+            background-color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        /* Range Slider Custom */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: var(--accent);
+            margin-top: -6px;
+            cursor: pointer;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #333;
+            border-radius: 2px;
+        }
+
+        /* Toast */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: var(--accent);
+            color: #fff;
+            text-align: center;
+            border-radius: 4px;
+            padding: 12px 16px;
+            position: fixed;
+            z-index: 50;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            opacity: 0;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: opacity 0.3s, bottom 0.3s;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+        #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
+
+        .section-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .section-title i { color: var(--accent); }
+
+        .icon-highlight {
+            color: var(--accent);
+            transition: color 0.2s ease;
+        }
+
+        .lock-btn {
+            margin-left: auto;
+            font-size: 0.65rem;
+            color: #555;
+            border: 1px solid #333;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .lock-btn:hover { color: white; border-color: white; }
+        .lock-btn.locked { color: var(--accent); border-color: var(--accent); background: rgba(225,166,7,0.1); }
+
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center pb-20">
+
+    <!-- HEADER -->
+    <header class="w-full border-b border-[#1f1f1f] bg-black/80 backdrop-blur-md z-20 sticky top-0">
+        <div class="w-full max-w-7xl mx-auto px-6 py-4 flex items-center gap-4 justify-start">
+            <div class="w-3 h-8 bg-[#E1A607] rounded-sm shadow-[0_0_15px_rgba(225,166,7,0.5)]"></div>
+            <div>
+                <h1 class="text-xl font-bold tracking-tight text-white">HUMAN PROMPT <span class="text-[#E1A607] font-light">STUDIO</span></h1>
+                <p class="text-[10px] text-[#555] uppercase tracking-[0.2em]">Photorealistic Character Generator</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="w-full mt-8">
+        <div class="w-full max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Controls Section -->
+        <div class="lg:col-span-7 space-y-6">
+            
+            <!-- Global Identity Section -->
+            <div class="dark-panel p-5 rounded-lg">
+                <div class="section-title">
+                    <i class="fa-solid fa-fingerprint icon-highlight"></i> Identidade & Física
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <!-- Age Slider -->
+                    <div>
+                        <label class="text-xs text-gray-400 mb-2 block flex justify-between">
+                            <span>Idade Aparente</span>
+                            <span id="age-display" class="text-white font-mono">25 anos</span>
+                        </label>
+                        <input type="range" id="age-slider" min="5" max="90" value="25" class="w-full" oninput="updateAge(this.value)" onchange="updatePrompt()">
+                    </div>
+                    <!-- Ethnicity -->
+                    <div>
+                        <label class="text-xs text-gray-400 mb-2 block">Etnia / Origem <span class="text-[9px] text-green-500 ml-2 opacity-0 transition-opacity duration-500" id="preset-applied-msg">AUTO-PREENCHIDO</span></label>
+                        <div class="relative">
+                            <select id="ethnicity-select" class="w-full p-2.5 rounded text-xs" onchange="applyEthnicityPreset(this.value)">
+                                <!-- Populated by JS -->
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"><i class="fa-solid fa-chevron-down text-[10px]"></i></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <label class="text-xs text-gray-400 mb-2 block">Género</label>
+                <div class="grid grid-cols-1 gap-2 md:grid-cols-3" id="gender-grid">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Body Structure & Pose -->
+            <div class="dark-panel p-5 rounded-lg">
+                <div class="section-title">
+                    <i class="fa-solid fa-child-reaching icon-highlight"></i> Estrutura & Pose
+                </div>
+                <div class="mb-4">
+                    <span class="text-[10px] text-gray-500 uppercase tracking-wider mb-2 block">Tipo Físico</span>
+                    <div class="grid grid-cols-3 sm:grid-cols-5 gap-2" id="body-type-grid">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+                <div>
+                     <span class="text-[10px] text-gray-500 uppercase tracking-wider mb-2 block">Postura / Pose</span>
+                     <div class="relative">
+                        <select id="pose-select" class="w-full p-2.5 rounded text-xs" onchange="updatePrompt()">
+                            <!-- Populated by JS -->
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"><i class="fa-solid fa-chevron-down text-[10px]"></i></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Skin Detail Section -->
+            <div class="dark-panel p-5 rounded-lg">
+                <div class="section-title">
+                    <i class="fa-solid fa-droplet icon-highlight"></i> Pele (Tom & Textura)
+                    <button type="button" onclick="toggleLock('skin')" id="lock-skin" class="lock-btn">LOCK</button>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <span class="text-[10px] text-gray-500 uppercase tracking-wider mb-2 block">Tom de Pele (Fitzpatrick Scale)</span>
+                        <div class="grid grid-cols-6 sm:grid-cols-10 gap-2" id="skin-grid">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                    <div>
+                        <span class="text-[10px] text-gray-500 uppercase tracking-wider mb-2 block">Detalhes & Imperfeições</span>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                             <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+                                <input type="checkbox" class="feature-check w-3 h-3 rounded bg-black border-gray-600 focus:ring-0" value="freckles" onchange="updatePrompt()">
+                                <span class="text-xs text-gray-400 group-hover:text-white">Sardas</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+                                <input type="checkbox" class="feature-check w-3 h-3 rounded bg-black border-gray-600 focus:ring-0" value="detailed skin pores" onchange="updatePrompt()" checked>
+                                <span class="text-xs text-gray-400 group-hover:text-white">Poros Visíveis</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+                                <input type="checkbox" class="feature-check w-3 h-3 rounded bg-black border-gray-600 focus:ring-0" value="beauty mark mole" onchange="updatePrompt()">
+                                <span class="text-xs text-gray-400 group-hover:text-white">Sinais</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+                                <input type="checkbox" class="feature-check w-3 h-3 rounded bg-black border-gray-600 focus:ring-0" value="vitiligo" onchange="updatePrompt()">
+                                <span class="text-xs text-gray-400 group-hover:text-white">Vitiligo</span>
+                            </label>
+                             <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+                                <input type="checkbox" class="feature-check w-3 h-3 rounded bg-black border-gray-600 focus:ring-0" value="acne scars" onchange="updatePrompt()">
+                                <span class="text-xs text-gray-400 group-hover:text-white">Cicatrizes Acne</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+                                <input type="checkbox" class="feature-check w-3 h-3 rounded bg-black border-gray-600 focus:ring-0" value="hyperrealistic skin texture" onchange="updatePrompt()" checked>
+                                <span class="text-xs text-gray-400 group-hover:text-white">Alta Textura</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Face Structure -->
+            <div class="dark-panel p-5 rounded-lg">
+                <div class="section-title">
+                    <i class="fa-solid fa-user-tag icon-highlight"></i> Rosto & Estrutura
+                    <button type="button" onclick="toggleLock('face')" id="lock-face" class="lock-btn">LOCK</button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                         <span class="text-[10px] text-gray-500 uppercase tracking-wider mb-2 block">Formato do Rosto</span>
+                         <div class="relative">
+                            <select id="faceshape-select" class="w-full p-2.5 rounded text-xs" onchange="updatePrompt()">
+                                <!-- JS -->
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"><i class="fa-solid fa-chevron-down text-[10px]"></i></div>
+                        </div>
+                    </div>
+                    <div>
+                         <span class="text-[10px] text-gray-500 uppercase tracking-wider mb-2 block">Olhos (Cor & Formato)</span>
+                         <div class="flex gap-2">
+                             <div class="relative flex-1">
+                                <select id="eyeshape-select" class="w-full p-2.5 rounded text-xs" onchange="updatePrompt()"></select>
+                            </div>
+                            <div class="relative flex-1">
+                                <select id="eyecolor-select" class="w-full p-2.5 rounded text-xs" onchange="updatePrompt()"></select>
+                            </div>
+                         </div>
+                    </div>
+                </div>
+
+                <!-- Detalhes Anatomicos Especificos -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4 pt-4 border-t border-[#1f1f1f]">
+                     <div>
+                        <span class="text-[10px] text-gray-500 uppercase tracking-wider mb-2 block">Nariz</span>
+                        <div class="relative">
+                           <select id="nose-select" class="w-full p-2.5 rounded text-xs" onchange="updatePrompt()"></select>
+                           <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"><i class="fa-solid fa-chevron-down text-[10px]"></i></div>
+                       </div>
+                   </div>
+                   <div>
+                        <span class="text-[10px] text-gray-500 uppercase tracking-wider mb-2 block">Boca / Lábios</span>
+                        <div class="relative">
+                           <select id="mouth-select" class="w-full p-2.5 rounded text-xs" onchange="updatePrompt()"></select>
+                           <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"><i class="fa-solid fa-chevron-down text-[10px]"></i></div>
+                       </div>
+                   </div>
+                   <div>
+                        <span class="text-[10px] text-gray-500 uppercase tracking-wider mb-2 block">Mandíbula / Queixo</span>
+                        <div class="relative">
+                           <select id="jaw-select" class="w-full p-2.5 rounded text-xs" onchange="updatePrompt()"></select>
+                           <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"><i class="fa-solid fa-chevron-down text-[10px]"></i></div>
+                       </div>
+                   </div>
+                </div>
+                
+                <!-- Detalhes Adicionais (Checkboxes) -->
+                <div class="mt-4">
+                     <span class="text-[10px] text-gray-500 uppercase tracking-wider mb-2 block">Detalhes Adicionais</span>
+                     <div class="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                        <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+                            <input type="checkbox" class="feature-check w-3 h-3 rounded bg-black border-gray-600 focus:ring-0" value="dimples" onchange="updatePrompt()">
+                            <span class="text-xs text-gray-400 group-hover:text-white">Covinhas</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+                            <input type="checkbox" class="feature-check w-3 h-3 rounded bg-black border-gray-600 focus:ring-0" value="high cheekbones" onchange="updatePrompt()">
+                            <span class="text-xs text-gray-400 group-hover:text-white">Maçãs Altas</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+                            <input type="checkbox" class="feature-check w-3 h-3 rounded bg-black border-gray-600 focus:ring-0" value="arched eyebrows" onchange="updatePrompt()">
+                            <span class="text-xs text-gray-400 group-hover:text-white">Sobrancelhas Arq.</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+                            <input type="checkbox" class="feature-check w-3 h-3 rounded bg-black border-gray-600 focus:ring-0" value="bushy eyebrows" onchange="updatePrompt()">
+                            <span class="text-xs text-gray-400 group-hover:text-white">Sobrancelhas Gros.</span>
+                        </label>
+                     </div>
+                </div>
+            </div>
+
+            <!-- Hair -->
+            <div class="dark-panel p-5 rounded-lg">
+                <div class="section-title">
+                    <i class="fa-solid fa-scissors icon-highlight"></i> Cabelo & Pelos Faciais
+                    <button type="button" onclick="toggleLock('hair')" id="lock-hair" class="lock-btn">LOCK</button>
+                </div>
+                <div class="space-y-4">
+                    <div class="grid grid-cols-8 gap-2" id="hair-color-grid"></div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                             <span class="text-[10px] text-gray-500 uppercase tracking-wider mb-2 block">Estilo / Corte</span>
+                             <div class="relative">
+                                <select id="hairstyle-select" class="w-full p-2.5 rounded text-xs" onchange="updatePrompt()">
+                                    <!-- JS -->
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                             <span class="text-[10px] text-gray-500 uppercase tracking-wider mb-2 block">Textura</span>
+                             <div class="relative">
+                                <select id="hairtexture-select" class="w-full p-2.5 rounded text-xs" onchange="updatePrompt()">
+                                    <option value="straight hair">Liso (1A-1C)</option>
+                                    <option value="wavy hair">Ondulado (2A-2C)</option>
+                                    <option value="curly hair">Cacheado (3A-3C)</option>
+                                    <option value="coily kinky hair">Crespo (4A-4C)</option>
+                                    <option value="braided hair">Trançado</option>
+                                    <option value="dreadlocks">Dreads</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Beard -->
+                    <div id="beard-section">
+                        <span class="text-[10px] text-gray-500 uppercase tracking-wider mb-2 block">Barba (Opcional)</span>
+                        <div class="grid grid-cols-4 gap-2" id="beard-grid"></div>
+                    </div>
+                </div>
+            </div>
+
+             <!-- Outfit -->
+             <div class="dark-panel p-5 rounded-lg">
+                <div class="section-title">
+                    <i class="fa-solid fa-shirt icon-highlight"></i> Vestuário (Outfit)
+                    <button type="button" onclick="toggleLock('outfit')" id="lock-outfit" class="lock-btn">LOCK</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div class="relative">
+                        <label class="text-[10px] text-gray-500 mb-1 block">Parte Superior</label>
+                        <select id="upper-select" class="w-full p-2.5 rounded text-xs" onchange="updatePrompt()"></select>
+                    </div>
+                    <div class="relative">
+                        <label class="text-[10px] text-gray-500 mb-1 block">Parte Inferior</label>
+                        <select id="lower-select" class="w-full p-2.5 rounded text-xs" onchange="updatePrompt()"></select>
+                    </div>
+                    <div class="relative">
+                         <label class="text-[10px] text-gray-500 mb-1 block">Calçados</label>
+                        <select id="shoes-select" class="w-full p-2.5 rounded text-xs" onchange="updatePrompt()"></select>
+                    </div>
+                    <div class="relative">
+                         <label class="text-[10px] text-gray-500 mb-1 block">Material / Textura</label>
+                        <select id="fabric-select" class="w-full p-2.5 rounded text-xs" onchange="updatePrompt()">
+                            <option value="">Padrão</option>
+                            <option value="cotton fabric">Algodão</option>
+                            <option value="silk fabric">Seda</option>
+                            <option value="leather texture">Couro</option>
+                            <option value="denim texture">Jeans</option>
+                            <option value="linen fabric">Linho</option>
+                            <option value="knitted wool">Lã / Tricô</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Photography & Camera -->
+             <div class="dark-panel p-5 rounded-lg border-l-4 border-l-[#E1A607]">
+                <div class="section-title text-[#E1A607]">
+                    <i class="fa-solid fa-camera icon-highlight"></i> Direção de Fotografia (Câmera)
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                         <span class="text-[10px] text-gray-500 uppercase tracking-wider mb-2 block">Estilo de Filme/Câmera</span>
+                         <div class="relative">
+                            <select id="camera-select" class="w-full p-2.5 rounded text-xs font-mono text-[#E1A607]" onchange="updatePrompt()">
+                                <!-- JS -->
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                         <span class="text-[10px] text-gray-500 uppercase tracking-wider mb-2 block">Iluminação</span>
+                         <div class="relative">
+                            <select id="lighting-select" class="w-full p-2.5 rounded text-xs font-mono" onchange="updatePrompt()">
+                                <!-- JS -->
+                            </select>
+                        </div>
+                    </div>
+                     <div>
+                         <span class="text-[10px] text-gray-500 uppercase tracking-wider mb-2 block">Enquadramento</span>
+                         <div class="relative">
+                            <select id="shot-select" class="w-full p-2.5 rounded text-xs font-mono" onchange="updatePrompt()">
+                                <option value="portrait shot, 85mm lens">Retrato (85mm)</option>
+                                <option value="extreme close-up, macro lens">Macro / Close-up Olhos</option>
+                                <option value="medium shot, 50mm lens">Plano Médio (50mm)</option>
+                                <option value="full body shot, 35mm lens">Corpo Inteiro (35mm)</option>
+                                <option value="wide angle shot, 24mm lens">Grande Angular (24mm)</option>
+                                <option value="candid shot from distance">Espontâneo (Candid)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Output Section -->
+        <div class="lg:col-span-5 space-y-6">
+            <div class="sticky top-24">
+                <div class="bg-[#0f0f0f] border border-[#1f1f1f] rounded-lg p-5 shadow-2xl relative overflow-hidden">
+                    <!-- Decorative decorative lens flare effect -->
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-yellow-500/10 blur-[80px] rounded-full pointer-events-none"></div>
+
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xs font-bold text-[#E1A607] uppercase tracking-wider border border-yellow-800/30 px-2 py-1 rounded bg-yellow-800/10">
+                            Prompt Gerado
+                        </h2>
+                        <button onclick="randomize()" class="text-gray-400 hover:text-white text-[10px] uppercase tracking-wider bg-[#1a1a1a] hover:bg-[#252525] px-3 py-1.5 rounded transition-colors flex items-center gap-2 border border-[#333]">
+                            <i class="fa-solid fa-shuffle icon-highlight"></i> Random
+                        </button>
+                    </div>
+
+                    <textarea id="prompt-output" class="w-full h-[500px] bg-black/50 border border-[#262626] rounded-lg p-4 text-xs text-gray-300 focus:outline-none focus:border-[#E1A607] focus:text-white transition-colors font-mono resize-none leading-relaxed shadow-inner" readonly></textarea>
+
+                    <button onclick="copyToClipboard()" class="w-full mt-4 bg-[#e5e5e5] hover:bg-white text-black font-bold py-3 px-6 rounded transition-all uppercase text-xs tracking-widest shadow-lg flex justify-center items-center gap-2">
+                        <i class="fa-regular fa-copy icon-highlight"></i> Copiar Prompt
+                    </button>
+                    
+                    <div class="mt-3 flex gap-2">
+                        <button onclick="exportJSON()" class="flex-1 bg-[#1a1a1a] hover:bg-[#252525] text-gray-300 py-2 rounded border border-[#333] text-[10px] uppercase">
+                            <i class="fa-solid fa-download mr-1 icon-highlight"></i> JSON
+                        </button>
+                        <button onclick="importJSON()" class="flex-1 bg-[#1a1a1a] hover:bg-[#252525] text-gray-300 py-2 rounded border border-[#333] text-[10px] uppercase">
+                            <i class="fa-solid fa-upload mr-1 icon-highlight"></i> Import
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Preview Info -->
+                <div class="mt-6 border border-[#1f1f1f] p-4 rounded-lg bg-black/20">
+                    <div class="flex items-center gap-3 text-xs text-gray-500">
+                        <i class="fa-solid fa-circle-info icon-highlight"></i>
+                        <span>Otimizado para Stable Diffusion XL, Midjourney v6 e Flux.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <div id="toast">COPIADO!</div>
+    <input type="file" id="import-file" style="display:none" onchange="handleFileImport(this)">
+
+    <script>
+        // --- DATA ---
+        
+        const ethnicities = [
+            "Caucasian / Northern European", "Scandinavian", "Mediterranean", 
+            "African American", "West African", "East African (Ethiopian)", 
+            "East Asian (Japanese)", "East Asian (Korean)", "East Asian (Chinese)",
+            "Southeast Asian (Thai/Vietnamese)", "South Asian (Indian/Pakistani)",
+            "Middle Eastern / Arab", "Persian", "Latino / Hispanic", 
+            "Native American", "Polynesian / Pacific Islander", "Mixed Race"
+        ];
+
+        const genders = [
+            { id: 'male', label: 'Masculino', icon: 'fa-mars', value: 'male man' },
+            { id: 'female', label: 'Feminino', icon: 'fa-venus', value: 'female woman' },
+            { id: 'nonbinary', label: 'Non-Binary', icon: 'fa-genderless', value: 'androgynous person' }
+        ];
+
+        const bodyTypes = [
+            { id: 'ectomorph', label: 'Ectomorfo (Magro)', value: 'slender ectomorph body, lean build' },
+            { id: 'mesomorph', label: 'Mesomorfo (Atlético)', value: 'athletic mesomorph body, fit and muscular' },
+            { id: 'endomorph', label: 'Endomorfo (Largo)', value: 'soft endomorph body, heavy build' },
+            { id: 'curvy', label: 'Curvilíneo (Hourglass)', value: 'curvy hourglass figure, voluptuous' },
+            { id: 'bodybuilder', label: 'Fisiculturista', value: 'extreme bodybuilder physique, hyper muscular' }
+        ];
+
+        const poses = [
+            { label: 'Em Pé (Padrão)', value: 'standing confidently' },
+            { label: 'Em Pé (Braços Cruzados)', value: 'standing with arms crossed on chest' },
+            { label: 'Mãos no Bolso', value: 'standing with hands in pockets' },
+            { label: 'Caminhando', value: 'walking dynamically towards camera' },
+            { label: 'Sentado (Cadeira)', value: 'sitting elegantly on a chair' },
+            { label: 'Sentado (Chão)', value: 'sitting comfortably on the floor' },
+            { label: 'Encostado (Parede)', value: 'leaning casually against a wall' },
+            { label: 'Olhando por cima do ombro', value: 'looking back over shoulder' },
+            { label: 'Ação Dinâmica', value: 'in a dynamic action pose' },
+            { label: 'Reclinado', value: 'reclining comfortably' }
+        ];
+
+        const skinTones = [
+            { color: '#f9e4d4', name: 'Very Fair (Type I)', value: 'very pale fair skin, porcelain complexion' },
+            { color: '#efd2c4', name: 'Fair (Type II)', value: 'fair skin, light complexion' },
+            { color: '#e2b69e', name: 'Medium Light (Type III)', value: 'medium-light beige skin tone' },
+            { color: '#d09f80', name: 'Medium (Type IV)', value: 'medium olive skin, tan complexion' },
+            { color: '#a06e4c', name: 'Brown (Type V)', value: 'brown skin, rich warm tone' },
+            { color: '#7a4b31', name: 'Dark Brown (Type VI)', value: 'dark brown skin, deep complexion' },
+            { color: '#4c2e22', name: 'Very Dark', value: 'very dark skin, ebony complexion' },
+            { color: '#2b1b14', name: 'Black', value: 'deep black skin, obsidian complexion' }
+        ];
+
+        const faceShapes = [
+            { label: 'Oval (Equilibrado)', value: 'oval face' },
+            { label: 'Quadrado (Angular)', value: 'square face shape' },
+            { label: 'Redondo (Suave)', value: 'round face shape' },
+            { label: 'Coração (Queixo Fino)', value: 'heart shaped face' },
+            { label: 'Diamante (Maçãs Altas)', value: 'diamond face shape' },
+            { label: 'Longo/Retangular', value: 'long rectangular face shape' }
+        ];
+
+        const eyeColors = [
+            { label: 'Castanho Escuro', value: 'dark brown eyes' },
+            { label: 'Castanho Mel', value: 'honey brown eyes' },
+            { label: 'Azul Claro', value: 'piercing light blue eyes' },
+            { label: 'Azul Escuro', value: 'deep blue eyes' },
+            { label: 'Verde Esmeralda', value: 'emerald green eyes' },
+            { label: 'Verde Avelã', value: 'hazel green eyes' },
+            { label: 'Cinza', value: 'grey eyes' },
+            { label: 'Heterocromia', value: 'heterochromia eyes (one blue one brown)' }
+        ];
+
+        const eyeShapes = [
+            { label: 'Amendoados', value: 'almond-shaped' },
+            { label: 'Redondos', value: 'large round' },
+            { label: 'Semicerrados', value: 'narrow hooded' },
+            { label: 'Monolídios', value: 'monolid' },
+            { label: 'Caídos', value: 'downturned' },
+            { label: 'Profundos', value: 'deep set' },
+            { label: 'Epicânticos (Dobra)', value: 'epicanthic fold' } // New option
+        ];
+
+        const noses = [
+            { label: 'Padrão (Harmônico)', value: 'straight harmonic nose' },
+            { label: 'Reto (Grego)', value: 'straight grecian nose' },
+            { label: 'Aquilino (Gancho)', value: 'aquiline hooked nose' },
+            { label: 'Arrebitado (Botão)', value: 'small button nose' },
+            { label: 'Largo (Núbio)', value: 'broad nubian nose' },
+            { label: 'Baixo (Ponte Plana)', value: 'flat nose bridge' }, // New Option
+            { label: 'Fino', value: 'thin narrow nose' },
+            { label: 'Adunco', value: 'prominent crooked nose' }
+        ];
+
+        const mouths = [
+            { label: 'Padrão', value: 'natural lips' },
+            { label: 'Lábios Carnudos', value: 'full luscious lips' },
+            { label: 'Lábios Finos', value: 'thin lips' },
+            { label: 'Arco do Cupido', value: 'defined cupids bow lips' },
+            { label: 'Boca Larga', value: 'wide mouth' },
+            { label: 'Boca Pequena', value: 'small rosebud mouth' }
+        ];
+
+        const jaws = [
+            { label: 'Padrão', value: '' },
+            { label: 'Mandíbula Quadrada', value: 'square strong jawline' },
+            { label: 'Mandíbula Suave', value: 'soft rounded jawline' },
+            { label: 'Queixo Pontudo', value: 'pointed chin' },
+            { label: 'Queixo Furado', value: 'cleft chin' },
+            { label: 'Queixo Recuado', value: 'receding chin' },
+            { label: 'Queixo Proeminente', value: 'prominent chin' }
+        ];
+
+        const hairColors = [
+            { color: '#090909', value: 'jet black' },
+            { color: '#2b1b14', value: 'black' }, // Added explicit Black different from Jet Black
+            { color: '#3B2618', value: 'dark brown' },
+            { color: '#744828', value: 'medium brown' },
+            { color: '#B6885C', value: 'light brown' },
+            { color: '#E6BE8A', value: 'blonde' },
+            { color: '#F0E2B8', value: 'platinum blonde' },
+            { color: '#8D3624', value: 'red ginger' },
+            { color: '#A0A0A0', value: 'grey' },
+            { color: '#FFFFFF', value: 'white' }
+        ];
+
+        const hairStyles = [
+            { label: 'Curto (Buzz Cut)', value: 'buzz-cut hairstyle' },
+            { label: 'Curto (Fade/Degradê)', value: 'fade haircut, short sides' },
+            { label: 'Médio (Bob)', value: 'bob cut hairstyle' },
+            { label: 'Médio (Bagunçado)', value: 'messy medium length hair' },
+            { label: 'Longo (Liso)', value: 'long straight flowing hair' },
+            { label: 'Longo (Ondas)', value: 'long wavy hair' },
+            { label: 'Coque (Bun)', value: 'hair tied in a bun' },
+            { label: 'Rabo de Cavalo', value: 'ponytail hairstyle' },
+            { label: 'Afro', value: 'natural afro hairstyle' },
+            { label: 'Careca', value: 'bald head, smooth skin' }
+        ];
+
+        const beardStyles = [
+            { id: 'none', label: 'Sem Barba', icon: 'fa-ban', value: 'clean shaven' },
+            { id: 'stubble', label: 'Por Fazer', icon: 'fa-grip-lines', value: 'light stubble beard' },
+            { id: 'full', label: 'Cheia', icon: 'fa-user', value: 'thick full beard' },
+            { id: 'mustache', label: 'Bigode', icon: 'fa-minus', value: 'mustache only' },
+            { id: 'goatee', label: 'Cavanhaque', icon: 'fa-circle-user', value: 'goatee beard' },
+            { id: 'chinstrap', label: 'Chinstrap', icon: 'fa-link', value: 'chinstrap beard' },
+            { id: 'van-dyke', label: 'Van Dyke', icon: 'fa-graduation-cap', value: 'van dyke beard' },
+            { id: 'short-boxed', label: 'Boxed Curta', icon: 'fa-square', value: 'short boxed beard' }
+        ];
+
+        const clothesUpper = [
+            { label: 'Sem camisa (Shirtless)', value: 'shirtless, bare chest, muscular upper body' },
+            { label: 'Camiseta Básica', value: 'a simple cotton t-shirt' },
+            { label: 'Camisa Social', value: 'a crisp white dress shirt' },
+            { label: 'Jaqueta de Couro', value: 'a black leather biker jacket' },
+            { label: 'Moletom (Hoodie)', value: 'an oversized hoodie' },
+            { label: 'Blazer', value: 'a tailored suit blazer' },
+            { label: 'Suéter de Lã', value: 'a knitted wool sweater' },
+            { label: 'Vestido de Gala', value: 'an elegant evening gown' },
+            { label: 'Top Esportivo', value: 'an athletic crop top' },
+            { label: 'Casaco Trench', value: 'a beige trench coat' },
+            { label: 'Regata', value: 'a sleeveless tank top' }
+        ];
+
+        const clothesLower = [
+            { label: 'Jeans', value: 'blue denim jeans' },
+            { label: 'Calça Social', value: 'tailored trousers' },
+            { label: 'Saia Lápis', value: 'pencil skirt' },
+            { label: 'Shorts', value: 'casual shorts' },
+            { label: 'Leggings', value: 'tight leggings' },
+            { label: 'Calça Cargo', value: 'cargo pants with pockets' },
+            { label: 'Saia Longa', value: 'flowing maxi skirt' }
+        ];
+        
+        const shoes = [
+            { label: 'Tênis', value: 'sneakers' },
+            { label: 'Botas', value: 'leather boots' },
+            { label: 'Salto Alto', value: 'high heels' },
+            { label: 'Sapato Social', value: 'oxford shoes' },
+            { label: 'Sandálias', value: 'sandals' }
+        ];
+
+        const cameraStyles = [
+            { label: 'Digital DSLR (Sharp)', value: 'shot on Canon EOS R5' },
+            { label: 'Filme 35mm (Portra 400)', value: 'shot on Kodak Portra 400, 35mm film grain, analog aesthetic' },
+            { label: 'Filme Preto & Branco', value: 'black and white photography, Ilford HP5, high contrast, noir style' },
+            { label: 'Polaroid / Vintage', value: 'polaroid photo, vintage aesthetics, soft focus, flash photography' },
+            { label: 'Cinematográfico (Arri)', value: 'cinematic still frame, shot on Arri Alexa, anamorphic lens' },
+            { label: 'Editorial de Moda', value: 'fashion editorial photography, vogue magazine style' }
+        ];
+
+        const lightingStyles = [
+            { label: 'Luz Natural (Golden Hour)', value: 'golden hour lighting' },
+            { label: 'Estúdio (Softbox)', value: 'studio lighting, softbox, three point lighting' },
+            { label: 'Dramático (Rembrandt)', value: 'dramatic rembrandt lighting, chiaroscuro' },
+            { label: 'Neon / Cyberpunk', value: 'neon lighting, blue and pink rim lights, night time' },
+            { label: 'Luz Dura (Sol do Meio-dia)', value: 'harsh sunlight, hard shadows, bright day' },
+            { label: 'Nublado (Difusa)', value: 'overcast lighting, diffuse soft light, flat lighting' }
+        ];
+
+        // --- ETHNICITY PRESETS DATABASE ---
+        const ethnicityPresets = {
+            "Caucasian / Northern European": {
+                skinTone: 'fair skin, light complexion', // Type II
+                eyeColor: 'piercing light blue eyes',
+                eyeShape: 'almond-shaped',
+                hairColor: 'blonde',
+                hairTexture: 'straight hair',
+                nose: 'thin narrow nose'
+            },
+            "Scandinavian": {
+                skinTone: 'very pale fair skin, porcelain complexion', // Type I
+                eyeColor: 'piercing light blue eyes',
+                eyeShape: 'almond-shaped',
+                hairColor: 'platinum blonde',
+                hairTexture: 'straight hair',
+                nose: 'thin narrow nose'
+            },
+            "Mediterranean": {
+                skinTone: 'medium olive skin, tan complexion', // Type IV
+                eyeColor: 'dark brown eyes',
+                eyeShape: 'almond-shaped',
+                hairColor: 'dark brown',
+                hairTexture: 'wavy hair',
+                nose: 'aquiline hooked nose'
+            },
+            "African American": {
+                skinTone: 'brown skin, rich warm tone', // Type V
+                eyeColor: 'dark brown eyes',
+                eyeShape: 'almond-shaped',
+                hairColor: 'jet black',
+                hairTexture: 'coily kinky hair',
+                nose: 'broad nubian nose',
+                mouth: 'full luscious lips'
+            },
+            "West African": {
+                skinTone: 'deep black skin, obsidian complexion', // Black
+                eyeColor: 'dark brown eyes',
+                eyeShape: 'large round',
+                hairColor: 'jet black',
+                hairTexture: 'coily kinky hair',
+                nose: 'broad nubian nose',
+                mouth: 'full luscious lips'
+            },
+            "East African (Ethiopian)": {
+                skinTone: 'brown skin, rich warm tone',
+                eyeColor: 'dark brown eyes',
+                eyeShape: 'almond-shaped',
+                hairColor: 'jet black',
+                hairTexture: 'curly hair',
+                nose: 'straight harmonic nose',
+                mouth: 'full luscious lips'
+            },
+            "East Asian (Japanese)": {
+                skinTone: 'fair skin, light complexion',
+                eyeColor: 'dark brown eyes',
+                eyeShape: 'monolid', // or epicanthic
+                hairColor: 'jet black',
+                hairTexture: 'straight hair',
+                nose: 'small button nose'
+            },
+            "East Asian (Korean)": {
+                skinTone: 'very pale fair skin, porcelain complexion',
+                eyeColor: 'dark brown eyes',
+                eyeShape: 'monolid',
+                hairColor: 'jet black',
+                hairTexture: 'straight hair',
+                nose: 'small button nose'
+            },
+            "East Asian (Chinese)": {
+                skinTone: 'fair skin, light complexion',
+                eyeColor: 'dark brown eyes',
+                eyeShape: 'monolid',
+                hairColor: 'jet black',
+                hairTexture: 'straight hair',
+                nose: 'flat nose bridge'
+            },
+            "Southeast Asian (Thai/Vietnamese)": {
+                skinTone: 'medium olive skin, tan complexion',
+                eyeColor: 'dark brown eyes',
+                eyeShape: 'almond-shaped',
+                hairColor: 'jet black',
+                hairTexture: 'straight hair',
+                nose: 'flat nose bridge'
+            },
+            "South Asian (Indian/Pakistani)": {
+                skinTone: 'medium olive skin, tan complexion', // Can vary widely
+                eyeColor: 'dark brown eyes',
+                eyeShape: 'almond-shaped',
+                hairColor: 'jet black',
+                hairTexture: 'wavy hair',
+                nose: 'straight grecian nose'
+            },
+             "Middle Eastern / Arab": {
+                skinTone: 'medium-light beige skin tone',
+                eyeColor: 'dark brown eyes',
+                eyeShape: 'almond-shaped',
+                hairColor: 'dark brown',
+                hairTexture: 'wavy hair',
+                nose: 'aquiline hooked nose'
+            },
+            "Persian": {
+                skinTone: 'medium-light beige skin tone',
+                eyeColor: 'dark brown eyes', // or hazel
+                eyeShape: 'almond-shaped',
+                hairColor: 'dark brown',
+                hairTexture: 'wavy hair',
+                nose: 'straight harmonic nose'
+            },
+            "Latino / Hispanic": {
+                skinTone: 'medium olive skin, tan complexion',
+                eyeColor: 'honey brown eyes',
+                eyeShape: 'almond-shaped',
+                hairColor: 'dark brown',
+                hairTexture: 'wavy hair',
+                nose: 'straight harmonic nose'
+            },
+            "Native American": {
+                skinTone: 'medium olive skin, tan complexion', // Reddish undertone
+                eyeColor: 'dark brown eyes',
+                eyeShape: 'almond-shaped',
+                hairColor: 'jet black',
+                hairTexture: 'straight hair',
+                nose: 'aquiline hooked nose'
+            },
+            "Polynesian / Pacific Islander": {
+                skinTone: 'brown skin, rich warm tone',
+                eyeColor: 'dark brown eyes',
+                eyeShape: 'almond-shaped',
+                hairColor: 'jet black',
+                hairTexture: 'wavy hair',
+                nose: 'broad nubian nose'
+            }
+        };
+
+        // --- STATE ---
+        let state = {
+            age: 25,
+            ethnicity: ethnicities[0],
+            gender: genders[1].value,
+            bodyType: bodyTypes[1].value,
+            pose: poses[0].value,
+            skinTone: skinTones[2].value,
+            faceShape: faceShapes[0].value,
+            eyeColor: eyeColors[0].value,
+            eyeShape: eyeShapes[0].value,
+            hairColor: hairColors[1].value,
+            hairStyle: hairStyles[4].value,
+            hairTexture: 'straight hair',
+            beard: '',
+            outfitUpper: clothesUpper[0].value,
+            outfitLower: clothesLower[0].value,
+            outfitShoes: shoes[0].value,
+            fabric: '',
+            camera: cameraStyles[0].value,
+            lighting: lightingStyles[0].value,
+            shot: 'portrait shot, 85mm lens',
+            locks: { skin: false, face: false, hair: false, outfit: false }
+        };
+
+        // --- INIT ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initSelects();
+            initGrids();
+            // Garante que a lista de roupas esteja correta para o gênero inicial
+            updateUpperClothesOptions();
+            updatePrompt();
+        });
+
+        function initSelects() {
+            populateSelect('ethnicity-select', ethnicities.map(e => ({label: e, value: e})));
+            populateSelect('pose-select', poses);
+            populateSelect('faceshape-select', faceShapes);
+            populateSelect('eyecolor-select', eyeColors);
+            populateSelect('eyeshape-select', eyeShapes);
+            populateSelect('hairstyle-select', hairStyles);
+            // populateSelect('upper-select', clothesUpper); // Substituído pela função dinâmica
+            populateSelect('lower-select', clothesLower);
+            populateSelect('shoes-select', shoes);
+            populateSelect('camera-select', cameraStyles);
+            populateSelect('lighting-select', lightingStyles);
+            
+            // Novos Selects
+            populateSelect('nose-select', noses);
+            populateSelect('mouth-select', mouths);
+            populateSelect('jaw-select', jaws);
+        }
+
+        function populateSelect(id, options) {
+            const sel = document.getElementById(id);
+            if(!sel) return;
+            sel.innerHTML = '';
+            options.forEach(opt => {
+                const el = document.createElement('option');
+                el.value = opt.value;
+                el.textContent = opt.label;
+                sel.appendChild(el);
+            });
+        }
+
+        function initGrids() {
+            // Gender
+            const genderGrid = document.getElementById('gender-grid');
+            genders.forEach(g => {
+                const div = document.createElement('div');
+                div.className = `option-card p-3 rounded text-center w-full ${g.value === state.gender ? 'selected' : ''}`;
+                div.innerHTML = `<i class="fa-solid ${g.icon} text-lg mb-1 block icon-highlight"></i><span class="text-[10px] uppercase font-bold text-gray-400">${g.label}</span>`;
+                div.onclick = () => selectOption('gender', g.value, div, '#gender-grid .option-card');
+                genderGrid.appendChild(div);
+            });
+
+            // Body Type
+            const bodyGrid = document.getElementById('body-type-grid');
+            bodyTypes.forEach(b => {
+                const div = document.createElement('div');
+                div.className = `option-card p-2 rounded text-center flex flex-col items-center justify-center ${b.value === state.bodyType ? 'selected' : ''}`;
+                div.innerHTML = `<span class="text-[10px] leading-tight text-gray-400">${b.label}</span>`;
+                div.onclick = () => selectOption('bodyType', b.value, div, '#body-type-grid .option-card');
+                bodyGrid.appendChild(div);
+            });
+
+            // Skin Tones
+            const skinGrid = document.getElementById('skin-grid');
+            skinTones.forEach(s => {
+                const div = document.createElement('div');
+                div.className = `color-swatch ${s.value === state.skinTone ? 'selected' : ''}`;
+                div.style.backgroundColor = s.color;
+                div.title = s.name;
+                div.onclick = () => selectSwatch('skinTone', s.value, div, '#skin-grid .color-swatch');
+                skinGrid.appendChild(div);
+            });
+
+            // Hair Color
+            const hairGrid = document.getElementById('hair-color-grid');
+            hairColors.forEach(h => {
+                const div = document.createElement('div');
+                div.className = `color-swatch ${h.value === state.hairColor ? 'selected' : ''}`;
+                div.style.backgroundColor = h.color;
+                div.onclick = () => selectSwatch('hairColor', h.value, div, '#hair-color-grid .color-swatch');
+                hairGrid.appendChild(div);
+            });
+
+            // Beard
+            const beardGrid = document.getElementById('beard-grid');
+            beardStyles.forEach(b => {
+                const div = document.createElement('div');
+                div.className = `option-card p-2 rounded text-center ${b.value === state.beard || (b.id === 'none' && !state.beard) ? 'selected' : ''}`;
+                div.innerHTML = `<i class="fa-solid ${b.icon} mb-1 block text-xs icon-highlight"></i><span class="text-[9px] uppercase text-gray-400">${b.label}</span>`;
+                div.onclick = () => selectOption('beard', b.value === 'clean shaven' ? '' : b.value, div, '#beard-grid .option-card');
+                beardGrid.appendChild(div);
+            });
+        }
+
+        // --- ETHNICITY PRESET LOGIC ---
+        function applyEthnicityPreset(ethnicityValue) {
+            // Update UI State for dropdown if called externally
+            const ethSelect = document.getElementById('ethnicity-select');
+            if (ethSelect.value !== ethnicityValue) ethSelect.value = ethnicityValue;
+
+            const preset = ethnicityPresets[ethnicityValue];
+            if (!preset) {
+                updatePrompt();
+                return;
+            }
+
+            // --- Apply Defaults (Respect Locks) ---
+
+            // 1. Skin Tone (Visual Grid)
+            if (!state.locks.skin && preset.skinTone) {
+                const skinMatch = skinTones.find(s => s.value === preset.skinTone);
+                if (skinMatch) {
+                    state.skinTone = skinMatch.value;
+                    // Update UI
+                    document.querySelectorAll('#skin-grid .color-swatch').forEach(el => {
+                        el.classList.remove('selected');
+                        if (el.style.backgroundColor === hexToRgb(skinMatch.color) || el.style.backgroundColor === skinMatch.color) { 
+                            el.classList.add('selected');
+                        }
+                    });
+                }
+            }
+
+            // 2. Eyes & Face (Dropdowns)
+            if (!state.locks.face) {
+                if (preset.eyeColor) {
+                   setSelect('eyecolor-select', preset.eyeColor);
+                }
+                if (preset.eyeShape) {
+                    setSelect('eyeshape-select', preset.eyeShape);
+                }
+                if (preset.nose) {
+                    setSelect('nose-select', preset.nose);
+                }
+                if (preset.mouth) {
+                    setSelect('mouth-select', preset.mouth);
+                }
+            }
+
+            // 3. Hair (Grid & Dropdown)
+            if (!state.locks.hair) {
+                 if (preset.hairColor) {
+                    const hairMatch = hairColors.find(h => h.value === preset.hairColor);
+                    if (hairMatch) {
+                        state.hairColor = hairMatch.value;
+                         // Update UI
+                        document.querySelectorAll('#hair-color-grid .color-swatch').forEach(el => {
+                            el.classList.remove('selected');
+                            // Simple color match check (might need refinement if hex codes slightly differ, but here they are exact consts)
+                            if (el.style.backgroundColor === hexToRgb(hairMatch.color) || el.style.backgroundColor === hairMatch.color) {
+                                el.classList.add('selected');
+                            }
+                        });
+                    }
+                }
+                if (preset.hairTexture) {
+                    setSelect('hairtexture-select', preset.hairTexture);
+                }
+            }
+
+            // Show feedback
+            const msg = document.getElementById('preset-applied-msg');
+            msg.style.opacity = '1';
+            setTimeout(() => msg.style.opacity = '0', 2000);
+
+            updatePrompt();
+        }
+
+        // Helper to set select value programmatically
+        function setSelect(id, partialValue) {
+            const select = document.getElementById(id);
+            const options = Array.from(select.options);
+            // Try exact match first, then partial includes
+            let match = options.find(o => o.value === partialValue);
+            if (!match) {
+                 match = options.find(o => o.value.includes(partialValue));
+            }
+            
+            if (match) {
+                select.value = match.value;
+            }
+        }
+
+        // Helper for RBG comparison if needed by browsers returning computed styles
+        function hexToRgb(hex) {
+            // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+            var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+            hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+                return r + r + g + g + b + b;
+            });
+            var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? `rgb(${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)})` : null;
+        }
+
+
+        // --- INTERACTION ---
+        function selectOption(key, value, element, selector) {
+            state[key] = value;
+            document.querySelectorAll(selector).forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+            
+            // Logic for beard visibility
+            if (key === 'gender') {
+                const beardSec = document.getElementById('beard-section');
+                if (value.includes('female')) {
+                    beardSec.style.opacity = '0.3';
+                    beardSec.style.pointerEvents = 'none';
+                    state.beard = '';
+                } else {
+                    beardSec.style.opacity = '1';
+                    beardSec.style.pointerEvents = 'auto';
+                }
+                // Atualiza as opções de roupa baseada no novo gênero
+                updateUpperClothesOptions();
+            }
+            updatePrompt();
+        }
+
+        function updateUpperClothesOptions() {
+            const select = document.getElementById('upper-select');
+            if (!select) return;
+
+            // Salva o valor atual para tentar manter se possível
+            const currentVal = select.value || state.outfitUpper;
+            
+            // Filtra opções: Se for mulher, remove 'shirtless'
+            let options = clothesUpper;
+            if (state.gender.includes('female') || state.gender.includes('woman')) {
+                options = clothesUpper.filter(opt => !opt.value.includes('shirtless'));
+            }
+
+            // Limpa e Repopula
+            select.innerHTML = '';
+            options.forEach(opt => {
+                const el = document.createElement('option');
+                el.value = opt.value;
+                el.textContent = opt.label;
+                select.appendChild(el);
+            });
+
+            // Verifica se a roupa selecionada ainda é válida
+            const exists = options.find(o => o.value === currentVal);
+            if (exists) {
+                select.value = currentVal;
+            } else {
+                // Se não for válida (ex: era shirtless e mudou pra mulher), reseta para o primeiro item (Camiseta)
+                select.value = options[0].value;
+                state.outfitUpper = options[0].value; // Atualiza o state também
+            }
+        }
+
+        function selectSwatch(key, value, element, selector) {
+            state[key] = value;
+            document.querySelectorAll(selector).forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+            updatePrompt();
+        }
+
+        function updateAge(val) {
+            state.age = val;
+            document.getElementById('age-display').innerText = val + " anos";
+        }
+
+        function toggleLock(key) {
+            state.locks[key] = !state.locks[key];
+            const btn = document.getElementById(`lock-${key}`);
+            if (state.locks[key]) {
+                btn.innerText = "LOCKED";
+                btn.classList.add('locked');
+            } else {
+                btn.innerText = "LOCK";
+                btn.classList.remove('locked');
+            }
+        }
+
+        function randomize() {
+            // Helper to pick random
+            const pick = (opts) => opts[Math.floor(Math.random() * opts.length)];
+            const pickVal = (opts) => pick(opts).value;
+            const pickFromSelect = (id) => {
+                const sel = document.getElementById(id);
+                const opts = Array.from(sel.options);
+                const chosen = pick(opts);
+                sel.value = chosen.value;
+                return chosen.value;
+            };
+
+            // NOTA: Seção Identidade (Idade, Etnia, Gênero) removida do randomizador.
+            // O usuário escolhe a etnia e o app preenche o resto.
+
+            // Pose Random
+            pickFromSelect('pose-select');
+
+            if (!state.locks.skin) {
+                // Random Skin
+                const skinCards = document.querySelectorAll('#skin-grid .color-swatch');
+                const randSkin = Math.floor(Math.random() * skinCards.length);
+                skinCards[randSkin].click(); // Triggers update
+                
+                // Random Features
+                document.querySelectorAll('.feature-check').forEach(cb => {
+                   if (cb.value !== 'hyperrealistic skin texture') cb.checked = Math.random() < 0.3;
+                });
+            }
+
+            if (!state.locks.face) {
+                pickFromSelect('faceshape-select');
+                pickFromSelect('eyeshape-select');
+                pickFromSelect('eyecolor-select');
+                // New logic for specific selectors
+                pickFromSelect('nose-select');
+                pickFromSelect('mouth-select');
+                pickFromSelect('jaw-select');
+            }
+
+            if (!state.locks.hair) {
+                const hairCards = document.querySelectorAll('#hair-color-grid .color-swatch');
+                hairCards[Math.floor(Math.random() * hairCards.length)].click();
+                pickFromSelect('hairstyle-select');
+                pickFromSelect('hairtexture-select');
+                
+                if (!state.gender.includes('female')) {
+                    const beardCards = document.querySelectorAll('#beard-grid .option-card');
+                    if (Math.random() > 0.6) {
+                        beardCards[Math.floor(Math.random() * beardCards.length)].click();
+                    } else {
+                        beardCards[0].click(); // Clean shaven
+                    }
+                }
+            }
+
+            if (!state.locks.outfit) {
+                pickFromSelect('upper-select');
+                pickFromSelect('lower-select');
+                pickFromSelect('shoes-select');
+                pickFromSelect('fabric-select');
+            }
+
+            // Camera
+            pickFromSelect('camera-select');
+            pickFromSelect('lighting-select');
+            pickFromSelect('shot-select');
+
+            updatePrompt();
+        }
+
+        // --- PROMPT GENERATION ---
+        function updatePrompt() {
+            // Gather values from non-state inputs
+            const ethnicity = document.getElementById('ethnicity-select').value;
+            const pose = document.getElementById('pose-select').value;
+            const faceShape = document.getElementById('faceshape-select').value;
+            const eyeShape = document.getElementById('eyeshape-select').value;
+            const eyeColor = document.getElementById('eyecolor-select').value;
+            const hairStyle = document.getElementById('hairstyle-select').value;
+            const hairTexture = document.getElementById('hairtexture-select').value;
+            const upper = document.getElementById('upper-select').value;
+            const lower = document.getElementById('lower-select').value;
+            const shoes = document.getElementById('shoes-select').value;
+            const fabric = document.getElementById('fabric-select').value;
+            const camera = document.getElementById('camera-select').value;
+            const lighting = document.getElementById('lighting-select').value;
+            const shot = document.getElementById('shot-select').value;
+            
+            // New specific inputs
+            const nose = document.getElementById('nose-select').value;
+            const mouth = document.getElementById('mouth-select').value;
+            const jaw = document.getElementById('jaw-select').value;
+
+            // Gather Checkboxes
+            const skinFeatures = Array.from(document.querySelectorAll('.feature-check:checked')).map(c => c.value);
+
+            // Negative Prompt Constant
+            const negativePromptText = `cgi, 3d render, doll skin, wax skin, plastic skin,
+beauty filter, skin blur, airbrushed, over-smoothed,
+anime, illustration, painting, cartoon,
+wide-angle distortion, fisheye,
+big eyes, deformed face, asymmetry,
+over-sharpened, oversaturated,
+fake lighting, studio flash look,
+blurred eyes, double pupils, extra limbs`;
+
+            let blocks = [];
+
+            // Block 1: Header
+            blocks.push("(raw photo), hyperrealistic cinematic portrait");
+
+            // Block 2: Subject Identity
+            // Format: 25-year-old Northern European Caucasian woman
+            // Etnia vem como "Caucasian / Northern European", vamos inverter se tiver barra
+            let ethStr = ethnicity;
+            if (ethStr.includes(' / ')) {
+                const parts = ethStr.split(' / ');
+                if (parts.length === 2) ethStr = `${parts[1]} ${parts[0]}`;
+            }
+            const genderVal = state.gender.split(' ')[1] || state.gender; // "male man" -> "man"
+            const ageLine = `${state.age}-year-old ${ethStr} ${genderVal}`;
+            
+            // Integrate Body Type & Pose together
+            const bodyLine = `${state.bodyType}, ${pose}`; 
+            const faceLine = `${faceShape}, balanced facial proportions`;
+            
+            blocks.push('// Subject Identity\n' + [ageLine, bodyLine, faceLine].join(",\n"));
+
+            // Block 3: Skin
+            // Build: medium-light beige skin tone, natural skin texture, visible pores...
+            let skinBlockParts = [
+                `${state.skinTone}`,
+                'natural skin texture, visible pores, fine micro-details',
+                'photographic subsurface scattering'
+            ];
+            if (skinFeatures.length) skinBlockParts.push(skinFeatures.join(", "));
+            blocks.push('// Skin Details\n' + skinBlockParts.join(",\n"));
+
+            // Block 4: Eyes
+            // Format: almond-shaped dark brown eyes, high-detail iris, natural sclera
+            const cleanEyeShape = eyeShape.replace(' eyes', '');
+            const cleanEyeColor = eyeColor.replace(' eyes', '');
+            const eyesLine = `${cleanEyeShape} ${cleanEyeColor} eyes, high-detail iris, natural sclera`;
+            blocks.push('// Eyes\n' + eyesLine);
+
+            // Block 5: Facial Features
+            let faceFeats = [];
+            if(nose) faceFeats.push(nose);
+            if(mouth) faceFeats.push(mouth + " with soft definition"); 
+            if(jaw) faceFeats.push(jaw);
+            if(faceFeats.length) blocks.push('// Facial Structure\n' + faceFeats.join(",\n"));
+
+            // Block 6: Hair
+            // Format: dark brown buzz-cut hair, natural scalp texture
+            const cleanHairStyle = hairStyle.replace(' hairstyle', '');
+            const cleanHairColor = state.hairColor.replace(' hair', '');
+            const hairLine = `${cleanHairColor} ${cleanHairStyle} hair, ${hairTexture}`;
+            const hairBlockParts = [hairLine];
+            if (state.beard) {
+                hairBlockParts.push(state.beard);
+            }
+            blocks.push('// Hair\n' + hairBlockParts.join(',\n'));
+
+            // Block 7: Outfit
+            const outfitParts = [`wearing ${upper}, ${lower} and ${shoes}`];
+            if (fabric) {
+                outfitParts.push(fabric);
+            }
+            blocks.push('// Outfit\n' + outfitParts.join(',\n'));
+
+            // Block 8: Camera
+            // Split Shot logic roughly
+            let shotInfo = shot;
+            let lensInfo = "";
+            if (shot.includes(',')) {
+                const sParts = shot.split(',');
+                shotInfo = sParts[0].trim();
+                lensInfo = sParts[1].trim();
+            }
+            // 85mm telephoto lens if 85mm
+            if(lensInfo.includes('85mm')) lensInfo = "85mm telephoto lens";
+            
+            const cameraBlock = `${shotInfo},\n${camera},\n${lensInfo},\nnatural perspective, no wide-angle distortion,\ncorrect facial proportions`;
+            blocks.push('// Camera & Shot\n' + cameraBlock);
+
+            // Block 9: Lighting
+            const lightingBlock = `${lighting},\nwarm sunlight rays,\nsoft cinematic shadows,\nskin-tone-accurate color rendering`;
+            blocks.push('// Lighting\n' + lightingBlock);
+
+            // Block 10: Quality/Footer
+            blocks.push(`// Style & Quality\nprofessional photography,\nsharp focus on eyes,\nnatural depth of field,\ncinematic color grading,\n8K UHD, ultra-detailed,\nno beauty filters, no smoothing,\ntrue-to-life realism`);
+
+            // Assemble
+            const positivePrompt = blocks.join(",\n\n");
+            
+            // Final
+            const finalOutput = `${positivePrompt}\n\nNegative prompt:\n${negativePromptText}`;
+            
+            document.getElementById('prompt-output').value = finalOutput;
+        }
+
+        function copyToClipboard() {
+            const copyText = document.getElementById("prompt-output");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); 
+            document.execCommand("copy");
+            
+            const toast = document.getElementById("toast");
+            toast.className = "show";
+            setTimeout(() => toast.className = toast.className.replace("show", ""), 3000);
+        }
+
+        function exportJSON() {
+            const data = {
+                state,
+                selects: {
+                   ethnicity: document.getElementById('ethnicity-select').value,
+                   // ... (capture other select values for restoration)
+                },
+                prompt: document.getElementById('prompt-output').value
+            };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "realism_character.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        function importJSON() {
+            document.getElementById('import-file').click();
+        }
+
+        function handleFileImport(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    // Minimal restore logic for demo
+                    alert("Imported! (State restoration logic would go here)");
+                } catch(e) {
+                    alert("Invalid JSON");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+    </script>
+</body>
+</html>

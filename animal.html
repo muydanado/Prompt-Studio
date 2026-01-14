@@ -1,0 +1,6047 @@
+<!DOCTYPE html>
+
+<html lang="pt-PT">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Cartoon Prompt Studio | Studio Mode</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+
+        :root {
+
+            --bg-dark: #0a0a0a;
+
+            --card-bg: #141414;
+
+            --accent: #E600DF; /* Red accent from reference */
+
+            --text-gray: #a3a3a3;
+
+            --border-color: #262626;
+
+        }
+
+
+
+        body {
+
+            font-family: 'Inter', sans-serif;
+
+            background-color: var(--bg-dark);
+
+            color: white;
+
+            background-image: radial-gradient(#1a1a1a 1px, transparent 1px);
+
+            background-size: 30px 30px;
+
+        }
+
+
+
+        /* Scrollbar customizada */
+
+        ::-webkit-scrollbar { width: 8px; }
+
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+
+
+        /* Dark Panel (Replaces Glass Panel) */
+
+        .dark-panel {
+
+            background-color: var(--card-bg);
+
+            border: 1px solid var(--border-color);
+
+            transition: border-color 0.2s ease;
+
+        }
+
+        
+
+        /* Option Card Styles */
+
+        .option-card {
+
+            background-color: #000; /* Darker than panel */
+
+            border: 1px solid var(--border-color);
+
+            transition: all 0.2s ease;
+
+            cursor: pointer;
+
+            position: relative;
+
+            overflow: hidden;
+
+        }
+
+        .option-card:hover {
+
+            transform: translateY(-2px);
+
+            border-color: #555;
+
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+
+        }
+
+        .option-card.selected {
+
+            border-color: var(--accent);
+
+            background-color: #1a1111; /* Slight red tint dark bg */
+
+        }
+
+            .option-card.selected svg {
+
+                color: var(--accent);
+
+            }
+
+
+
+            /* Make all Font Awesome icons match the accent */
+
+            i[class*="fa-"] {
+
+                color: var(--accent);
+
+            }
+
+
+
+        /* Color Swatch Styles */
+
+        .color-swatch {
+
+            width: 100%;
+
+            height: 40px;
+
+            border-radius: 9999px; /* Pill shape */
+
+            cursor: pointer;
+
+            border: 2px solid transparent;
+
+            transition: all 0.2s;
+
+            position: relative;
+
+        }
+
+        .color-swatch:hover {
+
+            transform: scale(1.1);
+
+            z-index: 10;
+
+        }
+
+        .color-swatch.selected {
+
+            border-color: white;
+
+            box-shadow: 0 0 0 2px var(--accent);
+
+        }
+
+        
+
+        /* Custom Inputs */
+
+        .feature-check:checked {
+
+            background-color: var(--accent);
+
+            border-color: var(--accent);
+
+        }
+
+
+
+        .disabled-section {
+
+            opacity: 0.3;
+
+            pointer-events: none;
+
+            filter: grayscale(1);
+
+        }
+
+
+
+        /* Toast notification */
+
+        #toast {
+
+            visibility: hidden;
+
+            min-width: 250px;
+
+            background-color: var(--accent);
+
+            color: #fff;
+
+            text-align: center;
+
+            border-radius: 4px;
+
+            padding: 12px 16px;
+
+            position: fixed;
+
+            z-index: 50;
+
+            left: 50%;
+
+            bottom: 30px;
+
+            transform: translateX(-50%);
+
+            opacity: 0;
+
+            font-weight: 600;
+
+            font-size: 0.875rem;
+
+            transition: opacity 0.3s, bottom 0.3s;
+
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+
+        }
+
+        #toast.show {
+
+            visibility: visible;
+
+            opacity: 1;
+
+            bottom: 50px;
+
+        }
+
+
+
+    </style>
+
+</head>
+
+<body class="min-h-screen flex flex-col items-center pb-20">
+
+
+
+    <!-- HEADER (Matching reference style) -->
+
+    <header class="w-full border-b border-[#262626] bg-black/80 backdrop-blur-md z-20 sticky top-0">
+
+        <div class="w-full max-w-7xl mx-auto px-6 py-4 flex items-center gap-4 justify-start">
+
+            <div class="w-3 h-8 bg-[#E600DF] rounded-sm"></div> <!-- Red Logo Mark -->
+
+            <div>
+
+                <h1 class="text-xl font-bold tracking-tight text-white">CARTOON ANIMAL PROMPT <span class="text-[#E600DF] font-light">STUDIO</span></h1>
+
+                <p class="text-[10px] text-gray-400 uppercase tracking-[0.3em] mt-1">Anthropomorphic animals creator</p>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+
+    <main class="w-full mt-8">
+
+        <div class="w-full max-w-7xl mx-auto px-6">
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        
+
+                <!-- Controls Section -->
+
+                <div class="lg:col-span-7 space-y-6">
+
+            
+
+             <!-- Dimension Switch -->
+
+            <div class="dark-panel p-5 rounded-lg">
+
+                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+
+                    <i class="fa-solid fa-cube text-white"></i> Dimensão
+
+                </h3>
+
+                <div class="flex gap-4">
+
+                    <label class="flex-1 cursor-pointer group">
+
+                        <input type="radio" name="dimension" value="2D" class="peer sr-only" checked onchange="updateStyleOptions()">
+
+                        <div class="p-4 rounded-lg border border-[#262626] bg-black peer-checked:border-[#E600DF] peer-checked:bg-[#E600DF]/10 flex items-center justify-center gap-3 transition-all group-hover:border-gray-600">
+
+                            <i class="fa-solid fa-pen-nib text-xl text-gray-400 peer-checked:text-[#E600DF]"></i>
+
+                            <span class="font-semibold text-sm text-gray-300 peer-checked:text-white">2D Flat / Vetor</span>
+
+                        </div>
+
+                    </label>
+
+                    <label class="flex-1 cursor-pointer group">
+
+                        <input type="radio" name="dimension" value="3D" class="peer sr-only" onchange="updateStyleOptions()">
+
+                        <div class="p-4 rounded-lg border border-[#262626] bg-black peer-checked:border-[#E600DF] peer-checked:bg-[#E600DF]/10 flex items-center justify-center gap-3 transition-all group-hover:border-gray-600">
+
+                            <i class="fa-solid fa-cubes text-xl text-gray-400 peer-checked:text-[#E600DF]"></i>
+
+                            <span class="font-semibold text-sm text-gray-300 peer-checked:text-white">3D Render</span>
+
+                        </div>
+
+                    </label>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Style Modifiers -->
+
+            <div class="dark-panel p-5 rounded-lg">
+
+                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+
+                    <i class="fa-solid fa-palette text-white"></i> Estilo Artístico
+
+                </h3>
+
+                <div class="relative">
+
+                    <select id="art-style" class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 focus:border-[#E600DF] focus:outline-none transition-colors appearance-none cursor-pointer" onchange="applyPreset(this.value)">
+
+                        <!-- Javascript will populate this -->
+
+                    </select>
+
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+
+                        <i class="fa-solid fa-chevron-down text-xs"></i>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Gender Selector -->
+
+            <div class="dark-panel p-5 rounded-lg">
+
+                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+
+                    <i class="fa-solid fa-venus-mars text-white"></i> Género
+
+                </h3>
+
+            <div class="grid grid-cols-3 sm:grid-cols-5 gap-3" id="gender-grid">
+
+                <!-- Javascript will populate this -->
+
+            </div>
+
+        </div>
+
+
+
+            <!-- Animal Species Selector -->
+
+            <div class="dark-panel p-5 rounded-lg">
+
+                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-2 flex items-center gap-2">
+
+                    <i class="fa-solid fa-paw text-white"></i> Espécie Animal
+
+                </h3>
+
+                <p class="text-[11px] text-gray-500 mb-3">Escolha o arquétipo animal antropomórfico e seu tom visual.</p>
+
+                <div class="grid grid-cols-3 sm:grid-cols-5 gap-3" id="species-grid">
+
+                    <!-- Javascript will populate this -->
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Body Shape Selector -->
+
+            <div class="dark-panel p-5 rounded-lg">
+
+                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+
+                    <i class="fa-solid fa-child-reaching text-white"></i> Formato do Corpo
+
+                </h3>
+
+            <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="body-shape-grid">
+
+                <!-- Javascript will populate this -->
+
+            </div>
+
+        </div>
+
+
+
+            <!-- Fur / Textura -->
+
+            <div class="dark-panel p-5 rounded-lg">
+
+                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-2 flex items-center gap-2">
+
+                    <i class="fa-solid fa-feather text-white"></i> Pelagem / Textura
+
+                </h3>
+
+                <p class="text-[11px] text-gray-500 mb-3">Defina o padrão de pelo/penas para reforçar o visual animal.</p>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="fur-grid">
+
+                    <!-- Javascript will populate this -->
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Pose Selector -->
+
+            <!-- Consistency Toggle -->
+
+            <div class="dark-panel p-5 rounded-lg">
+
+                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+
+                    <i class="fa-solid fa-shield-halved text-white"></i> Consistência (mesmo personagem)
+
+                </h3>
+
+                <label class="flex items-center space-x-3 text-sm text-gray-300">
+
+                    <input type="checkbox" id="consistency-toggle" class="w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" onchange="toggleConsistency(this.checked)">
+
+                    <span>Forçar consistência de identidade</span>
+
+                </label>
+
+            </div>
+
+
+
+            <!-- Blueprint Mode -->
+
+            <div class="dark-panel p-5 rounded-lg">
+
+                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+
+                    <i class="fa-solid fa-drafting-compass text-white"></i> Blueprint (estudio)
+
+                </h3>
+
+                <div class="flex flex-col gap-3">
+
+                    <label class="flex items-center space-x-3 text-sm text-gray-300">
+
+                        <input type="checkbox" id="blueprint-toggle" class="w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" onchange="toggleBlueprint(this.checked)">
+
+                        <span>Ativar blueprint de proporcoes</span>
+
+                    </label>
+
+                    <div class="flex flex-col sm:flex-row gap-3 sm:items-center">
+
+                        <span class="text-xs text-gray-400 uppercase tracking-wide">Formato</span>
+
+                        <div class="flex gap-3 text-xs text-gray-300">
+
+                            <label class="flex items-center gap-2 cursor-pointer">
+
+                                <input type="radio" name="blueprint-view" value="single" checked class="w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" onchange="selectBlueprintView(this.value)">
+
+                                Single view
+
+                            </label>
+
+                            <label class="flex items-center gap-2 cursor-pointer">
+
+                                <input type="radio" name="blueprint-view" value="turnaround" class="w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" onchange="selectBlueprintView(this.value)">
+
+                                3-view turnaround
+
+                            </label>
+
+                            <label class="flex items-center gap-2 cursor-pointer">
+
+                                <input type="radio" name="blueprint-view" value="expressions" class="w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" onchange="selectBlueprintView(this.value)">
+
+                                Expression sheet
+
+                            </label>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+
+
+            <div class="dark-panel p-5 rounded-lg">
+
+                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+
+                    <i class="fa-solid fa-person-running text-white"></i> Acao / Pose
+
+                    <button type="button" data-lock-btn="action" onclick="toggleLock('action')" class="ml-auto text-[10px] text-gray-400 hover:text-white border border-[#262626] px-2 py-1 rounded">LOCK</button>
+
+                </h3>
+
+                <div class="space-y-3">
+
+                    <select id="pose-select" class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 text-sm focus:border-[#E600DF] focus:outline-none" onchange="selectPose(this.value)">
+
+                    </select>
+
+                    <label id="deadpan-contrast-row" class="flex items-center space-x-2 text-xs text-gray-400 hidden">
+
+                        <input type="checkbox" id="deadpan-dance-toggle" class="w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" onchange="toggleDeadpanDance(this.checked)">
+
+                        <span>Contraste intencional (danca deadpan)</span>
+
+                    </label>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Skin Tone Selector -->
+
+            <div class="dark-panel p-5 rounded-lg">
+
+                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+
+                    <i class="fa-solid fa-droplet text-white"></i> Cor da Pele
+
+                </h3>
+
+                <div class="grid grid-cols-6 sm:grid-cols-8 gap-3" id="skin-grid">
+
+                    <!-- Javascript will populate this -->
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Shape Selector -->
+
+            <div class="dark-panel p-5 rounded-lg">
+
+                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+
+                    <i class="fa-solid fa-draw-polygon text-white"></i> Formato Base (Cabeça)
+
+                    <button type="button" data-lock-btn="face" onclick="toggleLock('face')" class="ml-auto text-[10px] text-gray-400 hover:text-white border border-[#262626] px-2 py-1 rounded">LOCK</button>
+
+                </h3>
+
+                <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="shape-grid">
+
+                    <!-- Javascript will populate this -->
+
+                </div>
+
+            </div>
+
+            <!-- Features Checkbox -->
+
+            <div class="dark-panel p-5 rounded-lg">
+
+                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+
+                    <i class="fa-solid fa-sliders text-white"></i> Características
+
+                </h3>
+
+                <div class="grid grid-cols-4 gap-3">
+
+                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+
+                        <input type="checkbox" class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="strong jawline" onchange="updatePrompt()">
+
+                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Maxilar Forte</span>
+
+                    </label>
+
+                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+
+                        <input type="checkbox" class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="pointed chin" onchange="updatePrompt()">
+
+                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Queixo Pontudo</span>
+
+                    </label>
+
+                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+
+                        <input type="checkbox" class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="chubby cheeks" onchange="updatePrompt()">
+
+                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Bochechas</span>
+
+                    </label>
+
+                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+
+                        <input type="checkbox" class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="long neck" onchange="updatePrompt()">
+
+                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Pescoço Longo</span>
+
+                    </label>
+
+                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+
+                        <input type="checkbox" class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="high forehead" onchange="updatePrompt()">
+
+                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Testa Alta</span>
+
+                    </label>
+
+                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+
+                        <input type="checkbox" class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="prominent ears" onchange="updatePrompt()">
+
+                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Orelhas Grandes</span>
+
+                    </label>
+
+                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+
+                        <input type="checkbox" class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="freckles" onchange="updatePrompt()">
+
+                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Sardas</span>
+
+                    </label>
+
+                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+
+                        <input type="checkbox" class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="facial scar" onchange="updatePrompt()">
+
+                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Cicatriz</span>
+
+                    </label>
+
+                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+
+                        <input type="checkbox" class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="dimples" onchange="updatePrompt()">
+
+                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Covinhas</span>
+
+                    </label>
+
+                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+
+                        <input type="checkbox" class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="wrinkles, aged skin" onchange="updatePrompt()">
+
+                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Rugas</span>
+
+                    </label>
+
+                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+
+                        <input type="checkbox" class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="beauty mark, mole" onchange="updatePrompt()">
+
+                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Sinal</span>
+
+                    </label>
+
+                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+
+                        <input type="checkbox" class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="gap teeth" onchange="updatePrompt()">
+
+                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Dentes Separados</span>
+
+                    </label>
+
+                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+
+                        <input type="checkbox" class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="bushy eyebrows" onchange="updatePrompt()">
+
+                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Sobrancelhas Grossas</span>
+
+                    </label>
+
+                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+
+                        <input type="checkbox" class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="cleft chin" onchange="updatePrompt()">
+
+                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Queixo Furado</span>
+
+                    </label>
+
+                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+
+                        <input type="checkbox" class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="face tattoo" onchange="updatePrompt()">
+
+                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Tatuagem</span>
+
+                    </label>
+
+                    <select id="beard-select" class="p-2 rounded border border-[#262626] bg-black text-gray-200 text-xs focus:border-[#E600DF] focus:outline-none" onchange="selectBeard(this.value)">
+
+                        <option value="">Sem barba</option>
+
+                        <option value="light stubble beard">Barba Rala</option>
+
+                        <option value="full beard">Barba Completa</option>
+
+                        <option value="goatee beard">Cavanhaque</option>
+
+                        <option value="mustache only">Apenas Bigode</option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Hair Length Selector -->
+
+            <div class="dark-panel p-5 rounded-lg">
+
+                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+
+                    <i class="fa-solid fa-ruler-vertical text-white"></i> Cabelo: Comprimento
+
+                    <button type="button" data-lock-btn="hair" onclick="toggleLock('hair')" class="ml-auto text-[10px] text-gray-400 hover:text-white border border-[#262626] px-2 py-1 rounded">LOCK</button>
+
+                </h3>
+
+                <div class="grid grid-cols-4 gap-3" id="hair-length-grid">
+
+                    <!-- Javascript will populate this -->
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Hair Style Selector -->
+
+            <div class="dark-panel p-5 rounded-lg" id="hair-style-panel">
+
+                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+
+                    <i class="fa-solid fa-scissors text-white"></i> Cabelo: Estilo
+
+                </h3>
+
+                <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="hair-style-grid">
+
+                    <!-- Javascript will populate this -->
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Hair Color Selector (NEW) -->
+
+            <div class="dark-panel p-5 rounded-lg">
+
+                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+
+                    <i class="fa-solid fa-palette text-white"></i> Cabelo: Cor
+
+                </h3>
+
+                <div class="grid grid-cols-4 sm:grid-cols-8 gap-3" id="hair-color-grid">
+
+                    <!-- Javascript will populate this -->
+
+                </div>
+
+            </div>
+
+            <!-- Eye Shape Selector -->
+
+            <div class="dark-panel p-5 rounded-lg">
+
+                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+
+                    <i class="fa-regular fa-eye text-white"></i> Olhos: Formato
+
+                </h3>
+
+                <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="eye-shape-grid">
+
+                    <!-- Javascript will populate this -->
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Eye Expression Selector -->
+
+            <div class="dark-panel p-5 rounded-lg" id="expression-panel">
+
+                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+
+                    <i class="fa-solid fa-face-smile text-white"></i> Olhos: Expressão
+
+                    <button type="button" data-lock-btn="expression" onclick="toggleLock('expression')" class="ml-auto text-[10px] text-gray-400 hover:text-white border border-[#262626] px-2 py-1 rounded">LOCK</button>
+
+                </h3>
+
+                <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="eye-expression-grid">
+
+                    <!-- Javascript will populate this -->
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Nose Selector -->
+
+            <div class="dark-panel p-5 rounded-lg" id="nose-panel">
+
+                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+
+                    <i class="fa-solid fa-play text-white fa-rotate-270" style="font-size: 0.8em;"></i> Nariz
+
+                </h3>
+
+                <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="nose-grid">
+
+                    <!-- Javascript will populate this -->
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Mouth Selector -->
+
+            <div class="dark-panel p-5 rounded-lg" id="mouth-panel">
+
+                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+
+                    <i class="fa-solid fa-lips text-white"></i> Boca
+
+                </h3>
+
+                <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="mouth-grid">
+
+                    <!-- Javascript will populate this -->
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Vestuário -->
+
+            <div class="dark-panel p-5 rounded-lg">
+
+                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+
+                    <i class="fa-solid fa-shirt text-white"></i> Vestuário
+
+                    <button type="button" data-lock-btn="outfit" onclick="toggleLock('outfit')" class="ml-auto text-[10px] text-gray-400 hover:text-white border border-[#262626] px-2 py-1 rounded">LOCK</button>
+
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    <div class="space-y-2">
+
+                        <label class="text-xs text-gray-400 flex items-center gap-2">
+
+                            <span class="inline-flex w-5 h-5 items-center justify-center text-gray-300" id="icon-shirt"></span> Camisas
+
+                        </label>
+
+                        <div class="relative">
+
+                            <select id="shirt-select" class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 focus:border-[#E600DF] focus:outline-none transition-colors appearance-none cursor-pointer" onchange="selectClothing('shirt', this.value)">
+
+                            </select>
+
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+
+                                <i class="fa-solid fa-chevron-down text-xs"></i>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="space-y-2">
+
+                        <label class="text-xs text-gray-400 flex items-center gap-2">
+
+                            <span class="inline-flex w-5 h-5 items-center justify-center text-gray-300" id="icon-jacket"></span> Casacos
+
+                        </label>
+
+                        <div class="relative">
+
+                            <select id="jacket-select" class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 focus:border-[#E600DF] focus:outline-none transition-colors appearance-none cursor-pointer" onchange="selectClothing('jacket', this.value)">
+
+                            </select>
+
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+
+                                <i class="fa-solid fa-chevron-down text-xs"></i>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="space-y-2">
+
+                        <label class="text-xs text-gray-400 flex items-center gap-2">
+
+                            <span class="inline-flex w-5 h-5 items-center justify-center text-gray-300" id="icon-pants"></span> Calças
+
+                        </label>
+
+                        <div class="relative">
+
+                            <select id="pants-select" class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 focus:border-[#E600DF] focus:outline-none transition-colors appearance-none cursor-pointer" onchange="selectClothing('pants', this.value)">
+
+                            </select>
+
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+
+                                <i class="fa-solid fa-chevron-down text-xs"></i>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="space-y-2">
+
+                        <label class="text-xs text-gray-400 flex items-center gap-2">
+
+                            <span class="inline-flex w-5 h-5 items-center justify-center text-gray-300" id="icon-shoes"></span> Calçados
+
+                        </label>
+
+                        <div class="relative">
+
+                            <select id="shoes-select" class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 focus:border-[#E600DF] focus:outline-none transition-colors appearance-none cursor-pointer" onchange="selectClothing('shoes', this.value)">
+
+                            </select>
+
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+
+                                <i class="fa-solid fa-chevron-down text-xs"></i>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="space-y-2 md:col-span-2">
+
+                        <label class="text-xs text-gray-400 flex items-center gap-2">
+
+                            <span class="inline-flex w-5 h-5 items-center justify-center text-gray-300" id="icon-fantasy"></span> Fantasias (bloqueia opções individuais)
+
+                        </label>
+
+                        <div class="relative">
+
+                            <select id="fantasy-select" class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 focus:border-[#E600DF] focus:outline-none transition-colors appearance-none cursor-pointer" onchange="selectClothing('fantasy', this.value)">
+
+                            </select>
+
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+
+                                <i class="fa-solid fa-chevron-down text-xs"></i>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Acessórios -->
+
+            <div class="dark-panel p-5 rounded-lg">
+
+                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+
+                    <span class="inline-flex w-5 h-5 items-center justify-center text-gray-300" id="icon-accessory"></span> Acessórios
+
+                    <button type="button" data-lock-btn="accessories" onclick="toggleLock('accessories')" class="ml-auto text-[10px] text-gray-400 hover:text-white border border-[#262626] px-2 py-1 rounded">LOCK</button>
+
+                </h3>
+
+                <div id="accessory-list" class="grid grid-cols-4 gap-3"></div>
+
+            </div>
+
+
+
+                </div>
+
+
+
+                <!-- Output Section -->
+
+                <div class="lg:col-span-5 space-y-6">
+
+            <div class="sticky top-24">
+
+                <div class="bg-[#141414] border border-[#262626] rounded-lg p-5 shadow-2xl">
+
+                    <div class="flex justify-between items-center mb-4">
+
+                        <h2 class="text-xs font-bold text-[#E600DF] uppercase tracking-wider bg-black/50 px-2 py-1 rounded inline-block border border-purple-900/30">
+
+                            Prompt Final
+
+                        </h2>
+
+                        <button onclick="randomize()" class="text-gray-500 hover:text-white text-[10px] uppercase tracking-wider bg-[#262626] hover:bg-[#333] px-3 py-1.5 rounded transition-colors flex items-center gap-2">
+
+                            <i class="fa-solid fa-dice"></i> Random
+
+                        </button>
+
+                    </div>
+
+
+
+                    <div class="relative group">
+
+                        <textarea id="prompt-output" class="w-full h-96 bg-black border border-[#262626] rounded-lg p-4 text-sm text-gray-300 focus:outline-none focus:border-[#E600DF] focus:text-white transition-colors font-mono resize-none leading-relaxed" readonly></textarea>
+
+                    </div>
+
+
+
+                    <div class="mt-4 pt-4 text-[#555] text-[10px]">
+
+                        
+
+                        <textarea id="negativePrompt" class="w-full bg-black border border-[#262626] rounded-lg p-2 text-[11px] text-gray-400 focus:outline-none focus:border-[#E600DF] focus:text-white transition-colors font-mono resize-none" rows="4">Negative Prompt:
+
+detailled eyes, realistic texture, photography, noise, watermark</textarea>
+
+                    </div>
+
+
+
+                    <button onclick="copyToClipboard()" class="w-full mt-4 bg-white hover:bg-gray-200 text-black font-bold py-3 px-6 rounded transition-all uppercase text-xs tracking-widest shadow-lg flex justify-center items-center gap-2">
+
+                        <i class="fa-regular fa-copy"></i> Copy Prompt
+
+                    </button>
+
+
+
+                    <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+                        <button onclick="exportCharacter()" class="w-full bg-[#262626] hover:bg-[#333] text-gray-200 font-semibold py-2.5 px-4 rounded border border-[#333] transition-all text-[11px] uppercase tracking-wider flex items-center justify-center gap-2">
+
+                            <i class="fa-solid fa-file-export text-[#E600DF]"></i> Exportar Personagem (JSON)
+
+                        </button>
+
+                        <button onclick="promptImport()" class="w-full bg-[#262626] hover:bg-[#333] text-gray-200 font-semibold py-2.5 px-4 rounded border border-[#333] transition-all text-[11px] uppercase tracking-wider flex items-center justify-center gap-2">
+
+                            <i class="fa-solid fa-file-import text-[#E600DF]"></i> Importar Personagem (JSON)
+
+                        </button>
+
+                    </div>
+
+                    <input type="file" id="import-file" accept="application/json" class="hidden" onchange="handleImportFile(this)">
+
+                </div>
+
+
+
+
+
+
+
+                <!-- Test Runner removed as requested -->
+
+            </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+
+    <!-- Toast -->
+
+    <div id="toast">COPIADO PARA O CLIPBOARD!</div>
+
+
+
+    <script>
+
+        // --- DADOS ---
+
+        // Gender
+
+        const genders = [
+
+            { id: 'male', label: 'Homem', value: 'male' },
+
+            { id: 'female', label: 'Mulher', value: 'female' },
+
+            { id: 'boy', label: 'Menino', value: 'young boy' },
+
+            { id: 'girl', label: 'Menina', value: 'young girl' },
+
+            { id: 'neutral', label: 'Neutro', value: 'androgynous gender neutral' }
+
+        ];
+
+
+
+        // Body Shapes (NEW)
+
+        const bodyShapes = [
+
+            { id: 'average', label: 'Médio', value: 'average body build, balanced proportions' },
+
+            { id: 'slender', label: 'Magro/Alto', value: 'tall and slender body, lanky, thin limbs' },
+
+            { id: 'muscular', label: 'Musculoso', value: 'muscular body build, broad shoulders, athletic' },
+
+            { id: 'chubby', label: 'Gordinho', value: 'chubby body shape, round soft belly, stout' },
+
+            { id: 'curvy', label: 'Curvilíneo', value: 'curvy hourglass body shape, wide hips' },
+
+            { id: 'pear', label: 'Pera', value: 'pear shaped body, narrow shoulders wide hips' },
+
+            { id: 'petite', label: 'Pequeno', value: 'short petite body stature, compact' },
+
+            { id: 'blocky', label: 'Robusto', value: 'blocky square body shape, heavy build' },
+
+            { id: 'chibi', label: 'Chibi', value: 'chibi proportions, big head small body' },
+
+            { id: 'bean', label: 'Feijão', value: 'bean shaped body, pill shaped torso, no distinct neck, cartoonish' }, // Novo
+
+            { id: 'heavy_top', label: 'Torso Largo', value: 'top heavy body build, huge chest small legs, gorilla proportions' }, // Novo
+
+            { id: 'headshot', label: 'Apenas Cabeça', value: 'headshot focus' }
+
+        ];
+
+
+
+        const poses = [
+
+            { id: 'standing', label: 'Em pe', value: 'standing pose' },
+
+            { id: 'walking', label: 'Andando', value: 'walking pose' },
+
+            { id: 'dancing', label: 'Dancando', value: 'dancing pose' },
+
+            { id: 'sitting', label: 'Sentado', value: 'sitting pose' },
+
+            { id: 'heroic', label: 'Heróico', value: 'heroic power stance, feet apart, fists clenched' },
+
+            { id: 'leaning', label: 'Encostado', value: 'leaning casually against wall, one leg bent' },
+
+            { id: 'arms_crossed', label: 'Braços Cruzados', value: 'arms crossed, confident look' },
+
+            { id: 'jumping', label: 'Pulando', value: 'mid-air jump pose with limbs splayed' },
+
+            { id: 'crouching', label: 'Agachado', value: 'low crouch ready-for-action stance' },
+
+            { id: 'pointing', label: 'Apontando', value: 'pointing or directing hand gesture with intensity' },
+
+            { id: 'gazing', label: 'Olhando de Lado', value: 'head turned to the side, glance over shoulder' }
+
+        ];
+
+        const animalSpecies = [
+
+            { id: 'cat', label: 'Gato', value: 'anthropomorphic cat hero with sleek fur, whiskered muzzle, expressive eyes', description: 'Feline, playful, curious' },
+
+            { id: 'dog', label: 'Cão', value: 'anthropomorphic dog sidekick with floppy ears, warm smile, wagging tail', description: 'Loyal, joyful, friendly' },
+
+            { id: 'rabbit', label: 'Coelho', value: 'anthropomorphic rabbit with long ears, energetic hop, twitching nose', description: 'Energetic, animated, spry' },
+
+            { id: 'fox', label: 'Raposa', value: 'anthropomorphic fox trickster with sly grin, bushy tail, elegant pose', description: 'Sly, sleek, mischievous' },
+
+            { id: 'bear', label: 'Urso', value: 'anthropomorphic bear with round cheeks, cuddly strength, plush coat', description: 'Beefy, gentle, warm' },
+
+            { id: 'mouse', label: 'Rato', value: 'anthropomorphic mouse with big ears, tiny nose, wide-eyed grin', description: 'Timid, clever, small' },
+
+            { id: 'bird', label: 'Pássaro', value: 'anthropomorphic bird with feathered crest, expressive wings, slender beak', description: 'Aerial, elegant, bright' },
+
+            { id: 'wolf', label: 'Lobo', value: 'anthropomorphic wolf guardian with intense stare, layered fur, heroic stance', description: 'Determinado, protetor, selvagem' },
+
+            { id: 'tiger', label: 'Tigre', value: 'anthropomorphic tiger warrior with bold stripes, muscular frame, blazing eyes', description: 'Feroz, elegante, dominante' },
+
+            { id: 'deer', label: 'Veado', value: 'anthropomorphic deer with elegant antlers, slender legs, serene demeanor', description: 'Gracioso, gentil, atento' },
+
+            { id: 'otter', label: 'Lontra', value: 'anthropomorphic otter with slick fur, playful grin, aquatic accessories', description: 'Brincalhão, esperto, fluido' },
+
+            { id: 'panda', label: 'Panda', value: 'anthropomorphic panda with soft fur patches, relaxed pose, bamboo props', description: 'Calmo, acolhedor, adorável' },
+
+            { id: 'raccoon', label: 'Guaxinim', value: 'anthropomorphic raccoon with masked eyes, curious posture, nimble fingers', description: 'Espertalhão, curioso, urbano' },
+
+            { id: 'elephant', label: 'Elefante', value: 'anthropomorphic elephant with tusks, broad ears, ceremonial drapery', description: 'Majestoso, sábio, sólido' },
+
+            { id: 'penguin', label: 'Pinguim', value: 'anthropomorphic penguin with tuxedo plumage, waddling gait, icy shine', description: 'Elegante, gentil, frio' }
+
+        ];
+
+
+
+        const furPatterns = [
+
+            { id: 'solid', label: 'Monocromático', value: 'solid colored fur with subtle highlights, clean cel shading' },
+
+            { id: 'striped', label: 'Listrado', value: 'striped fur pattern with contrasting bands, playful rhythm' },
+
+            { id: 'spotted', label: 'Pontos', value: 'spotted fur with gentle gradients, whimsical freckles' },
+
+            { id: 'feathered', label: 'Penado', value: 'feathered texture with layered plumage and soft edges' },
+
+            { id: 'fluffy', label: 'Fofinho', value: 'fluffy fur clumps, exaggerated volume, plush texture' },
+
+            { id: 'sleek', label: 'Liso', value: 'sleek glossy coat with reflected light and smooth shading' },
+
+            { id: 'tufted', label: 'Pontudo', value: 'tufted fur along ears and tail, painterly strokes and dynamic flow' }
+
+        ];
+
+
+
+
+
+
+
+
+
+        // Shapes (Cabeça)
+
+        const shapes = [
+
+            { id: 'oval', label: 'Oval Clássico', value: 'classic oval head shape, balanced proportions, natural look' },
+
+            { id: 'round', label: 'Redondo', value: 'spherical round head shape, circle geometry, innocent, cute' },
+
+            { id: 'square', label: 'Quadrado', value: 'square head shape, strong jawline, boxy, firm look' },
+
+            { id: 'rectangle', label: 'Retângulo', value: 'long rectangular head shape, oblong face, mature look' },
+
+            { id: 'triangle_up', label: 'Triângulo (Base)', value: 'triangular head shape, wide jawline, narrow forehead, powerful look' },
+
+            { id: 'triangle_down', label: 'Triângulo Inv.', value: 'inverted triangle head shape, wide forehead, narrow chin, intelligent look' },
+
+            { id: 'teardrop', label: 'Gota', value: 'teardrop head shape, wide cranium, narrow pointed chin, delicate look' },
+
+            { id: 'hexagon', label: 'Hexagonal', value: 'hexagonal face shape, angular cheekbones, graphic look' },
+
+            { id: 'trapezoid', label: 'Trapézio', value: 'trapezoid head shape, wide heavy jaw, stable look' },
+
+            { id: 'heart', label: 'Coração', value: 'heart shaped face, widow\'s peak, pointed chin, charismatic look' },
+
+            { id: 'block', label: 'Bloco/Cubo', value: 'cube head shape, blocky, sharp edges, strong identity' },
+
+            { id: 'asymmetric', label: 'Assimétrico', value: 'asymmetrical head shape, quirky features, irregular, unique personality' }
+
+        ];
+
+
+
+        // Cabelo: Comprimentos
+
+        const hairLengths = [
+
+            { id: 'bald', label: 'Careca', value: 'bald head, smooth scalp' },
+
+            { id: 'short', label: 'Curto', value: 'short hair' },
+
+            { id: 'medium', label: 'Médio', value: 'medium length hair' },
+
+            { id: 'long', label: 'Longo', value: 'long hair' }
+
+        ];
+
+
+
+        // Cabelo: Estilos
+
+        const hairStyles = {
+
+            'bald': [
+
+                { id: 'none', label: 'Liso', value: 'smooth skin, no hair' },
+
+                { id: 'stubble', label: 'Ralo', value: 'hair stubble, shaved head texture' },
+
+                { id: 'pattern', label: 'Padrão', value: 'shaved hair pattern on side' }
+
+            ],
+
+            'short': [
+
+                { id: 'buzz', label: 'Militar', value: 'buzz cut' },
+
+                { id: 'mohawk', label: 'Moicano', value: 'mohawk hairstyle, punk style' },
+
+                { id: 'afro_short', label: 'Afro Curto', value: 'short afro hairstyle, natural texture' },
+
+                { id: 'spiky', label: 'Espetado', value: 'spiky hair, messy short hair' },
+
+                { id: 'pompadour', label: 'Topete', value: 'pompadour hairstyle, rockabilly' },
+
+                { id: 'curly_short', label: 'Encaracolado', value: 'short curly hair' },
+
+                { id: 'undercut', label: 'Undercut', value: 'undercut hairstyle, shaved sides long top' },
+
+                { id: 'pixie', label: 'Pixie', value: 'pixie cut, short textured hair, chic' }
+
+            ],
+
+            'medium': [
+
+                { id: 'bob', label: 'Chanel', value: 'bob cut hairstyle' },
+
+                { id: 'shaggy', label: 'Desgrenhado', value: 'shaggy medium hair, messy layers' },
+
+                { id: 'mullet', label: 'Mullet', value: 'mullet hairstyle, short front long back' },
+
+                { id: 'curly_med', label: 'Encaracolado', value: 'medium curly hair, volume' },
+
+                { id: 'dreads_med', label: 'Dreads', value: 'medium length dreadlocks' },
+
+                { id: 'bun', label: 'Coque', value: 'man bun, hair bun' },
+
+                { id: 'layered', label: 'Em Camadas', value: 'layered medium hair, textured' },
+
+                { id: 'side_swept', label: 'Jogado Lado', value: 'side swept medium hair, asymmetrical' }
+
+            ],
+
+            'long': [
+
+                { id: 'straight', label: 'Liso', value: 'straight flowing long hair' },
+
+                { id: 'wavy', label: 'Ondulado', value: 'wavy long hair, beach waves' },
+
+                { id: 'braids', label: 'Tranças', value: 'long braided hair, cornrows' },
+
+                { id: 'ponytail', label: 'Rabo Cavalo', value: 'high ponytail hairstyle' },
+
+                { id: 'dreads_long', label: 'Dreads', value: 'long dreadlocks' },
+
+                { id: 'afro_long', label: 'Afro Grande', value: 'large afro hairstyle, big volume' },
+
+                { id: 'twin_tails', label: 'Maria Chiquinha', value: 'twin tails, pigtails, two ponytails' },
+
+                { id: 'straight_bangs', label: 'Franja Reta', value: 'long hair with straight bangs, hime cut' }
+
+            ]
+
+        };
+
+
+
+        // Hair Colors (NEW)
+
+        const hairColors = [
+
+            { id: 'black', color: '#090806', value: 'black' },
+
+            { id: 'brown', color: '#4b3621', value: 'brunette' },
+
+            { id: 'blonde', color: '#faf0be', value: 'blonde' },
+
+            { id: 'red', color: '#8d230f', value: 'ginger red' },
+
+            { id: 'grey', color: '#9e9e9e', value: 'grey' },
+
+            { id: 'white', color: '#ffffff', value: 'white' },
+
+            { id: 'pink', color: '#ff69b4', value: 'pink' },
+
+            { id: 'blue', color: '#0000ff', value: 'blue' }
+
+        ];
+
+
+
+        // Skin Tones
+
+        const skinTones = [
+
+            { id: 'albino', color: '#fff5eb', value: 'albino skin, porcelain complexion, very pale' }, 
+
+            { id: 'pale', color: '#f8d9d5', value: 'pale skin, fair complexion' },
+
+            { id: 'light', color: '#eac0ad', value: 'light skin, caucasian' },
+
+            { id: 'beige', color: '#e0ac69', value: 'warm beige skin, golden undertone' }, 
+
+            { id: 'tan', color: '#d1a58a', value: 'tan skin, sun kissed skin' },
+
+            { id: 'olive', color: '#b38b6d', value: 'olive skin, mediterranean complexion' },
+
+            { id: 'medium', color: '#8d5524', value: 'medium brown skin, latino' },
+
+            { id: 'bronze', color: '#6d4c41', value: 'bronze skin, rich brown complexion' }, 
+
+            { id: 'brown', color: '#5e3c23', value: 'brown skin, indian complexion' },
+
+            { id: 'dark', color: '#3b2219', value: 'dark skin, african american' },
+
+            { id: 'darkest', color: '#211613', value: 'very dark skin, deep ebony skin' },
+
+            { id: 'midnight', color: '#0f0b0a', value: 'obsidian skin, extremely dark complexion' }, 
+
+            // Fantasy Colors
+
+            { id: 'green', color: '#8bc34a', value: 'green skin, alien, zombie', skipRandom: true },
+
+            { id: 'blue', color: '#2196f3', value: 'blue skin, avatar style', skipRandom: true },
+
+            { id: 'grey', color: '#9e9e9e', value: 'grey skin, undead', skipRandom: true },
+
+            { id: 'red', color: '#f44336', value: 'red skin, demon', skipRandom: true }
+
+        ];
+
+
+
+        // Eye Shapes
+
+        const eyeShapes = [
+
+            { id: 'none', label: 'Sem Olhos', value: 'no facial features, blank face' },
+
+            { id: 'dot', label: 'Pontinhos', value: 'simple black dot eyes, small eyes' },
+
+            { id: 'round', label: 'Redondos', value: 'large round cartoon eyes' },
+
+            { id: 'vertical', label: 'Verticais', value: 'vertical oval eyes' },
+
+            { id: 'angular', label: 'Angulares', value: 'angular stylized eyes, sharp corners' },
+
+            { id: 'wide', label: 'Afastados', value: 'eyes wide apart' },
+
+            { id: 'almond', label: 'Amendoados', value: 'almond shaped eyes, exotic cat-eyes' }, 
+
+            { id: 'square_eye', label: 'Quadrados', value: 'square shaped eyes, robotic eyes' } 
+
+        ];
+
+
+
+        // Eye Expressions (UPDATED with 8 new items)
+
+        const eyeExpressions = [
+
+            { id: 'neutral', label: 'Neutro', value: 'neutral expression, open eyes' },
+
+            { id: 'happy', label: 'Feliz', value: 'happy expression, arched eyebrows, smiling eyes' },
+
+            { id: 'angry', label: 'Zangado', value: 'angry expression, furrowed brows, sharp angles' },
+
+            { id: 'tired', label: 'Cansado', value: 'tired expression, heavy bags under eyes, half-lidded' },
+
+            { id: 'surprised', label: 'Surpreso', value: 'surprised expression, popping eyes, dilated pupils' },
+
+            { id: 'suspicious', label: 'Desconfiado', value: 'suspicious expression, squinting eyes, narrowed' },
+
+            { id: 'hypnotized', label: 'Hipnose', value: 'hypnotized expression, spiral pattern in eyes' },
+
+            { id: 'dead', label: 'Morto (X)', value: 'knocked out expression, X shaped pupils' },
+
+            // NOVAS EXPRESSÕES
+
+            { id: 'sad', label: 'Triste', value: 'sad expression, crying, teary eyes, downturned eyebrows' },
+
+            { id: 'love', label: 'Apaixonado', value: 'in love expression, heart shaped eyes, romantic' },
+
+            { id: 'wink', label: 'Piscar', value: 'winking expression, one eye closed, playful' },
+
+            { id: 'bored', label: 'Entediado', value: 'bored expression, deadpan, half-closed eyes' },
+
+            { id: 'scared', label: 'Assustado', value: 'scared expression, tiny pupils, wide open eyes, fear' },
+
+            { id: 'crazy', label: 'Louco', value: 'crazy expression, mismatched pupil sizes, dilated pupils, insane' },
+
+            { id: 'money', label: 'Dinheiro', value: 'greedy expression, dollar sign eyes, seeing money' },
+
+            { id: 'stars', label: 'Fascinado', value: 'starry eyed, star shaped pupils, excited, amazed' }
+
+        ];
+
+
+
+        // Noses
+
+        const noses = [
+
+            { id: 'none', label: 'Sem Nariz', value: 'no nose, flat face' },
+
+            { id: 'button', label: 'Botão', value: 'cute button nose, small snub nose' },
+
+            { id: 'pointed', label: 'Pontudo', value: 'long pointed nose, sharp nose' },
+
+            { id: 'bulbous', label: 'Batata', value: 'bulbous nose, big round nose' },
+
+            { id: 'roman', label: 'Romano', value: 'roman nose, hooked nose' },
+
+            { id: 'hook', label: 'Gancho', value: 'hooked nose, witch nose, sharp curve' }, 
+
+            { id: 'wide', label: 'Largo', value: 'wide flat nose, broad nose' },
+
+            { id: 'pig', label: 'Porquinho', value: 'pig snout nose, upturned nose' }
+
+        ];
+
+
+
+        // Mouths
+
+        const mouths = [
+
+            { id: 'none', label: 'Sem Boca', value: 'no mouth, blank face' },
+
+            { id: 'smile', label: 'Sorriso', value: 'smiling mouth, simple curve' },
+
+            { id: 'frown', label: 'Triste', value: 'frowning mouth, inverted curve' },
+
+            { id: 'open', label: 'Aberta', value: 'open mouth, O shape mouth, surprised' },
+
+            { id: 'grin', label: 'Dentes', value: 'grinning mouth, showing teeth, clenched teeth' },
+
+            { id: 'lips', label: 'Lábios', value: 'prominent lips, lipstick' },
+
+            { id: 'thin', label: 'Fina', value: 'thin lips, straight mouth line, serious' }, 
+
+            { id: 'tongue', label: 'Língua', value: 'sticking tongue out, cheeky expression' }
+
+        ];
+
+
+
+        // Vestuário
+
+        const clothingOptions = {
+
+            shirt: [
+
+                { id: 'tee_basic', label: 'T-shirt Casual', value: 'casual cotton t-shirt' },
+
+                { id: 'shirt_formal', label: 'Camisa Social', value: 'pressed dress shirt' },
+
+                { id: 'tank', label: 'Regata', value: 'sleeveless tank top' },
+
+                { id: 'hoodie', label: 'Hoodie', value: 'hoodie sweater' },
+
+                { id: 'polo_m', label: 'Polo Masculina', value: 'men polo shirt' },
+
+                { id: 'henley_m', label: 'Henley Masculina', value: 'mens henley shirt' },
+
+                { id: 'flannel_m', label: 'Flanela Masculina', value: 'mens flannel shirt' },
+
+                { id: 'sweater_m', label: 'Suéter Masculino', value: 'mens crewneck sweater' },
+
+                { id: 'vneck_m', label: 'Camiseta V Masculina', value: 'mens v-neck tee' },
+
+                { id: 'tank_muscle_m', label: 'Regata Musculação', value: 'mens muscle tank' },
+
+                { id: 'blouse_f', label: 'Blusa Feminina', value: 'women blouse' },
+
+                { id: 'crop_f', label: 'Top Feminino', value: 'women crop top' },
+
+                { id: 'wrap_blouse_f', label: 'Blusa Transpassada', value: 'women wrap blouse' },
+
+                { id: 'camisole_f', label: 'Camisete de Seda', value: 'silk camisole top' },
+
+                { id: 'babytee_f', label: 'Baby Tee', value: 'women baby tee' },
+
+                { id: 'crop_hoodie_f', label: 'Hoodie Cropped', value: 'women cropped hoodie' },
+
+                { id: 'offshoulder_f', label: 'Ombro a Ombro', value: 'off shoulder women top' },
+
+                { id: 'dress_summer_f', label: 'Vestido Verão', value: 'summer dress' },
+
+                { id: 'dress_evening_f', label: 'Vestido de Festa', value: 'evening dress' },
+
+                { id: 'dress_wrap_f', label: 'Vestido Envelope', value: 'wrap dress' }
+
+            ],
+
+            jacket: [
+
+                { id: 'none_jacket', label: 'Sem Casaco', value: 'no jacket' },
+
+                { id: 'leather', label: 'Jaqueta de Couro', value: 'leather jacket' },
+
+                { id: 'bomber', label: 'Bomber', value: 'bomber jacket' },
+
+                { id: 'denim', label: 'Jeans', value: 'denim jacket' },
+
+                { id: 'blazer', label: 'Blazer', value: 'tailored blazer' },
+
+                { id: 'cardigan_f', label: 'Cardigã Feminino', value: 'women cardigan' },
+
+                { id: 'blazer_f', label: 'Blazer Feminino', value: 'women fitted blazer' },
+
+                { id: 'coat_m', label: 'Casaco Masculino', value: 'mens overcoat' }
+
+            ],
+
+            pants: [
+
+                { id: 'jeans', label: 'Jeans', value: 'denim jeans' },
+
+                { id: 'trousers', label: 'Social', value: 'tailored trousers' },
+
+                { id: 'shorts', label: 'Bermuda', value: 'knee length shorts' },
+
+                { id: 'jogger', label: 'Jogger', value: 'jogger pants' },
+
+                { id: 'skirt', label: 'Saia Midi', value: 'midi skirt' },
+
+                { id: 'legging', label: 'Legging', value: 'legging pants' },
+
+                { id: 'mini_skirt_f', label: 'Mini Saia', value: 'mini skirt' },
+
+                { id: 'pleated_skirt_f', label: 'Saia Plissada', value: 'pleated skirt' },
+
+                { id: 'wrap_skirt_f', label: 'Saia Envelope', value: 'wrap skirt' },
+
+                { id: 'highwaist_trouser_f', label: 'Calça Cintura Alta', value: 'high waist women trousers' },
+
+                { id: 'culotte_f', label: 'Culotte', value: 'culotte pants' },
+
+                { id: 'cargo_m', label: 'Cargo Masculina', value: 'mens cargo pants' },
+
+                { id: 'chino_m', label: 'Chino Masculina', value: 'mens chino pants' },
+
+                { id: 'suit_pants_m', label: 'Calça de Terno', value: 'mens suit trousers' },
+
+                { id: 'shorts_sport_m', label: 'Short Esportivo', value: 'mens sport shorts' },
+
+                { id: 'trackpants_m', label: 'Calça de Moletom', value: 'mens track pants' },
+
+                { id: 'jeans_slim_m', label: 'Jeans Slim', value: 'mens slim jeans' },
+
+                { id: 'boardshort_m', label: 'Short Praia', value: 'mens board shorts' },
+
+                { id: 'tailored_short_m', label: 'Short Social', value: 'mens tailored shorts' }
+
+            ],
+
+            shoes: [
+
+                { id: 'sneakers', label: 'Tênis', value: 'sneakers' },
+
+                { id: 'boots', label: 'Botas', value: 'leather boots' },
+
+                { id: 'dress_shoes', label: 'Sapato Social', value: 'dress shoes' },
+
+                { id: 'sandals', label: 'Sandálias', value: 'sandals' },
+
+                { id: 'heels_f', label: 'Salto Alto', value: 'high heels' },
+
+                { id: 'oxford_m', label: 'Oxford Masculino', value: 'mens oxford shoes' }
+
+            ]
+
+        };
+
+
+
+        const accessories = [
+
+            { id: 'glasses', label: 'Óculos', value: ' eyeglasses' },
+
+            { id: 'sunglasses', label: 'Óculos Escuros', value: 'sunglasses' },
+
+            { id: 'cap', label: 'Boné', value: 'baseball cap' },
+
+            { id: 'earrings', label: 'Brincos', value: 'earrings' },
+
+            { id: 'gloves', label: 'Luvas', value: 'stylish gloves' },
+
+            { id: 'scarf', label: 'Cachecol', value: 'scarf' },
+
+            { id: 'hat', label: 'Chapéu', value: 'hat' },
+
+            { id: 'watch', label: 'Relógio', value: 'wrist watch' },
+
+            { id: 'necklace', label: 'Colar', value: 'necklace' },
+
+            { id: 'bracelet', label: 'Pulseira', value: 'bracelet' },
+
+            { id: 'ring', label: 'Anel', value: 'ring' },
+
+            { id: 'belt', label: 'Cinto', value: 'belt' },
+
+            { id: 'backpack', label: 'Mochila', value: 'backpack' },
+
+            { id: 'headphones', label: 'Headphones', value: 'headphones' },
+
+            { id: 'tie', label: 'Gravata', value: 'tie' },
+
+            { id: 'bowtie', label: 'Gravata Borboleta', value: 'bow tie' }
+
+        ];
+
+
+
+        const styles2D = [];
+
+        const styles3D = [];
+
+
+
+        const fantasyOutfits = [
+
+            { id: 'none', label: 'Nenhuma Fantasia', value: '' },
+
+            { id: 'pirate', label: 'Pirata', value: 'pirate costume with tricorn hat, striped shirt, sash, boots, eye patch' },
+
+            { id: 'astronaut', label: 'Astronauta', value: 'astronaut suit with helmet and life support pack' },
+
+            { id: 'knight', label: 'Cavaleiro', value: 'medieval knight armor, tabard, sword and shield' },
+
+            { id: 'ninja', label: 'Ninja', value: 'stealth ninja outfit with mask and tabi boots' },
+
+            { id: 'superhero', label: 'Super-herói', value: 'superhero jumpsuit with cape and emblem chest' },
+
+            { id: 'samurai', label: 'Samurai', value: 'samurai armor, kimono layers, katana sword, kabuto helmet' },
+
+            { id: 'cowboy', label: 'Cowboy', value: 'western cowboy outfit with stetson, fringe jacket, bandana, boots' },
+
+            { id: 'viking', label: 'Viking', value: 'viking warrior attire with fur cloak, horned helmet, axe, braided beard' },
+
+            { id: 'ballerina', label: 'Bailarina', value: 'ballet tutu, pointe shoes, delicate tulle, graceful pose' },
+
+            { id: 'rockstar', label: 'Rock Star', value: 'glittery stage outfit, leather jacket, microphone stand, dramatic lighting' },
+
+            { id: 'steampunk', label: 'Steampunk', value: 'steampunk outfit with goggles, corset, brass gears, mechanical arm pieces' },
+
+            { id: 'cyberpunk', label: 'Cyberpunk', value: 'cyberpunk street attire with neon trims, visors, tech implants, glowing tattoos' },
+
+            { id: 'archer', label: 'Arqueiro', value: 'elven archer uniform, leather quiver, longbow, hooded cloak' },
+
+            { id: 'space_marine', label: 'Space Marine', value: 'powered armor plating, helmet visor, energy rifle, tactical belts' },
+
+            { id: 'acrobat', label: 'Acrobata', value: 'circus acrobat costume, sequined leotard, flowing ribbons, dynamic pose' },
+
+            { id: 'diver', label: 'Mergulhador', value: 'vintage diving suit, brass helmet, air hoses, weighted boots' },
+
+            { id: 'ranger', label: 'Guarda-Florestal', value: 'forest ranger gear, camo vest, binoculars, rugged boots' },
+
+            { id: 'gladiator', label: 'Gladiador', value: 'roman gladiator armor, crest helmet, shield, short sword' }
+
+        ];
+
+
+
+        const presets = [
+
+            // Presets 3D
+
+            {
+
+                id: 'pixar',
+
+                label: 'Pixar/Disney 3D',
+
+                dimension: '3D',
+
+                styleValue: '3D Pixar style render, soft lighting, subdivision surface, semi-realistic cartoon',
+
+                styleTokens: ['soft subsurface scattering', 'appealing stylized shading', 'smooth gradients'],
+
+                cameraTokens: ['cinematic lighting', 'soft rim light', 'bounced fill light'],
+
+                backgroundTokens: ['studio backdrop', 'clean environment'],
+
+                qualityTokens: ['highly detailed render'],
+
+                negativePrompt: 'grain, watermark, low quality, harsh shadows, photographic realism, 2d, flat'
+
+            },
+
+            {
+
+                id: 'aardman',
+
+                label: 'Aardman / Claymation',
+
+                dimension: '3D',
+
+                styleValue: 'plasticine clay texture, Aardman style, fingerprint imperfections, stop motion look',
+
+                styleTokens: ['stop-motion look', 'clay material', 'fingerprint texture'],
+
+                cameraTokens: ['gentle key light', 'shallow depth of field'],
+
+                backgroundTokens: ['practical miniature background'],
+
+                qualityTokens: ['handcrafted feel'],
+
+                negativePrompt: 'digital smoothness, glossy plastic, clean perfect surfaces, motion blur, 2d'
+
+            },
+
+            {
+
+                id: 'felt',
+
+                label: 'Boneco de Feltro',
+
+                dimension: '3D',
+
+                styleValue: 'felt puppet style, wool texture, visible stitching, handmade felt doll, soft fuzzy texture, needle felting, stop motion aesthetic',
+
+                styleTokens: ['soft materials', 'stitched details'],
+
+                cameraTokens: ['soft studio lighting'],
+
+                backgroundTokens: ['simple fabric background'],
+
+                qualityTokens: ['tactile textures'],
+
+                negativePrompt: 'glossy, plastic, sharp edges, metallic, 2d, flat'
+
+            },
+
+            {
+
+                id: 'lowpoly',
+
+                label: 'Low Poly 3D',
+
+                dimension: '3D',
+
+                styleValue: 'low poly 3D, faceted geometry, PlayStation 1 aesthetics, sharp edges',
+
+                styleTokens: ['minimalist 3d', 'flat shading'],
+
+                cameraTokens: ['isometric view'],
+
+                backgroundTokens: ['simple geometric background'],
+
+                qualityTokens: ['crisp edges'],
+
+                negativePrompt: 'smooth surfaces, rounded corners, photo, detailed textures, 2d, flat'
+
+            },
+
+            {
+
+                id: 'vinyl',
+
+                label: 'Toy Vinyl (Funko)',
+
+                dimension: '3D',
+
+                styleValue: 'vinyl toy material, glossy plastic, Funko Pop aesthetic',
+
+                styleTokens: ['collectible toy', 'glossy finish'],
+
+                cameraTokens: ['clean studio lighting'],
+
+                backgroundTokens: ['solid color background'],
+
+                qualityTokens: ['product shot'],
+
+                negativePrompt: 'realistic, fabric, wood, organic texture, 2d, flat'
+
+            },
+
+            {
+
+                id: 'fortnite',
+
+                label: 'Game Asset (Fortnite)',
+
+                dimension: '3D',
+
+                styleValue: 'stylized 3D game asset, stylized PBR textures, rim lighting',
+
+                styleTokens: ['game ready model', 'hand-painted textures'],
+
+                cameraTokens: ['dynamic action pose lighting'],
+
+                backgroundTokens: ['abstract game environment'],
+
+                qualityTokens: ['Unreal Engine render'],
+
+                negativePrompt: 'realistic, photorealistic, cinematic, 2d, flat'
+
+            },
+
+             {
+
+                id: 'lego',
+
+                label: 'Boneco Lego',
+
+                dimension: '3D',
+
+                styleValue: 'lego brick character, glossy plastic studs, clean studio lighting',
+
+                styleTokens: ['blocky', 'modular design'],
+
+                cameraTokens: ['studio product shot'],
+
+                backgroundTokens: ['simple color background'],
+
+                qualityTokens: ['macro photography'],
+
+                negativePrompt: 'organic shapes, curves, realistic, 2d, flat'
+
+            },
+
+            {
+
+                id: 'semireal',
+
+                label: 'Render Semi-Realista',
+
+                dimension: '3D',
+
+                styleValue: 'stylized semi-realistic 3D render, realistic materials, subsurface scattering, cinematic lighting',
+
+                styleTokens: ['hyper-stylized realism', 'detailed texturing'],
+
+                cameraTokens: ['dramatic cinematic lighting'],
+
+                backgroundTokens: ['dark studio background'],
+
+                qualityTokens: ['Octane render, 4k'],
+
+                negativePrompt: 'cartoon, flat, 2d, illustration'
+
+            },
+
+            {
+
+                id: 'voxel',
+
+                label: 'Voxel Art',
+
+                dimension: '3D',
+
+                styleValue: '3D voxel art, minecraft aesthetic, blocky cubes, low detail',
+
+                styleTokens: ['pixelated 3D', 'cubic forms'],
+
+                cameraTokens: ['isometric camera'],
+
+                backgroundTokens: ['simple block background'],
+
+                qualityTokens: ['sharp pixels'],
+
+                negativePrompt: 'curves, smooth surfaces, circles, realistic, 2d, flat'
+
+            },
+
+            // Presets 2D
+
+            {
+
+                id: 'disney2d',
+
+                label: 'Disney Clássico (2D)',
+
+                dimension: '2D',
+
+                styleValue: 'classic Disney 2D animation style, hand drawn, clean lines, expressive, 1990s renaissance era, cel animation',
+
+                styleTokens: ['clean cel outlines', 'vibrant flat colors', 'hand drawn charm'],
+
+                cameraTokens: ['even cel shading light'],
+
+                backgroundTokens: ['simple gradient background'],
+
+                qualityTokens: ['line clarity'],
+
+                negativePrompt: 'sketchy lines, grain, noise, watercolor bleed, harsh shading, 3d render'
+
+            },
+
+            {
+
+                id: 'anthro_classic',
+
+                label: 'Hanna-Barbera / Disney (Anthro)',
+
+                dimension: '2D',
+
+                styleValue: 'colorful cel-shaded animals in the Hanna-Barbera and classic Disney tradition, bold outlines, warmth, expressive faces',
+
+                styleTokens: ['Hanna-Barbera inspired line art', 'Disney animal warmth', 'expressive exaggerated poses'],
+
+                cameraTokens: ['three-quarter view with soft rim lighting'],
+
+                backgroundTokens: ['pastel gradient backdrop', 'simple storybook stage'],
+
+                qualityTokens: ['clean cel shading', 'cartoon vibrant palette'],
+
+                negativePrompt: 'photorealism, harsh shadows, noise, 3d rendering, dark gritty textures'
+
+            },
+
+            {
+
+                id: 'ligne_claire',
+
+                label: 'Ligne Claire (Franco-Belga)',
+
+                dimension: '2D',
+
+                styleValue: 'ligne claire franco-belgian comics style, flat bright colors, clear line, tintin style',
+
+                styleTokens: ['clear line art', 'flat bright colors', 'minimal shading'],
+
+                cameraTokens: ['even daylight lighting'],
+
+                backgroundTokens: ['simple graphic background'],
+
+                qualityTokens: ['crisp inking'],
+
+                negativePrompt: 'cross-hatching, heavy shading, gradients, painterly texture, sketchy lines, 3d'
+
+            },
+
+             {
+
+                id: 'vector',
+
+                label: 'Cartoon Vetorial',
+
+                dimension: '2D',
+
+                styleValue: 'flat 2D vector art, clean lines, minimalist, Adobe Illustrator style, no gradients',
+
+                styleTokens: [],
+
+                cameraTokens: [],
+
+                backgroundTokens: ['simple gradient background'],
+
+                qualityTokens: ['sharp vector lines'],
+
+                negativePrompt: 'sketchy, textured, 3d, photographic'
+
+            },
+
+            {
+
+                id: '90s',
+
+                label: 'Desenho de TV (Anos 90)',
+
+                dimension: '2D',
+
+                styleValue: '90s cartoon network style, thick black outlines, cel shaded, vibrant flat colors',
+
+                styleTokens: [],
+
+                cameraTokens: [],
+
+                backgroundTokens: ['abstract geometric background'],
+
+                qualityTokens: ['cel animation look'],
+
+                negativePrompt: 'realistic, 3d, detailed shading'
+
+            },
+
+            {
+
+                id: 'chibi',
+
+                label: 'Anime Chibi',
+
+                dimension: '2D',
+
+                styleValue: 'chibi anime style, simplified geometry, cute proportions',
+
+                styleTokens: [],
+
+                cameraTokens: [],
+
+                backgroundTokens: ['sparkly cute background'],
+
+                qualityTokens: ['clean anime lines'],
+
+                negativePrompt: 'realistic proportions, 3d'
+
+            },
+
+             {
+
+                id: 'minimalist',
+
+                label: 'Minimalista',
+
+                dimension: '2D',
+
+                styleValue: 'ultra minimalist, iconography style, solid shapes, no outlines',
+
+                styleTokens: [],
+
+                cameraTokens: [],
+
+                backgroundTokens: ['solid color background'],
+
+                qualityTokens: ['geometric precision'],
+
+                negativePrompt: 'details, texture, shading, 3d'
+
+            },
+
+            {
+
+                id: 'sketch',
+
+                label: 'Rascunho a Lápis',
+
+                dimension: '2D',
+
+                styleValue: 'rough pencil sketch, construction lines visible, loose gesture drawing',
+
+                styleTokens: ['graphite texture', 'sketchbook page'],
+
+                cameraTokens: [],
+
+                backgroundTokens: ['white paper background'],
+
+                qualityTokens: ['hand drawn feel'],
+
+                negativePrompt: 'clean lines, vector, digital, 3d, color'
+
+            },
+
+            {
+
+                id: 'retro_anime',
+
+                label: 'Anime Retrô (Anos 80)',
+
+                dimension: '2D',
+
+                styleValue: '1980s anime style, film grain, cel shading, limited palette, hand drawn',
+
+                styleTokens: [],
+
+                cameraTokens: [],
+
+                backgroundTokens: ['80s style background'],
+
+                qualityTokens: ['vintage look'],
+
+                negativePrompt: 'modern anime, crisp digital lines, 3d'
+
+            },
+
+            {
+
+                id: 'shonen',
+
+                label: 'Shonen Action',
+
+                dimension: '2D',
+
+                styleValue: 'shonen manga portrait, confident hero on white studio background, vibrant saturated colors, clean bold ink lines, subtle energetic highlights',
+
+                styleTokens: [
+
+                    'clean bold linework',
+
+                    'balanced heroic pose',
+
+                    'minimal shading with soft highlights',
+
+                    'studio portrait lighting',
+
+                    'calm controlled energy',
+
+                    'vibrant saturated colors'
+
+                ],
+
+                cameraTokens: [
+
+                    'centered medium portrait framing',
+
+                    'slightly low angle to emphasize strength',
+
+                    'soft diffused rim light'
+
+                ],
+
+                backgroundTokens: ['plain white background with subtle drop shadow'],
+
+                qualityTokens: ['crisp line work', 'print-friendly high contrast'],
+
+                negativePrompt: 'speed lines, comic panels, high energy action lines, bold onomatopoeia, character design sheet, full body walking pose'
+
+            },
+
+            {
+
+                id: 'seinen',
+
+                label: 'Seinen Mood',
+
+                dimension: '2D',
+
+                styleValue: 'seinen manga portrait, detailed linework, subdued shading, calm cinematic lighting on a white backdrop, muted earth-tone palette',
+
+                styleTokens: [
+
+                    'textured cross-hatching',
+
+                    'muted tonal palette',
+
+                    'soft chiaroscuro',
+
+                    'emotional focus',
+
+                    'calm dramatic atmosphere',
+
+                    'muted earth tones'
+
+                ],
+
+                cameraTokens: ['medium close-up with balanced frame', 'gentle cinematic depth', 'soft diffused spotlight'],
+
+                backgroundTokens: ['plain white background with gentle ambient shadow'],
+
+                qualityTokens: ['fine-lined engraving look', 'film grain for depth'],
+
+                negativePrompt: 'bright saturated colors, chibi proportions, busy backgrounds, character design sheet'
+
+            },
+
+            {
+
+                id: 'kodomomuke',
+
+                label: 'Kodomomuke Cheer',
+
+                dimension: '2D',
+
+                styleValue: 'kodomomuke portrait, cheerful simplified shapes, bright kid-friendly palette, smiling face on white background',
+
+                styleTokens: [
+
+                    'simple rounded forms',
+
+                    'bright pastel palette',
+
+                    'flat clean fills',
+
+                    'friendly expression',
+
+                    'playful simplicity'
+
+                ],
+
+                cameraTokens: ['straight-on centered portrait', 'balanced friendly composition'],
+
+                backgroundTokens: ['plain white background with minimal shadow'],
+
+                qualityTokens: ['print quality for kids books', 'bold outline clarity'],
+
+                negativePrompt: 'dark drama, gritty details, busy landscapes, character design sheet'
+
+            },
+
+            {
+
+                id: 'shoujo',
+
+                label: 'Shoujo Romance',
+
+                dimension: '2D',
+
+                styleValue: 'shoujo manga portrait, delicate lines, pastel gradients, soft romantic mood on a white background',
+
+                styleTokens: [
+
+                    'delicate thin linework',
+
+                    'sparkle bokeh',
+
+                    'flowing hair motion',
+
+                    'emotional close-up',
+
+                    'soft glowing highlights'
+
+                ],
+
+                cameraTokens: ['soft focus close-up', 'portrait orientation with emotional framing', 'dreamy vignette lighting'],
+
+                backgroundTokens: ['plain white background with soft vignette'],
+
+                qualityTokens: ['pearlescent sheen', 'soft lighting highlights'],
+
+                negativePrompt: 'action pose, busy backgrounds, harsh linework, character design sheet'
+
+            },
+
+            {
+
+                id: 'vintage_poster',
+
+                label: 'Poster Vintage 1950',
+
+                dimension: '2D',
+
+                styleValue: '1950s retro cartoon poster, halftone dots, retro print texture, muted pastel palette, mid-century advertising illustration, limited palette screen print',
+
+                styleTokens: [
+
+                    'aged paper texture',
+
+                    'halftone pattern',
+
+                    'vintage advertising illustration',
+
+                    'mid-century commercial art',
+
+                    'product poster layout',
+
+                    'graphic layout with bold shapes',
+
+                    'flat ink, limited color printing',
+
+                    'offset lithography look'
+
+                ],
+
+                cameraOverride: [
+
+                    'poster layout with bold geometric blocks, text banners, logos and arrows',
+
+                    'rigid theatrical pose presenting a product icon or slogan',
+
+                    'graphic composition with decorative frame, badge and headline',
+
+                    'limited color printing, screen print look'
+
+                ],
+
+                subjectOverride: [
+
+                    'mid-century advertising illustration featuring a character icon promoting a product or idea',
+
+                    'vintage product poster concept with badge, slogan, and brand cue'
+
+                ],
+
+                cameraTokens: [],
+
+                backgroundTokens: ['retro graphic elements'],
+
+                qualityTokens: ['print quality'],
+
+                negativePrompt: 'modern, glossy, 3d, digital rendering, character design sheet, concept art, full body walking pose'
+
+            }
+
+        ];
+
+
+
+        const HEADSHOT_NEGATIVE = 'full body, medium shot, wide shot';
+
+        const NEGATIVE_PROMPT_BASE_DEFAULT = 'detailled eyes, realistic texture, photography, noise, watermark';
+
+        const NEGATIVE_PROMPT_2D_FLAT = [
+
+            'realistic, photorealistic, 3d, 3d render, CGI, blender, unreal engine',
+
+            'photography, DSLR, camera, lens, cinematic lighting',
+
+            'realistic shading, soft shadows, volumetric light',
+
+            'skin texture, pores, wrinkles, freckles, blemishes',
+
+            'fabric texture, denim texture, cotton texture',
+
+            'detailed eyes, iris texture, sclera veins',
+
+            'glossy, reflections, specular highlights',
+
+            'HDR, film grain, noise, jpeg artifacts',
+
+            'gradient shading, smooth lighting',
+
+            'anatomy realistic, realistic proportions',
+
+            'watermark, logo, signature, text'
+
+        ].join('\\n');
+
+        const NEGATIVE_PROMPT_3D_FLAT = [
+
+            'photorealistic, photo, photography, DSLR, real world lighting',
+
+            'human skin texture, pores, wrinkles, freckles, blemishes',
+
+            'oily skin, sweat, skin shine',
+
+            'realistic fabric, cloth weave, denim texture, cotton texture',
+
+            'realistic hair, hair strands, flyaway hair',
+
+            'detailed eyes, iris texture, sclera veins, eye reflections',
+
+            'HDR, film grain, noise, jpeg artifacts',
+
+            'studio photography, softbox, beauty lighting',
+
+            'hyper detailed, ultra detailed, 8k, UHD',
+
+            '3d scan, photogrammetry',
+
+            'uncanny valley',
+
+            'watermark, logo, signature, text'
+
+        ].join('\\n');
+
+        let headshotNegativeAuto = false;
+
+
+
+        function escapeRegExp(str) {
+
+            return str.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&');
+
+        }
+
+
+
+        function removeHeadshotNegative(text) {
+
+            if (!text || !text.includes(HEADSHOT_NEGATIVE)) {
+
+                return (text || '').trim();
+
+            }
+
+            const regex = new RegExp(`(^|,\\\\s*)${escapeRegExp(HEADSHOT_NEGATIVE)}(\\\\s*,|$)`, 'gi');
+
+            let cleaned = text.replace(regex, ',');
+
+            cleaned = cleaned.replace(/,\\\\s*,/g, ',').trim();
+
+            cleaned = cleaned.replace(/^\\\\s*,\\\\s*/, '').replace(/\\\\s*,\\\\s*$/, '').trim();
+
+            return cleaned;
+
+        }
+
+
+
+        function syncDimensionNegativeBase() {
+
+            const negativeInput = document.getElementById('negativePrompt');
+
+            const dimension = document.querySelector('input[name="dimension"]:checked')?.value;
+
+            if (!negativeInput || !dimension) return false;
+
+            const existing = typeof negativeInput.dataset.base !== 'undefined'
+
+                ? negativeInput.dataset.base
+
+                : negativeInput.value.replace(/^Negative Prompt:\\n/, '').trim();
+
+            const base = existing || NEGATIVE_PROMPT_BASE_DEFAULT;
+
+            let targetBase = null;
+
+            if (dimension === '2D') {
+
+                targetBase = NEGATIVE_PROMPT_2D_FLAT;
+
+            } else if (dimension === '3D') {
+
+                targetBase = NEGATIVE_PROMPT_3D_FLAT;
+
+            } else if (existing === NEGATIVE_PROMPT_2D_FLAT || existing === NEGATIVE_PROMPT_3D_FLAT) {
+
+                targetBase = NEGATIVE_PROMPT_BASE_DEFAULT;
+
+            }
+
+            if (targetBase !== null && negativeInput.dataset.base !== targetBase) {
+
+                negativeInput.dataset.base = targetBase;
+
+                return true;
+
+            }
+
+            if (!negativeInput.dataset.base) {
+
+                negativeInput.dataset.base = base;
+
+            }
+
+            return false;
+
+        }
+
+
+
+        function getNegativePromptBase() {
+
+            const input = document.getElementById('negativePrompt');
+
+            if (!input) return '';
+
+            const base = typeof input.dataset.base !== 'undefined'
+
+                ? input.dataset.base
+
+                : input.value.replace(/^Negative Prompt:\n/, '');
+
+            return (base || NEGATIVE_PROMPT_BASE_DEFAULT).trim();
+
+        }
+
+
+
+
+
+        // Estado Inicial
+
+        let selectedGender = genders[0].value; // Default: Male
+
+        let selectedSpeciesId = animalSpecies[0].id;
+
+        let selectedSpecies = animalSpecies[0].value;
+
+        let selectedFurPatternId = furPatterns[0].id;
+
+        let selectedFurPattern = furPatterns[0].value;
+
+        const DEFAULT_BODY_SHAPE_ID = 'average';
+        const DEFAULT_BODY_SHAPE = bodyShapes.find(entry => entry.id === DEFAULT_BODY_SHAPE_ID) || DEFAULT_BODY_SHAPE;
+        let selectedBodyShape = DEFAULT_BODY_SHAPE.value;
+        let selectedBodyShapeId = DEFAULT_BODY_SHAPE.id;
+
+        let selectedShape = shapes[0].value;
+
+        let selectedHairLength = hairLengths[1].value;
+
+        let selectedHairLengthId = hairLengths[1].id;
+
+        let selectedHairStyle = hairStyles['short'][0].value;
+
+        let selectedHairColor = hairColors[0].value; // Default Black
+
+        let selectedSkinTone = skinTones[2].value; // Default Light
+
+        let selectedEyeShape = eyeShapes[2].value; 
+
+        let selectedEyeShapeId = eyeShapes[2].id;
+
+        let selectedEyeExpression = eyeExpressions[0].value;
+
+        let selectedEyeExpressionId = eyeExpressions[0].id;
+
+        let selectedNose = noses[1].value; 
+
+        let selectedMouth = mouths[1].value; // Default: Smile
+
+        let selectedShirt = clothingOptions.shirt[0].value;
+
+        let selectedJacket = clothingOptions.jacket[0].value;
+
+        let selectedPants = clothingOptions.pants[0].value;
+
+        let selectedShoes = clothingOptions.shoes[0].value;
+
+        let selectedShirtId = clothingOptions.shirt[0].id;
+
+        let selectedAccessories = [];
+
+        let selectedAccessoryIds = [];
+
+        let selectedFantasy = fantasyOutfits[0].value;
+
+        let selectedFantasyId = fantasyOutfits[0].id;
+
+        let selectedBeard = '';
+
+        let selectedPoseId = poses[0].id;
+
+        let selectedPose = poses[0].value;
+
+        let selectedDeadpanDance = false;
+
+        let consistencyMode = false;
+
+        let selectedPresetId = 'disney2d'; // Default preset
+
+        let positiveFinal = '';
+
+        let negativeFinal = '';
+
+        let isImporting = false;
+
+        let isRunningTests = false;
+
+        let blueprintMode = false;
+
+        let blueprintView = 'single';
+
+        let isUpdatingNegativePrompt = false;
+
+
+
+        const lockDefaults = {
+
+            face: false,
+
+            hair: false,
+
+            outfit: false,
+
+            accessories: false,
+
+            expression: false,
+
+            action: false
+
+        };
+
+        let lockState = { ...lockDefaults };
+
+
+
+
+
+        function loadLockState() {
+
+            try {
+
+                const raw = localStorage.getItem('cps_lockState');
+
+                if (raw) {
+
+                    const parsed = JSON.parse(raw);
+
+                    lockState = { ...lockDefaults, ...parsed };
+
+                }
+
+            } catch (e) {}
+
+        }
+
+
+
+        function saveLockState() {
+
+            try {
+
+                localStorage.setItem('cps_lockState', JSON.stringify(lockState));
+
+            } catch (e) {}
+
+        }
+
+
+
+        function updateLockButtons() {
+
+            document.querySelectorAll('[data-lock-btn]').forEach(btn => {
+
+                const key = btn.dataset.lockBtn;
+
+                const locked = !!lockState[key];
+
+                btn.textContent = locked ? 'LOCKED' : 'LOCK';
+
+                btn.classList.toggle('text-[#E600DF]', locked);
+
+            });
+
+        }
+
+
+
+        function getState() {
+
+            const dimension = document.querySelector('input[name="dimension"]:checked')?.value || '2D';
+
+            const artStyleSelect = document.getElementById('art-style');
+
+            const styleId = artStyleSelect?.value || 'disney2d';
+
+            const preset = getPresetById(styleId) || {};
+
+            
+
+            const negativePrompt = getNegativePromptBase();
+
+            const styleText = preset.styleValue || '';
+
+
+
+            const genderCategory = getGenderCategory();
+
+            const genderValue = selectedGender;
+
+            const speciesId = selectedSpeciesId;
+
+            const species = selectedSpecies;
+
+            const isChild = genderValue.includes('young boy') || genderValue.includes('young girl');
+
+            const isMannequin = selectedEyeShape.includes('no facial features') || selectedEyeShapeId === 'none';
+
+            const isDotEyes = selectedEyeShapeId === 'dot' || selectedEyeShape.includes('simple black dot eyes');
+
+            const isFeltStyle = styleText.includes('felt puppet') || styleText.includes('needle felting') || styleText.includes('felt doll') || styleText.includes('boneco de feltro');
+
+            const isLowPolyStyle = styleText.includes('low poly');
+
+            const isToyVinylStyle = styleText.includes('vinyl toy');
+
+            const isFantasyActive = !!(selectedFantasyId && selectedFantasyId !== 'none');
+
+            return {
+
+                dimension,
+
+                style: styleText,
+
+                styleText,
+
+                genderCategory,
+
+                genderValue,
+
+                speciesId,
+
+                species,
+
+                isChild,
+
+                isMannequin,
+
+                isDotEyes,
+
+                isFeltStyle,
+
+                isLowPolyStyle,
+
+                isToyVinylStyle,
+
+                isFantasyActive,
+
+                eyeExpressionId: selectedEyeExpressionId,
+
+                bodyShape: selectedBodyShape,
+
+                bodyShapeId: selectedBodyShapeId,
+
+                shape: selectedShape,
+
+                hairLength: selectedHairLength,
+
+                hairLengthId: selectedHairLengthId,
+
+                hairStyle: selectedHairStyle,
+
+                hairColor: selectedHairColor,
+
+                skinTone: selectedSkinTone,
+
+                furPatternId: selectedFurPatternId,
+
+                furPattern: selectedFurPattern,
+
+                eyeShape: selectedEyeShape,
+
+                eyeShapeId: selectedEyeShapeId,
+
+                eyeExpression: selectedEyeExpression,
+
+                nose: selectedNose,
+
+                mouth: selectedMouth,
+
+                shirt: selectedShirt,
+
+                shirtId: selectedShirtId,
+
+                jacket: selectedJacket,
+
+                pants: selectedPants,
+
+                shoes: selectedShoes,
+
+                accessories: selectedAccessories.slice(),
+
+                selectedAccessoryIds: selectedAccessoryIds.slice(),
+
+                fantasy: selectedFantasy,
+
+                fantasyId: selectedFantasyId,
+
+                beard: selectedBeard,
+
+                poseId: selectedPoseId,
+
+                pose: selectedPose,
+
+                deadpanDance: selectedDeadpanDance,
+
+                consistencyMode: consistencyMode,
+
+                presetId: styleId,
+
+                negativePrompt,
+
+                blueprintMode,
+
+                blueprintView
+
+            };
+
+        }
+
+
+
+        function getGenderCategory() {
+
+            const g = selectedGender.toLowerCase();
+
+            if (g.includes('female') || g.includes('girl')) return 'female';
+
+            if (g.includes('male') || g.includes('boy')) return 'male';
+
+            return 'neutral';
+
+        }
+
+
+
+        function isOptionAllowed(kind, optionValueOrId, state) {
+
+            if (kind === 'feature') {
+
+                if (state.isChild) {
+
+                    if (optionValueOrId === 'wrinkles, aged skin') return false;
+
+                    if (optionValueOrId === 'face tattoo') return false;
+
+                }
+
+                return true;
+
+            }
+
+
+
+            if (kind === 'eyeExpression') {
+
+                if (state.isMannequin) {
+
+                    return optionValueOrId === 'neutral';
+
+                }
+
+                if (state.isDotEyes) {
+
+                    const allowedDotEyes = new Set(['neutral', 'suspicious', 'angry']);
+
+                    return allowedDotEyes.has(optionValueOrId);
+
+                }
+
+                return true;
+
+            }
+
+
+
+            if (kind === 'accessory') {
+
+                const selected = new Set(state.selectedAccessoryIds || []);
+
+                const id = optionValueOrId;
+
+                if (id === 'cap' && selected.has('hat')) return false;
+
+                if (id === 'hat' && selected.has('cap')) return false;
+
+                if (id === 'tie' && selected.has('bowtie')) return false;
+
+                if (id === 'bowtie' && selected.has('tie')) return false;
+
+                if (id === 'glasses' && selected.has('sunglasses')) return false;
+
+                if (id === 'sunglasses' && selected.has('glasses')) return false;
+
+                return true;
+
+            }
+
+
+
+            if (kind === 'bodyShape') {
+
+                if (optionValueOrId === 'curvy') {
+
+                    if (state.genderCategory === 'male' || state.genderValue.includes('young boy')) return false;
+
+                }
+
+                return true;
+
+            }
+
+
+
+            if (kind === 'mouth') {
+
+                if (state.eyeExpressionId === 'happy' && optionValueOrId === 'frown') return false;
+
+                return true;
+
+            }
+
+
+
+            return true;
+
+        }
+
+
+
+        function refreshAvailability() {
+
+            const state = getState();
+
+            let changed = false;
+
+
+
+            document.querySelectorAll('.feature-check').forEach(cb => {
+
+                const allowed = isOptionAllowed('feature', cb.value, state);
+
+                const label = cb.closest('label');
+
+                if (!allowed) {
+
+                    if (cb.checked) changed = true;
+
+                    cb.checked = false;
+
+                    cb.disabled = true;
+
+                    if (label) label.classList.add('opacity-30', 'pointer-events-none');
+
+                } else {
+
+                    cb.disabled = false;
+
+                    if (label) label.classList.remove('opacity-30', 'pointer-events-none');
+
+                }
+
+            });
+
+
+
+            const exprCards = document.querySelectorAll('#eye-expression-grid .option-card');
+
+            let firstAllowedCard = null;
+
+            exprCards.forEach(card => {
+
+                const id = card.dataset.id;
+
+                const allowed = isOptionAllowed('eyeExpression', id, state);
+
+                if (allowed && !firstAllowedCard) firstAllowedCard = card;
+
+                if (!allowed) {
+
+                    if (card.classList.contains('selected')) {
+
+                        card.classList.remove('selected');
+
+                        changed = true;
+
+                    }
+
+                    card.classList.add('opacity-30', 'pointer-events-none');
+
+                } else {
+
+                    card.classList.remove('opacity-30', 'pointer-events-none');
+
+                }
+
+            });
+
+
+
+            const hasSelectedExpr = Array.from(exprCards).some(card => card.classList.contains('selected'));
+
+            if (!hasSelectedExpr && firstAllowedCard) {
+
+                const expr = eyeExpressions.find(e => e.id === firstAllowedCard.dataset.id);
+
+                if (expr) {
+
+                    selectedEyeExpression = expr.value;
+
+                    selectedEyeExpressionId = expr.id;
+
+                    firstAllowedCard.classList.add('selected');
+
+                    changed = true;
+
+                }
+
+            }
+
+
+
+            const accChecks = document.querySelectorAll('.accessory-check');
+
+            accChecks.forEach(cb => {
+
+                const allowed = isOptionAllowed('accessory', cb.value, state);
+
+                const label = cb.closest('label');
+
+                if (!allowed) {
+
+                    if (cb.checked) changed = true;
+
+                    cb.checked = false;
+
+                    cb.disabled = true;
+
+                    if (label) label.classList.add('opacity-30', 'pointer-events-none');
+
+                } else {
+
+                    cb.disabled = false;
+
+                    if (label) label.classList.remove('opacity-30', 'pointer-events-none');
+
+                }
+
+            });
+
+
+
+            const bodyCards = document.querySelectorAll('#body-shape-grid .option-card');
+
+            let firstAllowedBody = null;
+
+            bodyCards.forEach(card => {
+
+                const id = card.dataset.id;
+
+                const allowed = isOptionAllowed('bodyShape', id, state);
+
+                const label = card;
+
+                if (allowed && !firstAllowedBody) firstAllowedBody = card;
+
+                if (!allowed) {
+
+                    if (card.classList.contains('selected')) {
+
+                        card.classList.remove('selected');
+
+                        changed = true;
+
+                    }
+
+                    card.classList.add('opacity-30', 'pointer-events-none');
+
+                } else {
+
+                    card.classList.remove('opacity-30', 'pointer-events-none');
+
+                }
+
+            });
+
+            const hasSelectedBody = Array.from(bodyCards).some(card => card.classList.contains('selected'));
+
+            if (!hasSelectedBody && firstAllowedBody) {
+
+                const body = bodyShapes.find(b => b.id === firstAllowedBody.dataset.id);
+
+                if (body) {
+
+                    selectedBodyShape = body.value;
+
+                    selectedBodyShapeId = body.id;
+
+                    firstAllowedBody.classList.add('selected');
+
+                    changed = true;
+
+                }
+
+            }
+
+
+
+            const mouthCards = document.querySelectorAll('#mouth-grid .option-card');
+
+            let firstAllowedMouth = null;
+
+            mouthCards.forEach(card => {
+
+                const id = card.dataset.id;
+
+                const allowed = isOptionAllowed('mouth', id, state);
+
+                if (allowed && !firstAllowedMouth) firstAllowedMouth = card;
+
+                if (!allowed) {
+
+                    if (card.classList.contains('selected')) {
+
+                        card.classList.remove('selected');
+
+                        changed = true;
+
+                    }
+
+                    card.classList.add('opacity-30', 'pointer-events-none');
+
+                } else {
+
+                    card.classList.remove('opacity-30', 'pointer-events-none');
+
+                }
+
+            });
+
+            const hasSelectedMouth = Array.from(mouthCards).some(card => card.classList.contains('selected'));
+
+            if (!hasSelectedMouth && firstAllowedMouth) {
+
+                const mouth = mouths.find(m => m.id === firstAllowedMouth.dataset.id);
+
+                if (mouth) {
+
+                    selectedMouth = mouth.value;
+
+                    firstAllowedMouth.classList.add('selected');
+
+                    changed = true;
+
+                }
+
+            }
+
+
+
+            return changed;
+
+        }
+
+
+
+        // Initialization
+
+        document.addEventListener('DOMContentLoaded', () => {
+
+            loadLockState();
+
+            updateLockButtons();
+
+            renderGenders();
+
+            renderSpecies();
+
+            renderBodyShapes();
+
+            renderFurPatterns();
+
+            renderPoses();
+
+            renderShapes();
+
+            renderHairLengths();
+
+            renderHairStyles(selectedHairLengthId);
+
+            renderHairColors();
+
+            renderSkinTones();
+
+            renderEyeShapes();
+
+            renderEyeExpressions();
+
+            renderNoses();
+
+            renderMouths();
+
+            hydrateClothingIcons();
+
+            renderClothingSelect('shirt', 'shirt-select');
+
+            renderClothingSelect('jacket', 'jacket-select');
+
+            renderClothingSelect('pants', 'pants-select');
+
+            renderClothingSelect('shoes', 'shoes-select');
+
+            renderAccessories();
+
+            renderFantasySelect();
+
+            document.getElementById('shirt-select').value = clothingOptions.shirt[0].id;
+
+            document.getElementById('jacket-select').value = clothingOptions.jacket[0].id;
+
+            document.getElementById('pants-select').value = clothingOptions.pants[0].id;
+
+            document.getElementById('shoes-select').value = clothingOptions.shoes[0].id;
+
+            document.getElementById('fantasy-select').value = fantasyOutfits[0].id;
+
+            const beardSelect = document.getElementById('beard-select');
+
+            if (beardSelect) beardSelect.value = '';
+
+            syncBeardAvailability();
+
+            applyDressConstraint();
+
+            const negativeInput = document.getElementById('negativePrompt');
+
+            if (negativeInput) {
+
+                negativeInput.dataset.base = NEGATIVE_PROMPT_BASE_DEFAULT;
+
+                negativeInput.addEventListener('input', () => {
+
+                    if (isUpdatingNegativePrompt) return;
+
+                    negativeInput.dataset.base = negativeInput.value.replace(/^Negative Prompt:\n/, '');
+
+                });
+
+            }
+
+            syncDimensionNegativeBase();
+
+
+
+            const markDefaultOption = (selector, targetId) => {
+                const cards = document.querySelectorAll(selector);
+                const target = Array.from(cards).find(card => card.dataset.id === targetId);
+                if (target) target.classList.add('selected');
+            };
+
+            // Set initial selected visual state
+
+            document.querySelectorAll('#gender-grid .option-card')[0].classList.add('selected');
+
+            document.querySelectorAll('#species-grid .option-card')[0].classList.add('selected');
+
+            markDefaultOption('#body-shape-grid .option-card', DEFAULT_BODY_SHAPE_ID);
+
+            document.querySelectorAll('#fur-grid .option-card')[0].classList.add('selected');
+
+            document.querySelectorAll('#shape-grid .option-card')[0].classList.add('selected');
+
+            document.querySelectorAll('#hair-length-grid .option-card')[1].classList.add('selected');
+
+            document.querySelectorAll('#hair-style-grid .option-card')[0].classList.add('selected');
+
+            document.querySelectorAll('#hair-color-grid .color-swatch')[0].classList.add('selected'); // Black default
+
+            document.querySelectorAll('#skin-grid .color-swatch')[2].classList.add('selected'); 
+
+            document.querySelectorAll('#eye-shape-grid .option-card')[2].classList.add('selected');
+
+            document.querySelectorAll('#eye-expression-grid .option-card')[0].classList.add('selected');
+
+            document.querySelectorAll('#nose-grid .option-card')[1].classList.add('selected'); 
+
+            document.querySelectorAll('#mouth-grid .option-card')[1].classList.add('selected'); 
+
+
+
+            // Blueprint initial state
+
+            const blueprintToggle = document.getElementById('blueprint-toggle');
+
+            if (blueprintToggle) blueprintToggle.checked = blueprintMode;
+
+            document.querySelectorAll('input[name="blueprint-view"]').forEach(r => {
+
+                r.disabled = !blueprintMode;
+
+                r.checked = r.value === blueprintView;
+
+            });
+
+
+
+            updateStyleOptions();
+
+            updateDeadpanToggleVisibility();
+
+        });
+
+
+
+        function renderGenders() {
+
+            const container = document.getElementById('gender-grid');
+
+            container.innerHTML = '';
+
+            genders.forEach((item, index) => {
+
+                const div = document.createElement('div');
+
+                div.className = `option-card p-3 rounded-lg text-center text-xs group`;
+
+                div.innerHTML = `${getSvgForGender(item.id)}<span class="block mt-2 font-medium text-gray-400 group-hover:text-white transition-colors">${item.label}</span>`;
+
+                div.onclick = () => selectGender(div, item.value);
+
+                container.appendChild(div);
+
+            });
+
+        }
+
+
+
+        function renderSpecies() {
+
+            const container = document.getElementById('species-grid');
+
+            if (!container) return;
+
+            container.innerHTML = '';
+
+            animalSpecies.forEach(item => {
+
+                const div = document.createElement('div');
+
+                div.className = 'option-card p-3 rounded-lg text-center text-xs group';
+
+                div.dataset.id = item.id;
+
+                div.innerHTML = `<span class="block font-medium text-gray-400 group-hover:text-white transition-colors">${item.label}</span><span class="block text-[10px] text-gray-500 mt-1">${item.description}</span>`;
+
+                div.onclick = () => selectSpecies(div, item.value, item.id);
+
+                container.appendChild(div);
+
+            });
+
+        }
+
+
+
+        function renderFurPatterns() {
+
+            const container = document.getElementById('fur-grid');
+
+            if (!container) return;
+
+            container.innerHTML = '';
+
+            furPatterns.forEach(item => {
+
+                const div = document.createElement('div');
+
+                div.className = 'option-card p-3 rounded-lg text-center text-xs group';
+
+                div.dataset.id = item.id;
+
+                div.innerHTML = `<span class="block font-medium text-gray-400 group-hover:text-white transition-colors">${item.label}</span><span class="block text-[10px] text-gray-500 mt-1">${item.value}</span>`;
+
+                div.onclick = () => selectFurPattern(div, item.value, item.id);
+
+                container.appendChild(div);
+
+            });
+
+        }
+
+
+
+        function renderPoses() {
+
+            const select = document.getElementById('pose-select');
+
+            if (!select) return;
+
+            select.innerHTML = '';
+
+            poses.forEach(item => {
+
+                const opt = document.createElement('option');
+
+                opt.value = item.id;
+
+                opt.textContent = item.label;
+
+                select.appendChild(opt);
+
+            });
+
+            select.value = selectedPoseId;
+
+        }
+
+
+
+        function renderBodyShapes() {
+
+            const container = document.getElementById('body-shape-grid');
+
+            container.innerHTML = '';
+
+            bodyShapes.forEach((item, index) => {
+
+                const div = document.createElement('div');
+
+                div.className = `option-card p-3 rounded-lg text-center text-xs group`;
+
+                div.dataset.id = item.id;
+
+                div.innerHTML = `${getSvgForBodyShape(item.id)}<span class="block mt-2 font-medium text-gray-400 group-hover:text-white transition-colors">${item.label}</span>`;
+
+                div.onclick = () => selectBodyShape(div, item.value, item.id);
+
+                container.appendChild(div);
+
+            });
+
+        }
+
+
+
+        function renderShapes() {
+
+            const container = document.getElementById('shape-grid');
+
+            container.innerHTML = '';
+
+            shapes.forEach((shape, index) => {
+
+                const div = document.createElement('div');
+
+                div.className = `option-card p-3 rounded-lg text-center text-xs group`;
+
+                div.innerHTML = `${getSvgForShape(shape.id)}<span class="block mt-2 font-medium text-gray-400 group-hover:text-white transition-colors">${shape.label}</span>`;
+
+                div.onclick = () => selectShape(div, shape.value);
+
+                container.appendChild(div);
+
+            });
+
+        }
+
+
+
+        function renderHairLengths() {
+
+            const container = document.getElementById('hair-length-grid');
+
+            container.innerHTML = '';
+
+            hairLengths.forEach((item, index) => {
+
+                const div = document.createElement('div');
+
+                div.className = `option-card p-3 rounded-lg text-center text-xs group`;
+
+                div.innerHTML = `${getSvgForHairLength(item.id)}<span class="block mt-2 font-medium text-gray-400 group-hover:text-white transition-colors">${item.label}</span>`;
+
+                div.onclick = () => selectHairLength(div, item.value, item.id);
+
+                container.appendChild(div);
+
+            });
+
+        }
+
+
+
+        function renderHairStyles(lengthId) {
+
+            const container = document.getElementById('hair-style-grid');
+
+            container.innerHTML = '';
+
+            const styles = hairStyles[lengthId] || [];
+
+            
+
+            styles.forEach((item, index) => {
+
+                const div = document.createElement('div');
+
+                div.className = `option-card p-3 rounded-lg text-center text-xs group ${index === 0 ? 'selected' : ''}`;
+
+                div.innerHTML = `${getSvgForHairStyle(item.id)}<span class="block mt-2 font-medium text-gray-400 group-hover:text-white transition-colors">${item.label}</span>`;
+
+                div.onclick = () => selectHairStyle(div, item.value);
+
+                container.appendChild(div);
+
+            });
+
+
+
+            if(styles.length > 0 && !isImporting) {
+
+                selectedHairStyle = styles[0].value;
+
+                updatePrompt();
+
+            }
+
+        }
+
+        function renderHairColors() {
+
+            const container = document.getElementById('hair-color-grid');
+
+            container.innerHTML = '';
+
+            hairColors.forEach((tone, index) => {
+
+                const div = document.createElement('div');
+
+                div.className = `color-swatch rounded-lg border border-[#262626] ${index === 0 ? 'selected' : ''}`;
+
+                div.dataset.value = tone.value;
+
+                div.style.background = tone.color;
+
+                div.onclick = () => selectHairColor(div, tone.value);
+
+                container.appendChild(div);
+
+            });
+
+        }
+
+
+
+        function renderSkinTones() {
+
+            const container = document.getElementById('skin-grid');
+
+            container.innerHTML = '';
+
+            skinTones.forEach((tone, index) => {
+
+                const div = document.createElement('div');
+
+                div.className = `color-swatch rounded-lg border border-[#262626] ${index === 2 ? 'selected' : ''}`;
+
+                div.dataset.id = tone.id || '';
+
+                div.dataset.value = tone.value;
+
+                if (tone.skipRandom) div.dataset.skipRandom = 'true';
+
+                div.style.background = tone.color;
+
+                div.onclick = () => selectSkinTone(div, tone.value);
+
+                container.appendChild(div);
+
+            });
+
+        }
+
+
+
+        function renderEyeShapes() {
+
+            const container = document.getElementById('eye-shape-grid');
+
+            container.innerHTML = '';
+
+            eyeShapes.forEach((item, index) => {
+
+                const div = document.createElement('div');
+
+                div.className = `option-card p-3 rounded-lg text-center text-xs group`;
+
+                div.innerHTML = `${getSvgForEyeShape(item.id)}<span class="block mt-2 font-medium text-gray-400 group-hover:text-white transition-colors">${item.label}</span>`;
+
+                div.onclick = () => selectEyeShape(div, item.value, item.id);
+
+                container.appendChild(div);
+
+            });
+
+        }
+
+        function renderEyeExpressions() {
+
+            const container = document.getElementById('eye-expression-grid');
+
+            container.innerHTML = '';
+
+            eyeExpressions.forEach((item, index) => {
+
+                const div = document.createElement('div');
+
+                div.className = `option-card p-3 rounded-lg text-center text-xs group`;
+
+                div.dataset.id = item.id;
+
+                div.innerHTML = `${getSvgForEyeExpression(item.id)}<span class="block mt-2 font-medium text-gray-400 group-hover:text-white transition-colors">${item.label}</span>`;
+
+                div.onclick = () => selectEyeExpression(div, item.value, item.id);
+
+                container.appendChild(div);
+
+            });
+
+        }
+
+
+
+        function renderNoses() {
+
+            const container = document.getElementById('nose-grid');
+
+            container.innerHTML = '';
+
+            noses.forEach((item, index) => {
+
+                const div = document.createElement('div');
+
+                div.className = `option-card p-3 rounded-lg text-center text-xs group`;
+
+                div.innerHTML = `${getSvgForNose(item.id)}<span class="block mt-2 font-medium text-gray-400 group-hover:text-white transition-colors">${item.label}</span>`;
+
+                div.onclick = () => selectNose(div, item.value);
+
+                container.appendChild(div);
+
+            });
+
+        }
+
+
+
+        function renderMouths() {
+
+            const container = document.getElementById('mouth-grid');
+
+            container.innerHTML = '';
+
+            mouths.forEach((item, index) => {
+
+                const div = document.createElement('div');
+
+                div.className = `option-card p-3 rounded-lg text-center text-xs group`;
+
+                div.dataset.id = item.id;
+
+                div.innerHTML = `${getSvgForMouth(item.id)}<span class="block mt-2 font-medium text-gray-400 group-hover:text-white transition-colors">${item.label}</span>`;
+
+                div.onclick = () => selectMouth(div, item.value);
+
+                container.appendChild(div);
+
+            });
+
+        }
+
+
+
+        function getClothingIcon(kind) {
+
+            const props = 'width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"';
+
+            const icons = {
+
+                shirt: `<svg ${props}><path d="M9 4l3 2 3-2 3 2-2 4v10H8V10L6 6z"/><path d="M9 10h6"/></svg>`,
+
+                jacket: `<svg ${props}><path d="M9 3 6 6v15h4V8l2-2 2 2v13h4V6l-3-3z"/><path d="M12 6v4"/></svg>`,
+
+                pants: `<svg ${props}><path d="M8 3h8l-1 18-3-6-3 6z"/><path d="M9 11h6"/></svg>`,
+
+                shoes: `<svg ${props}><path d="M4 14h10l3 4h-9l-1 3H4z"/><path d="M14 14v-2a3 3 0 0 0-3-3H6"/></svg>`,
+
+                accessory: `<svg ${props}><circle cx="12" cy="12" r="5"/><path d="M9 5 7 3M15 5l2-2M12 17v4"/></svg>`,
+
+                fantasy: `<svg ${props}><path d="M4 9c4-3 12-3 16 0l-1 5c-4 2-10 2-14 0z"/><path d="M9 11c.5 0 1 .4 1 .9s-.5.9-1 .9-1-.4-1-.9.5-.9 1-.9zm6 0c.5 0 1 .4 1 .9s-.5.9-1 .9-1-.4-1-.9.5-.9 1-.9z"/><path d="M7 15c2 1 8 1 10 0"/></svg>`
+
+            };
+
+            return icons[kind] || '';
+
+        }
+
+
+
+        function renderClothingSelect(kind, selectId) {
+
+            const select = document.getElementById(selectId);
+
+            if (!select) return;
+
+            const list = clothingOptions[kind];
+
+            select.innerHTML = '';
+
+            list.forEach(item => {
+
+                const opt = document.createElement('option');
+
+                opt.value = item.id;
+
+                opt.textContent = item.label;
+
+                select.appendChild(opt);
+
+            });
+
+        }
+
+
+
+        function renderFantasySelect() {
+
+            const select = document.getElementById('fantasy-select');
+
+            select.innerHTML = '';
+
+            fantasyOutfits.forEach(item => {
+
+                const opt = document.createElement('option');
+
+                opt.value = item.id;
+
+                opt.textContent = item.label;
+
+                select.appendChild(opt);
+
+            });
+
+        }
+
+
+
+        function renderAccessories() {
+
+            const container = document.getElementById('accessory-list');
+
+            if (!container) return;
+
+            container.innerHTML = '';
+
+            accessories.forEach(item => {
+
+                const label = document.createElement('label');
+
+                label.className = 'flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group';
+
+                const input = document.createElement('input');
+
+                input.type = 'checkbox';
+
+                input.className = 'accessory-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0';
+
+                input.value = item.id;
+
+                input.onchange = () => selectAccessories();
+
+                const span = document.createElement('span');
+
+                span.className = 'text-xs text-gray-400 group-hover:text-white transition-colors';
+
+                span.textContent = item.label;
+
+                label.appendChild(input);
+
+                label.appendChild(span);
+
+                container.appendChild(label);
+
+            });
+
+        }
+
+
+
+        function hydrateClothingIcons() {
+
+            const ids = ['shirt','jacket','pants','shoes','accessory','fantasy'];
+
+            ids.forEach(k => {
+
+                const holder = document.getElementById(`icon-${k}`);
+
+                if (holder) holder.innerHTML = getClothingIcon(k);
+
+            });
+
+        }
+
+
+
+        // --- SELECTION LOGIC ---
+
+        function selectGender(element, value) {
+
+            document.querySelectorAll('#gender-grid .option-card').forEach(el => el.classList.remove('selected'));
+
+            element.classList.add('selected');
+
+            selectedGender = value;
+
+            syncBeardAvailability();
+
+            updatePrompt();
+
+        }
+
+
+
+        function selectSpecies(element, value, id) {
+
+            document.querySelectorAll('#species-grid .option-card').forEach(el => el.classList.remove('selected'));
+
+            element.classList.add('selected');
+
+            selectedSpecies = value;
+
+            selectedSpeciesId = id;
+
+            updatePrompt();
+
+        }
+
+
+
+        function selectFurPattern(element, value, id) {
+
+            document.querySelectorAll('#fur-grid .option-card').forEach(el => el.classList.remove('selected'));
+
+            element.classList.add('selected');
+
+            selectedFurPattern = value;
+
+            selectedFurPatternId = id;
+
+            updatePrompt();
+
+        }
+
+
+
+        function selectBodyShape(element, value, id) {
+
+            document.querySelectorAll('#body-shape-grid .option-card').forEach(el => el.classList.remove('selected'));
+
+            element.classList.add('selected');
+
+            selectedBodyShape = value;
+
+            selectedBodyShapeId = id;
+
+            updatePrompt();
+
+        }
+
+
+
+        function selectShape(element, value) {
+
+            document.querySelectorAll('#shape-grid .option-card').forEach(el => el.classList.remove('selected'));
+
+            element.classList.add('selected');
+
+            selectedShape = value;
+
+            updatePrompt();
+
+        }
+
+
+
+        function selectPose(value) {
+
+            const found = poses.find(p => p.id === value) || poses[0];
+
+            selectedPoseId = found.id;
+
+            selectedPose = found.value;
+
+            updateDeadpanToggleVisibility();
+
+            updatePrompt();
+
+        }
+
+
+
+        function toggleLock(section) {
+
+            if (!(section in lockState)) return;
+
+            lockState[section] = !lockState[section];
+
+            saveLockState();
+
+            updateLockButtons();
+
+        }
+
+
+
+        function toggleConsistency(checked) {
+
+            consistencyMode = !!checked;
+
+            updatePrompt();
+
+        }
+
+
+
+        function toggleDeadpanDance(checked) {
+
+            selectedDeadpanDance = !!checked;
+
+            updatePrompt();
+
+        }
+
+
+
+        function toggleBlueprint(checked) {
+
+            blueprintMode = !!checked;
+
+            const radios = document.querySelectorAll('input[name="blueprint-view"]');
+
+            radios.forEach(r => r.disabled = !blueprintMode);
+
+            updatePrompt();
+
+        }
+
+
+
+        function selectBlueprintView(value) {
+
+            blueprintView = value;
+
+            updatePrompt();
+
+        }
+
+
+
+        function getPresetById(id) {
+
+            return presets.find(p => p.id === id);
+
+        }
+
+
+
+        function applyPreset(id) {
+
+            const preset = getPresetById(id);
+
+            if (!preset) return;
+
+
+
+            selectedPresetId = preset.id;
+
+            
+
+            const currentDimension = document.querySelector('input[name="dimension"]:checked').value;
+
+            if (preset.dimension !== currentDimension) {
+
+                const dimensionInput = document.querySelector(`input[name="dimension"][value="${preset.dimension}"]`);
+
+                if (dimensionInput) {
+
+                    dimensionInput.checked = true;
+
+                    // Changing dimension will trigger updateStyleOptions, which will call applyPreset again.
+
+                    // So we can stop here to avoid a double update.
+
+                    updateStyleOptions();
+
+                    return; 
+
+                }
+
+            }
+
+            
+
+            const styleSelect = document.getElementById('art-style');
+
+            if (styleSelect) {
+
+                styleSelect.value = preset.id;
+
+            }
+
+
+
+            const negativeInput = document.getElementById('negativePrompt');
+
+            if (negativeInput) {
+
+                if (preset.negativePrompt) {
+
+                    negativeInput.dataset.base = preset.negativePrompt;
+
+                } else if (!negativeInput.dataset.base) {
+
+                    negativeInput.dataset.base = NEGATIVE_PROMPT_BASE_DEFAULT;
+
+                }
+
+            }
+
+            syncDimensionNegativeBase();
+
+            updatePrompt();
+
+        }
+
+        
+
+        // --- CORE LOGIC ---
+
+        function updateStyleOptions() {
+
+            syncDimensionNegativeBase();
+
+            const dimension = document.querySelector('input[name="dimension"]:checked').value;
+
+            const select = document.getElementById('art-style');
+
+            const currentVal = select.value;
+
+            select.innerHTML = '';
+
+
+
+            const list = presets.filter(p => p.dimension === dimension);
+
+            list.forEach(preset => {
+
+                const option = document.createElement('option');
+
+                option.value = preset.id;
+
+                option.textContent = preset.label;
+
+                select.appendChild(option);
+
+            });
+
+            
+
+            const newSelectionExists = list.some(p => p.id === currentVal);
+
+            if (newSelectionExists) {
+
+                select.value = currentVal;
+
+            } else if (list.length > 0) {
+
+                select.value = list[0].id;
+
+            }
+
+            
+
+            if (select.value) {
+
+                applyPreset(select.value);
+
+            } else {
+
+                 updatePrompt();
+
+            }
+
+        }
+
+
+
+        document.querySelectorAll('input[name="dimension"]').forEach(radio => {
+
+            radio.addEventListener('change', updateStyleOptions);
+
+        });
+
+        
+
+        function exportCharacter() {
+
+            const state = getState();
+
+            const data = {
+
+                state,
+
+                lockState: { ...lockDefaults, ...lockState },
+
+                presetId: state.presetId,
+
+                consistencyMode: consistencyMode,
+
+                negativePrompt: state.negativePrompt.replace(/^Negative Prompt:\n/, '')
+
+            };
+
+            const json = JSON.stringify(data, null, 2);
+
+            try {
+
+                navigator.clipboard?.writeText(json);
+
+            } catch (e) {}
+
+            const blob = new Blob([json], { type: 'application/json' });
+
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+
+            a.href = url;
+
+            a.download = 'character.json';
+
+            document.body.appendChild(a);
+
+            a.click();
+
+            a.remove();
+
+            URL.revokeObjectURL(url);
+
+        }
+
+
+
+        function handleImportFile(input) {
+
+            const file = input.files[0];
+
+            if (!file) return;
+
+            const reader = new FileReader();
+
+            reader.onload = () => {
+
+                try {
+
+                    const parsed = JSON.parse(reader.result);
+
+                    importCharacterFromData(parsed);
+
+                } catch (e) {
+
+                    alert('JSON inválido');
+
+                }
+
+                input.value = '';
+
+            };
+
+            reader.readAsText(file);
+
+        }
+
+
+
+                function copyToClipboard() {
+
+            const output = document.getElementById('prompt-output');
+
+            const negative = document.getElementById('negativePrompt');
+
+            const fullPrompt = `${output.value}\n\n${negative.value}`;
+
+
+
+            if (navigator.clipboard && window.isSecureContext) {
+
+                navigator.clipboard.writeText(fullPrompt).then(() => {
+
+                    showToast('PROMPT COPIADO PARA O CLIPBOARD!');
+
+                }, () => {
+
+                    // Fallback for secure context if it fails (e.g. permissions)
+
+                    window.prompt("Cópia automática falhou. Pressione Ctrl+C para copiar:", fullPrompt);
+
+                });
+
+            } else {
+
+                // Fallback for insecure contexts (file://) - uses a prompt dialog
+
+                window.prompt("Cópia automática falhou. Pressione Ctrl+C para copiar:", fullPrompt);
+
+            }
+
+        }
+
+
+
+        function showToast(message = 'COPIADO PARA O CLIPBOARD!') {
+
+            const toast = document.getElementById('toast');
+
+            if(message) toast.textContent = message;
+
+            toast.className = "show";
+
+            setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
+
+        }
+
+
+
+        function promptImport() {
+
+            const text = prompt('Cole o JSON exportado (ou clique Cancelar para selecionar um arquivo)');
+
+            if (text) {
+
+                try {
+
+                    const parsed = JSON.parse(text);
+
+                    importCharacterFromData(parsed);
+
+                } catch (e) {
+
+                    alert('JSON inválido');
+
+                }
+
+            } else {
+
+                const fileInput = document.getElementById('import-file');
+
+                if (fileInput) fileInput.click();
+
+            }
+
+        }
+
+
+
+        function importCharacterFromData(payload) {
+
+            const stateData = payload?.state || payload;
+
+            if (!stateData) return;
+
+            isImporting = true;
+
+
+
+            const presetIdToApply = stateData.presetId || payload.presetId || 'disney2d';
+
+            const presetToApply = getPresetById(presetIdToApply);
+
+            
+
+            if (presetToApply) {
+
+                const dimRadio = document.querySelector(`input[name="dimension"][value="${presetToApply.dimension}"]`);
+
+                if (dimRadio && !dimRadio.checked) {
+
+                    dimRadio.checked = true;
+
+                    updateStyleOptions(); // This will re-render the style dropdown
+
+                }
+
+                const styleSelect = document.getElementById('art-style');
+
+                if(styleSelect) styleSelect.value = presetIdToApply;
+
+            }
+
+            
+
+            // Locks
+
+            const incomingLocks = payload.lockState || stateData.lockState;
+
+            if (incomingLocks) {
+
+                lockState = { ...lockDefaults, ...incomingLocks };
+
+                saveLockState();
+
+                updateLockButtons();
+
+            }
+
+            // Consistency
+
+            consistencyMode = !!(payload.consistencyMode ?? stateData.consistencyMode);
+
+            const consistencyToggle = document.getElementById('consistency-toggle');
+
+            if (consistencyToggle) consistencyToggle.checked = consistencyMode;
+
+
+
+            // Negative prompt
+
+            const negVal = payload.negativePrompt || stateData.negativePrompt || presetToApply?.negativePrompt || '';
+
+            const negInput = document.getElementById('negativePrompt');
+
+            if (negInput) negInput.value = `Negative Prompt:\n${negVal}`;
+
+
+
+            // Blueprint
+
+            blueprintMode = !!(stateData.blueprintMode ?? false);
+
+            const blueprintToggle = document.getElementById('blueprint-toggle');
+
+            if (blueprintToggle) blueprintToggle.checked = blueprintMode;
+
+            const viewVal = stateData.blueprintView || 'single';
+
+            blueprintView = viewVal;
+
+            document.querySelectorAll('input[name="blueprint-view"]').forEach(r => {
+
+                r.disabled = !blueprintMode;
+
+                r.checked = r.value === viewVal;
+
+            });
+
+
+
+            // Gender
+
+            if (stateData.genderValue) {
+
+                const gender = genders.find(g => g.value === stateData.genderValue) || genders[0];
+
+                const cards = document.querySelectorAll('#gender-grid .option-card');
+
+                const target = cards[genders.indexOf(gender)];
+
+                if (target) selectGender(target, gender.value);
+
+            }
+
+
+
+            // Body shape
+
+            if (stateData.bodyShapeId || stateData.bodyShape) {
+
+                const bodyEntry = bodyShapes.find(b => b.id === stateData.bodyShapeId) || bodyShapes.find(b => b.value === stateData.bodyShape) || DEFAULT_BODY_SHAPE;
+
+                const cards = document.querySelectorAll('#body-shape-grid .option-card');
+
+                const target = Array.from(cards).find(c => c.dataset.id === bodyEntry.id) || cards[0];
+
+                if (target) selectBodyShape(target, bodyEntry.value, bodyEntry.id);
+
+            }
+
+
+
+            // Shape
+
+            if (stateData.shape) {
+
+                const shapeEntry = shapes.find(s => s.value === stateData.shape) || shapes[0];
+
+                const cards = document.querySelectorAll('#shape-grid .option-card');
+
+                const target = cards[shapes.indexOf(shapeEntry)] || cards[0];
+
+                if (target) selectShape(target, shapeEntry.value);
+
+            }
+
+
+
+            // Hair length & style
+
+            if(stateData.hairLengthId || stateData.hairLength) {
+
+                const hairEntry = hairLengths.find(h => h.id === stateData.hairLengthId) || hairLengths.find(h => h.value === stateData.hairLength) || hairLengths[1];
+
+                const lengthCards = document.querySelectorAll('#hair-length-grid .option-card');
+
+                const lengthTarget = lengthCards[hairLengths.indexOf(hairEntry)] || lengthCards[0];
+
+                if (lengthTarget) selectHairLength(lengthTarget, hairEntry.value, hairEntry.id);
+
+                
+
+                renderHairStyles(hairEntry.id); // Re-render styles for the new length
+
+                
+
+                if (stateData.hairStyle) {
+
+                    const styles = hairStyles[hairEntry.id] || [];
+
+                    const styleEntry = styles.find(s => s.value === stateData.hairStyle) || styles[0];
+
+                    if (styleEntry) {
+
+                        const styleCards = document.querySelectorAll('#hair-style-grid .option-card');
+
+                        const styleIdx = styles.indexOf(styleEntry);
+
+                        const styleTarget = styleCards[styleIdx];
+
+                        if (styleTarget) selectHairStyle(styleTarget, styleEntry.value);
+
+                    }
+
+                }
+
+            }
+
+            if (stateData.hairColor) {
+
+                const swatches = document.querySelectorAll('#hair-color-grid .color-swatch');
+
+                const match = Array.from(swatches).find(s => s.dataset.value === stateData.hairColor) || swatches[0];
+
+                if (match) selectHairColor(match, match.dataset.value);
+
+            }
+
+
+
+            // Skin
+
+            if (stateData.skinTone) {
+
+                const swatches = document.querySelectorAll('#skin-grid .color-swatch');
+
+                const match = Array.from(swatches).find(s => s.dataset.value === stateData.skinTone) || swatches[2];
+
+                if (match) selectSkinTone(match, match.dataset.value);
+
+            }
+
+
+
+            // Eyes
+
+            if (stateData.eyeShapeId || stateData.eyeShape) {
+
+                const entry = eyeShapes.find(e => e.id === stateData.eyeShapeId) || eyeShapes.find(e => e.value === stateData.eyeShape) || eyeShapes[2];
+
+                const cards = document.querySelectorAll('#eye-shape-grid .option-card');
+
+                const target = cards[eyeShapes.indexOf(entry)];
+
+                if (target) selectEyeShape(target, entry.value, entry.id);
+
+            }
+
+            if (stateData.eyeExpressionId || stateData.eyeExpression) {
+
+                const entry = eyeExpressions.find(e => e.id === stateData.eyeExpressionId) || eyeExpressions.find(e => e.value === stateData.eyeExpression) || eyeExpressions[0];
+
+                const cards = document.querySelectorAll('#eye-expression-grid .option-card');
+
+                const target = cards[eyeExpressions.indexOf(entry)];
+
+                if (target) selectEyeExpression(target, entry.value, entry.id);
+
+            }
+
+
+
+            // Nose / Mouth
+
+            if (stateData.nose) {
+
+                const entry = noses.find(n => n.value === stateData.nose) || noses[1];
+
+                const cards = document.querySelectorAll('#nose-grid .option-card');
+
+                const target = cards[noses.indexOf(entry)];
+
+                if (target) selectNose(target, entry.value);
+
+            }
+
+            if (stateData.mouth) {
+
+                const entry = mouths.find(m => m.value === stateData.mouth) || mouths[1];
+
+                const cards = document.querySelectorAll('#mouth-grid .option-card');
+
+                const target = cards[mouths.indexOf(entry)];
+
+                if (target) selectMouth(target, entry.value);
+
+            }
+
+
+
+            // Pose
+
+            if (stateData.poseId || stateData.pose) {
+
+                const poseSelect = document.getElementById('pose-select');
+
+                if (poseSelect) {
+
+                    poseSelect.value = stateData.poseId || 'standing';
+
+                    selectPose(poseSelect.value);
+
+                }
+
+            }
+
+            selectedDeadpanDance = !!stateData.deadpanDance;
+
+            const deadpanToggle = document.getElementById('deadpan-dance-toggle');
+
+            if (deadpanToggle) deadpanToggle.checked = selectedDeadpanDance;
+
+
+
+            // Clothing & accessories
+
+            if (stateData.fantasyId && stateData.fantasyId !== 'none') {
+
+                const fantasySelect = document.getElementById('fantasy-select');
+
+                if (fantasySelect) fantasySelect.value = stateData.fantasyId;
+
+                selectClothing('fantasy', stateData.fantasyId);
+
+            } else {
+
+                const sets = [
+
+                    { kind: 'shirt', id: 'shirt-select', value: stateData.shirtId },
+
+                    { kind: 'jacket', id: 'jacket-select', value: stateData.jacket },
+
+                    { kind: 'pants', id: 'pants-select', value: stateData.pants },
+
+                    { kind: 'shoes', id: 'shoes-select', value: stateData.shoes }
+
+                ];
+
+                sets.forEach(({ kind, id, value }) => {
+
+                    const sel = document.getElementById(id);
+
+                    if (!sel) return;
+
+                    const choice = (clothingOptions[kind] || []).find(o => o.id === value || o.value === value);
+
+                    if(choice) {
+
+                        sel.value = choice.id;
+
+                        selectClothing(kind, choice.id);
+
+                    }
+
+                });
+
+            }
+
+
+
+            // Accessories
+
+            if (Array.isArray(stateData.selectedAccessoryIds)) {
+
+                document.querySelectorAll('.accessory-check').forEach(cb => {
+
+                    cb.checked = stateData.selectedAccessoryIds.includes(cb.value);
+
+                });
+
+                selectAccessories();
+
+            }
+
+
+
+            // Beard
+
+            const beardSel = document.getElementById('beard-select');
+
+            if (beardSel && stateData.beard) {
+
+                 const match = Array.from(beardSel.options).find(o => o.value === stateData.beard);
+
+                if (match) {
+
+                    beardSel.value = match.value;
+
+                    selectBeard(beardSel.value);
+
+                }
+
+            }
+
+
+
+            isImporting = false;
+
+            applyDressConstraint();
+
+            updateDeadpanToggleVisibility();
+
+            updateLockButtons();
+
+            updatePrompt();
+
+        }
+
+
+
+        function updateDeadpanToggleVisibility() {
+
+            const row = document.getElementById('deadpan-contrast-row');
+
+            const checkbox = document.getElementById('deadpan-dance-toggle');
+
+            if (!row) return;
+
+            const state = getState();
+
+            const show = state.poseId === 'dancing' && isBoredExpression(state);
+
+            row.classList.toggle('hidden', !show);
+
+            if (!show) {
+
+                if (checkbox) checkbox.checked = false;
+
+                selectedDeadpanDance = false;
+
+            } else if (checkbox) {
+
+                checkbox.checked = selectedDeadpanDance;
+
+            }
+
+        }
+
+
+
+        function selectHairLength(element, value, id) {
+
+            document.querySelectorAll('#hair-length-grid .option-card').forEach(el => el.classList.remove('selected'));
+
+            element.classList.add('selected');
+
+            selectedHairLength = value;
+
+            selectedHairLengthId = id;
+
+            renderHairStyles(id);
+
+            updatePrompt();
+
+        }
+
+
+
+        function selectHairStyle(element, value) {
+
+            document.querySelectorAll('#hair-style-grid .option-card').forEach(el => el.classList.remove('selected'));
+
+            element.classList.add('selected');
+
+            selectedHairStyle = value;
+
+            updatePrompt();
+
+        }
+
+
+
+        function selectHairColor(element, value) {
+
+            document.querySelectorAll('#hair-color-grid .color-swatch').forEach(el => el.classList.remove('selected'));
+
+            element.classList.add('selected');
+
+            selectedHairColor = value;
+
+            updatePrompt();
+
+        }
+
+
+
+        function selectSkinTone(element, value) {
+
+            document.querySelectorAll('#skin-grid .color-swatch').forEach(el => el.classList.remove('selected'));
+
+            element.classList.add('selected');
+
+            selectedSkinTone = value;
+
+            updatePrompt();
+
+        }
+
+
+
+        function selectEyeShape(element, value, id) {
+
+            document.querySelectorAll('#eye-shape-grid .option-card').forEach(el => el.classList.remove('selected'));
+
+            element.classList.add('selected');
+
+            selectedEyeShape = value;
+
+            selectedEyeShapeId = id;
+
+            const expressionPanel = document.getElementById('expression-panel');
+
+            if (id === 'none') {
+
+                expressionPanel.classList.add('disabled-section');
+
+                const exprCard = document.querySelector('#eye-expression-grid .option-card');
+
+                if (exprCard) {
+
+                    document.querySelectorAll('#eye-expression-grid .option-card').forEach(el => el.classList.remove('selected'));
+
+                    exprCard.classList.add('selected');
+
+                }
+
+                selectedEyeExpression = eyeExpressions[0].value;
+
+                selectedEyeExpressionId = eyeExpressions[0].id;
+
+                const noseCards = document.querySelectorAll('#nose-grid .option-card');
+
+                if (noseCards.length > 0) {
+
+                    selectNose(noseCards[0], noses[0].value);
+
+                }
+
+                const mouthCards = document.querySelectorAll('#mouth-grid .option-card');
+
+                if (mouthCards.length > 0) {
+
+                    selectMouth(mouthCards[0], mouths[0].value);
+
+                }
+
+            } else {
+
+                expressionPanel.classList.remove('disabled-section');
+
+            }
+
+            updateDeadpanToggleVisibility();
+
+            updatePrompt();
+
+        }
+
+
+
+        function selectEyeExpression(element, value, id) {
+
+            document.querySelectorAll('#eye-expression-grid .option-card').forEach(el => el.classList.remove('selected'));
+
+            element.classList.add('selected');
+
+            selectedEyeExpression = value;
+
+            selectedEyeExpressionId = id || eyeExpressions.find(e => e.value === value)?.id || selectedEyeExpressionId;
+
+            updatePrompt();
+
+        }
+
+
+
+        function selectBeard(value) {
+
+            selectedBeard = value;
+
+            updatePrompt();
+
+        }
+
+
+
+        function syncBeardAvailability() {
+
+            const beardSelect = document.getElementById('beard-select');
+
+            if (!beardSelect) return;
+
+            const allowBeard = selectedGender === 'male';
+
+            beardSelect.disabled = !allowBeard;
+
+            if (!allowBeard) {
+
+                beardSelect.value = '';
+
+                selectedBeard = '';
+
+            }
+
+        }
+
+
+
+        function selectNose(element, value) {
+
+            document.querySelectorAll('#nose-grid .option-card').forEach(el => el.classList.remove('selected'));
+
+            element.classList.add('selected');
+
+            selectedNose = value;
+
+            updatePrompt();
+
+        }
+
+
+
+        function selectMouth(element, value) {
+
+            document.querySelectorAll('#mouth-grid .option-card').forEach(el => el.classList.remove('selected'));
+
+            element.classList.add('selected');
+
+            selectedMouth = value;
+
+            updatePrompt();
+
+        }
+
+
+
+        function selectClothing(kind, optionId) {
+
+            if (kind === 'fantasy') {
+
+                selectedFantasyId = optionId;
+
+                selectedFantasy = fantasyOutfits.find(f => f.id === optionId)?.value || '';
+
+                toggleClothingDisabled(selectedFantasyId !== 'none');
+
+                updatePrompt();
+
+                return;
+
+            } else {
+
+                // Se escolher item normal, volta fantasia para none
+
+                if (selectedFantasyId !== 'none') {
+
+                    selectedFantasyId = 'none';
+
+                    selectedFantasy = '';
+
+                    const fantasySelect = document.getElementById('fantasy-select');
+
+                    if (fantasySelect) fantasySelect.value = 'none';
+
+                    toggleClothingDisabled(false);
+
+                }
+
+            }
+
+            const list = clothingOptions[kind] || [];
+
+            const choice = list.find(o => o.id === optionId) || list[0];
+
+            if (kind === 'shirt') selectedShirt = choice.value;
+
+            if (kind === 'shirt') selectedShirtId = choice.id;
+
+            if (kind === 'jacket') selectedJacket = choice.value;
+
+            if (kind === 'pants') selectedPants = choice.value;
+
+            if (kind === 'shoes') selectedShoes = choice.value;
+
+            if (kind === 'shirt') applyDressConstraint();
+
+            updatePrompt();
+
+        }
+
+
+
+        function selectAccessories() {
+
+            if (selectedFantasyId !== 'none') return;
+
+            const checkedIds = accessories
+
+                .map(a => a.id)
+
+                .filter(id => document.querySelector(`.accessory-check[value="${id}"]`)?.checked);
+
+
+
+            const resolvedIds = [];
+
+            checkedIds.forEach(id => {
+
+                const allowed = isOptionAllowed('accessory', id, { selectedAccessoryIds: resolvedIds });
+
+                if (allowed) resolvedIds.push(id);
+
+            });
+
+
+
+            // Re-sync UI to resolved selections
+
+            document.querySelectorAll('.accessory-check').forEach(inp => {
+
+                inp.checked = resolvedIds.includes(inp.value);
+
+            });
+
+
+
+            selectedAccessoryIds = resolvedIds;
+
+            selectedAccessories = resolvedIds
+
+                .map(id => accessories.find(a => a.id === id)?.value)
+
+                .filter(Boolean);
+
+            updatePrompt();
+
+        }
+
+
+
+        function toggleClothingDisabled(disabled) {
+
+            const ids = ['shirt-select','jacket-select','pants-select','shoes-select','accessory-select'];
+
+            ids.forEach(id => {
+
+                const select = document.getElementById(id);
+
+                const wrapper = select?.closest('.space-y-2');
+
+                if (!select) return;
+
+                select.disabled = disabled;
+
+                if (wrapper) {
+
+                    wrapper.classList.toggle('opacity-40', disabled);
+
+                    wrapper.classList.toggle('pointer-events-none', disabled);
+
+                }
+
+            });
+
+            const accessoryWrapper = document.getElementById('accessory-list')?.closest('.space-y-2');
+
+            const accessoryInputs = document.querySelectorAll('.accessory-check');
+
+            accessoryInputs.forEach(inp => inp.disabled = disabled);
+
+            if (disabled) {
+
+                accessoryInputs.forEach(inp => inp.checked = false);
+
+                selectedAccessories = [];
+
+                selectedAccessoryIds = [];
+
+            }
+
+            if (accessoryWrapper) {
+
+                accessoryWrapper.classList.toggle('opacity-40', disabled);
+
+                accessoryWrapper.classList.toggle('pointer-events-none', disabled);
+
+            }
+
+        }
+
+
+
+        function applyDressConstraint() {
+
+            const pantsSelect = document.getElementById('pants-select');
+
+            const wrapper = pantsSelect?.closest('.space-y-2');
+
+            const isDress = selectedShirtId && selectedShirtId.startsWith('dress_');
+
+            if (pantsSelect) {
+
+                pantsSelect.disabled = isDress;
+
+            }
+
+            if (wrapper) {
+
+                wrapper.classList.toggle('opacity-40', isDress);
+
+                wrapper.classList.toggle('pointer-events-none', isDress);
+
+            }
+
+            if (isDress) {
+
+                selectedPants = '';
+
+            } else if (!selectedPants) {
+
+                selectedPants = clothingOptions.pants[0].value;
+
+                if (pantsSelect) pantsSelect.value = clothingOptions.pants[0].id;
+
+            }
+
+        }
+
+
+
+        // --- SVG GENERATORS ---
+
+        function getSvgForGender(id) {
+
+            const props = 'width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-gray-500 transition-colors"';
+
+            
+
+            // Standard Icons replacement
+
+            if (id === 'male') return `<svg ${props}><circle cx="10" cy="14" r="5"/><path d="M14 10l6-6"/><path d="M15 4h5v5"/></svg>`;
+
+            if (id === 'female') return `<svg ${props}><circle cx="12" cy="9" r="5"/><path d="M12 14v8"/><path d="M8 18h8"/></svg>`;
+
+            if (id === 'boy') return `<svg ${props}><circle cx="12" cy="12" r="6"/><path d="M7 7h10l-1-2h-8z"/></svg>`; // Cap
+
+            if (id === 'girl') return `<svg ${props}><circle cx="12" cy="12" r="6"/><path d="M5 8c-2-2-3 0-2 2"/><path d="M19 8c2-2 3 0 2 2"/></svg>`; // Pigtails
+
+            if (id === 'neutral') return `<svg ${props}><circle cx="12" cy="12" r="6"/><path d="M12 6v-3"/><path d="M12 18v3"/><path d="M6 12H3"/><path d="M18 12h3"/></svg>`; // Compass/Neutral
+
+
+
+            return `<svg ${props}><circle cx="12" cy="12" r="7"/></svg>`;
+
+        }
+
+
+
+        function getSvgForBodyShape(id) {
+
+            const props = 'width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-gray-500 transition-colors"';
+
+            const paths = {
+
+                'headshot': `<circle cx="12" cy="10" r="6"/><path d="M7 20c0-3 2.5-5 5-5s5 2 5 5"/>`, // Just head and shoulders
+
+                'average': `<rect x="8" y="8" width="8" height="12" rx="2"/><circle cx="12" cy="5" r="3"/><path d="M8 10H4v6h4"/><path d="M16 10h4v6h-4"/>`,
+
+                'slender': `<rect x="9" y="8" width="6" height="14" rx="1"/><circle cx="12" cy="5" r="2.5"/><path d="M9 10H6v8h3"/><path d="M15 10h3v8h-3"/>`,
+
+                'muscular': `<path d="M6 8h12l-2 8h-8z"/><circle cx="12" cy="5" r="3"/><path d="M6 9H3v5h3"/><path d="M18 9h3v5h-3"/>`, // V shape
+
+                'chubby': `<circle cx="12" cy="14" r="6"/><circle cx="12" cy="5" r="3"/><path d="M6 12H4v4h3"/><path d="M18 12h2v4h-3"/>`,
+
+                'curvy': `<path d="M8 8c0 3 2 4 4 4s4-1 4-4"/><path d="M8 16c0-3 2-4 4-4s4 1 4 4"/><circle cx="12" cy="5" r="3"/>`, // Hourglass hint
+
+                'pear': `<path d="M9 8h6l2 10h-10z"/><circle cx="12" cy="5" r="3"/>`, // A shape
+
+                'petite': `<rect x="9" y="9" width="6" height="10" rx="1"/><circle cx="12" cy="6" r="3"/>`,
+
+                'blocky': `<rect x="6" y="8" width="12" height="12"/><rect x="8" y="2" width="8" height="6"/>`,
+
+                'chibi': `<circle cx="12" cy="8" r="6"/><rect x="9" y="15" width="6" height="6" rx="2"/>`,
+
+                'bean': `<rect x="8" y="6" width="8" height="16" rx="4"/><circle cx="12" cy="5" r="2" opacity="0.5"/>`, // Pill shape
+
+                'heavy_top': `<path d="M4 8h16l-4 8h-8z"/><path d="M9 16v6"/><path d="M15 16v6"/><circle cx="12" cy="5" r="2"/>` // Inverted triangle exaggerated
+
+            };
+
+            return `<svg ${props}>${paths[id] || paths['average']}</svg>`;
+
+        }
+
+        function getSvgForShape(id) {
+
+            const props = 'width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-gray-500 transition-colors"';
+
+            const paths = {
+
+                'oval': `<ellipse cx="12" cy="12" rx="7" ry="10"></ellipse>`,
+
+                'round': `<circle cx="12" cy="12" r="9"></circle>`,
+
+                'square': `<rect x="4" y="4" width="16" height="16" rx="2"></rect>`,
+
+                'rectangle': `<rect x="5" y="3" width="14" height="18" rx="2"></rect>`,
+
+                'triangle_up': `<path d="M6 20 L18 20 L12 4 Z"></path>`, // Base larga
+
+                'triangle_down': `<path d="M4 5h16L12 20z"></path>`, // Testa larga (Triângulo invertido clássico)
+
+                'teardrop': `<path d="M12 2C8 2 4 6 4 10C4 16 12 22 12 22C12 22 20 16 20 10C20 6 16 2 12 2Z"></path>`, // Gota
+
+                'hexagon': `<path d="M12 2L20 7V17L12 22L4 17V7L12 2Z"></path>`,
+
+                'trapezoid': `<path d="M8 4h8l4 16H4L8 4z"></path>`,
+
+                'heart': `<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path>`,
+
+                'block': `<path d="M4 4h16v16H4z"/><path d="M4 4l3-3h10l-3 3"/>`, // Cubo/Bloco 3D ish
+
+                'asymmetric': `<path d="M5 6c0-2 2-4 5-4s5 3 8 2c2 0 3 4 3 8s-4 8-9 9c-4 1-7-5-7-15z"/>` // Forma irregular
+
+            };
+
+            return `<svg ${props}>${paths[id] || paths['oval']}</svg>`;
+
+        }
+
+
+
+        function getSvgForHairLength(id) {
+
+            const props = 'width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-gray-500 transition-colors"';
+
+            const paths = {
+
+                'bald': `<circle cx="12" cy="12" r="8"/><path d="M8 12h8" stroke-dasharray="2 2" opacity="0.5"/>`,
+
+                'short': `<path d="M12 4c-4.4 0-8 2.5-8 7v4h16v-4c0-4.5-3.6-7-8-7z"/>`,
+
+                'medium': `<path d="M12 4c-4.4 0-8 3-8 9v6l2-1 2 1 4-2 4 2 2-1 2 1v-6c0-6-3.6-9-8-9z"/>`,
+
+                'long': `<path d="M12 3c-5 0-9 4-9 10v9l9-2 9 2v-9c0-6-4-10-9-10z"/>`
+
+            };
+
+            return `<svg ${props}>${paths[id] || paths['short']}</svg>`;
+
+        }
+
+        function getSvgForHairStyle(id) {
+
+            const props = 'width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-gray-500 transition-colors"';
+
+            const paths = {
+
+                'none': `<circle cx="12" cy="12" r="9"/>`,
+
+                'stubble': `<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="0.5" fill="currentColor"/><circle cx="9" cy="9" r="0.5" fill="currentColor"/><circle cx="15" cy="9" r="0.5" fill="currentColor"/>`,
+
+                'pattern': `<circle cx="12" cy="12" r="9"/><path d="M4 12l4 4M4 8l6 6"/>`,
+
+                'buzz': `<path d="M4 12c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke-dasharray="2 2"/>`,
+
+                'mohawk': `<path d="M12 4v10"/><path d="M12 4l-2 3M12 4l2 3M12 7l-2 3M12 7l2 3"/>`,
+
+                'afro_short': `<circle cx="12" cy="11" r="9" stroke-dasharray="1 3"/>`,
+
+                'spiky': `<path d="M4 14L6 8L8 13L10 6L12 13L14 6L16 13L18 8L20 14"/>`,
+
+                'pompadour': `<path d="M4 14c0-8 4-10 8-10s8 2 8 10"/><path d="M12 4c-2 2-2 6 0 6"/>`,
+
+                'curly_short': `<path d="M6 12c0-3 1-6 6-6s6 3 6 6" stroke-dasharray="3 1"/><circle cx="9" cy="8" r="1"/><circle cx="15" cy="8" r="1"/>`,
+
+                'undercut': `<path d="M12 4c-4.4 0-8 2.5-8 7v4h2v-2h12v2h2v-4c0-4.5-3.6-7-8-7z"/>`, // Simple rep
+
+                'pixie': `<path d="M12 4c-3 0-6 2-7 5l1 2l6-4l6 4l1-2c-1-3-4-5-7-5z"/>`, // Simple rep
+
+                'bob': `<path d="M6 18V10c0-4 2-6 6-6s6 2 6 6v8H6z"/>`,
+
+                'shaggy': `<path d="M12 4c-4 0-8 3-8 9v4l2-2 2 2 4-2 4 2 2-2 2 2v-4c0-6-4-9-8-9z"/>`,
+
+                'mullet': `<path d="M7 10h10"/><path d="M6 18V12"/><path d="M18 18V12"/><path d="M4 18l16 0"/>`,
+
+                'curly_med': `<path d="M5 18c0-8 3-14 7-14s7 6 7 14"/><circle cx="8" cy="10" r="1"/><circle cx="16" cy="10" r="1"/><circle cx="12" cy="6" r="1"/>`,
+
+                'dreads_med': `<path d="M8 4v14"/><path d="M12 4v14"/><path d="M16 4v14"/>`,
+
+                'bun': `<circle cx="12" cy="4" r="3"/><path d="M12 7c-4.4 0-8 2-8 7v4h16v-4c0-5-3.6-7-8-7z"/>`,
+
+                'layered': `<path d="M12 4c-4.4 0-8 3-8 9v6l4-4l4 4l4-4l4 4v-6c0-6-3.6-9-8-9z"/>`,
+
+                'side_swept': `<path d="M12 4c-4.4 0-8 3-8 9v6l8-4l8 4v-6c0-6-3.6-9-8-9z"/>`,
+
+                'straight': `<path d="M6 22V10c0-5 3-7 6-7s6 2 6 7v12"/>`,
+
+                'wavy': `<path d="M6 10c0-5 3-7 6-7s6 2 6 7"/><path d="M6 10s2 3 0 6s-2 3 0 6"/><path d="M18 10s-2 3 0 6s2 3 0 6"/>`,
+
+                'braids': `<path d="M8 4l2 2-2 2 2 2-2 2 2 2"/><path d="M16 4l-2 2 2 2-2 2 2 2-2 2"/><path d="M12 4v16"/>`,
+
+                'ponytail': `<circle cx="12" cy="10" r="6"/><path d="M18 8l4 2-2 10-4-2"/>`,
+
+                'dreads_long': `<path d="M7 4v18"/><path d="M10 4v18"/><path d="M14 4v18"/><path d="M17 4v18"/>`,
+
+                'afro_long': `<circle cx="12" cy="12" r="10" stroke-dasharray="1 3"/><circle cx="12" cy="12" r="11" stroke-dasharray="1 3" opacity="0.5"/>`,
+
+                'twin_tails': `<path d="M4 6l-2 14"/><path d="M20 6l2 14"/><path d="M12 4c-4 0-7 3-7 7h14c0-4-3-7-7-7z"/>`,
+
+                'straight_bangs': `<path d="M6 22V10c0-5 3-7 6-7s6 2 6 7v12"/><path d="M8 10h8"/>`
+
+            };
+
+            return `<svg ${props}>${paths[id] || paths['none']}</svg>`;
+
+        }
+
+        function getSvgForEyeShape(id) {
+
+            const props = 'width="32" height="16" viewBox="0 0 40 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-gray-500 mb-1 transition-colors"';
+
+            const paths = {
+
+                'none': `<path d="M10 10h20" stroke-dasharray="4 4" opacity="0.5"/>`,
+
+                'dot': `<circle cx="12" cy="10" r="2" fill="currentColor"/><circle cx="28" cy="10" r="2" fill="currentColor"/>`,
+
+                'round': `<circle cx="12" cy="10" r="7"/><circle cx="28" cy="10" r="7"/><circle cx="12" cy="10" r="2" fill="currentColor"/><circle cx="28" cy="10" r="2" fill="currentColor"/>`,
+
+                'vertical': `<ellipse cx="12" cy="10" rx="4" ry="8"/><ellipse cx="28" cy="10" rx="4" ry="8"/><circle cx="12" cy="10" r="2" fill="currentColor"/><circle cx="28" cy="10" r="2" fill="currentColor"/>`,
+
+                'angular': `<path d="M6 10l6-4 6 4-6 4z"/><path d="M22 10l6-4 6 4-6 4z"/><circle cx="12" cy="10" r="1.5" fill="currentColor"/><circle cx="28" cy="10" r="1.5" fill="currentColor"/>`,
+
+                'wide': `<circle cx="6" cy="10" r="4"/><circle cx="34" cy="10" r="4"/><circle cx="6" cy="10" r="1.5" fill="currentColor"/><circle cx="34" cy="10" r="1.5" fill="currentColor"/>`,
+
+                'almond': `<path d="M5 10s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5z"/><path d="M21 10s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5z"/><circle cx="12" cy="10" r="2" fill="currentColor"/><circle cx="28" cy="10" r="2" fill="currentColor"/>`, // Almond shape
+
+                'square_eye': `<rect x="6" y="5" width="12" height="10" rx="1"/><rect x="22" y="5" width="12" height="10" rx="1"/><rect x="10" y="8" width="4" height="4" fill="currentColor"/><rect x="26" y="8" width="4" height="4" fill="currentColor"/>` // Square
+
+            };
+
+            return `<svg ${props}>${paths[id] || paths['round']}</svg>`;
+
+        }
+
+
+
+        function getSvgForEyeExpression(id) {
+
+            const props = 'width="32" height="16" viewBox="0 0 40 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-gray-500 mb-1 transition-colors"';
+
+            const paths = {
+
+                'neutral': `<path d="M5 10c0-4 7-4 7 0s-7 4-7 0z"/><path d="M21 10c0-4 7-4 7 0s-7 4-7 0z"/><circle cx="8.5" cy="10" r="1.5" fill="currentColor"/><circle cx="24.5" cy="10" r="1.5" fill="currentColor"/>`,
+
+                'happy': `<path d="M5 12c1-3 6-3 7 0"/><path d="M21 12c1-3 6-3 7 0"/>`,
+
+                'angry': `<path d="M5 8l7 3"/><path d="M21 11l7-3"/><circle cx="8.5" cy="12" r="1.5" fill="currentColor"/><circle cx="24.5" cy="12" r="1.5" fill="currentColor"/>`,
+
+                'tired': `<path d="M5 12h7"/><path d="M21 12h7"/><path d="M5 14c1 2 6 2 7 0"/><path d="M21 14c1 2 6 2 7 0"/>`,
+
+                'surprised': `<circle cx="8.5" cy="10" r="4"/><circle cx="24.5" cy="10" r="4"/><circle cx="8.5" cy="10" r="1" fill="currentColor"/><circle cx="24.5" cy="10" r="1" fill="currentColor"/>`,
+
+                'suspicious': `<path d="M5 10h7"/><path d="M21 10h7"/><circle cx="8.5" cy="11" r="1.5" fill="currentColor"/><circle cx="24.5" cy="11" r="1.5" fill="currentColor"/>`,
+
+                'hypnotized': `<path d="M8.5 10l-1-1 1.5-1.5 2 1 1 2M24.5 10l-1-1 1.5-1.5 2 1 1 2" opacity="0.8"/>`,
+
+                'dead': `<path d="M5 8l7 4M12 8l-7 4M21 8l7 4M28 8l-7 4"/>`,
+
+                // NOVOS SVGs
+
+                'sad': `<path d="M5 8l3-2l4 2"/><path d="M21 8l3-2l4 2"/><circle cx="8.5" cy="12" r="1.5" fill="currentColor"/><circle cx="24.5" cy="12" r="1.5" fill="currentColor"/><path d="M11 13l1 3" stroke-width="1"/>`,
+
+                'love': `<path d="M8.5 14L5 10a2.5 2.5 0 0 1 3.5-2.5 2.5 2.5 0 0 1 3.5 2.5z"/><path d="M24.5 14L21 10a2.5 2.5 0 0 1 3.5-2.5 2.5 2.5 0 0 1 3.5 2.5z"/>`,
+
+                'wink': `<path d="M5 10c0-4 7-4 7 0s-7 4-7 0z"/><path d="M21 12c1-2 6-2 7 0"/><circle cx="8.5" cy="10" r="1.5" fill="currentColor"/>`,
+
+                'bored': `<path d="M5 8h7"/><path d="M21 8h7"/><path d="M5 8c0 3 2 5 3.5 5s3.5-2 3.5-5"/><path d="M21 8c0 3 2 5 3.5 5s3.5-2 3.5-5"/>`,
+
+                'scared': `<circle cx="8.5" cy="10" r="4"/><circle cx="24.5" cy="10" r="4"/><circle cx="8.5" cy="10" r="0.5" fill="currentColor"/><circle cx="24.5" cy="10" r="0.5" fill="currentColor"/>`,
+
+                'crazy': `<circle cx="8.5" cy="10" r="4"/><circle cx="24.5" cy="10" r="4"/><circle cx="8.5" cy="10" r="0.5" fill="currentColor"/><circle cx="24.5" cy="10" r="2" fill="currentColor"/>`,
+
+                'money': `<path d="M8.5 7v6M7 8h2M7 12h2M24.5 7v6M23 8h2M23 12h2" stroke-width="1.5"/><circle cx="8.5" cy="10" r="4" stroke-width="1"/><circle cx="24.5" cy="10" r="4" stroke-width="1"/>`,
+
+                'stars': `<path d="M8.5 7l1 3h3l-2.5 2l1 3l-2.5-2l-2.5 2l1-3l-2.5-2h3z" fill="currentColor"/><path d="M24.5 7l1 3h3l-2.5 2l1 3l-2.5-2l-2.5 2l1-3l-2.5-2h3z" fill="currentColor"/>`
+
+            };
+
+            return `<svg ${props}>${paths[id] || paths['neutral']}</svg>`;
+
+        }
+
+        function getSvgForNose(id) {
+
+            const props = 'width="32" height="20" viewBox="0 0 24 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-gray-500 mb-1 transition-colors"';
+
+            const paths = {
+
+                'none': `<path d="M8 8h8" stroke-dasharray="2 2" opacity="0.5"/>`,
+
+                'button': `<path d="M10 8c0 1.1 0.9 2 2 2s2-.9 2-2"/>`,
+
+                'pointed': `<path d="M15 8L10 12L12 8"/>`,
+
+                'bulbous': `<circle cx="12" cy="8" r="3"/>`,
+
+                'roman': `<path d="M11 4c0 0 2 1 2 4s-1 5-2 5"/>`,
+
+                'hook': `<path d="M12 4c0 0 4 2 0 8s-4 0-4 0"/>`, // Sharp hook down
+
+                'wide': `<path d="M8 10c2 1 6 1 8 0"/>`,
+
+                'pig': `<ellipse cx="12" cy="8" rx="4" ry="3"/><circle cx="11" cy="8" r="0.5" fill="currentColor"/><circle cx="13" cy="8" r="0.5" fill="currentColor"/>`
+
+            };
+
+            return `<svg ${props}>${paths[id] || paths['button']}</svg>`;
+
+        }
+
+
+
+        function getSvgForMouth(id) {
+
+            const props = 'width="32" height="20" viewBox="0 0 24 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-gray-500 mb-1 transition-colors"';
+
+            const paths = {
+
+                'none': `<path d="M8 8h8" stroke-dasharray="2 2" opacity="0.5"/>`,
+
+                'smile': `<path d="M6 6c0 5 5 8 6 8s6-3 6-8"/>`,
+
+                'frown': `<path d="M6 10c0-5 5-8 6-8s6 3 6 8"/>`,
+
+                'open': `<circle cx="12" cy="8" r="4"/>`,
+
+                'grin': `<path d="M6 6h12v4h-12z"/><path d="M12 6v4"/><path d="M9 6v4"/><path d="M15 6v4"/>`,
+
+                'lips': `<path d="M6 8c2-2 4-2 6 0c2-2 4-2 6 0"/><path d="M6 8c3 4 9 4 12 0"/>`,
+
+                'thin': `<path d="M6 8h12" stroke-width="2"/>`, // Straight line
+
+                'tongue': `<path d="M6 6c0 5 5 6 6 6s6-1 6-6"/><path d="M10 12c0 3 2 4 2 4s2-1 2-4"/>`
+
+            };
+
+            return `<svg ${props}>${paths[id] || paths['smile']}</svg>`;
+
+        }
+
+
+
+        function isBoredExpression(state) {
+
+            const exprId = (state.eyeExpressionId || '').toLowerCase();
+
+            const exprText = (state.eyeExpression || '').toLowerCase();
+
+            return exprId === 'bored' || exprId === 'tired' || exprId === 'dead' || exprText.includes('half-lidded') || exprText.includes('half closed') || exprText.includes('deadpan');
+
+        }
+
+
+
+        function appendTokensToList(list, tokens) {
+
+            if (!tokens) return;
+
+            if (Array.isArray(tokens)) {
+
+                tokens.forEach(token => {
+
+                    if (token) {
+
+                        list.push(token);
+
+                    }
+
+                });
+
+            } else {
+
+                list.push(tokens);
+
+            }
+
+        }
+
+
+
+        const PromptBuilder = {
+
+            buildParts(state) {
+
+                const parts = {
+
+                    style: [],
+
+                    subject: [],
+
+                    anatomy: [],
+
+                    skin: [],
+
+                    head: [],
+
+                    hair: [],
+
+                    face: [],
+
+                    outfit: [],
+
+                    camera: [],
+
+                    quality: [],
+
+                    background: [],
+
+                    constraints: [],
+
+                    negatives: []
+
+                };
+
+
+
+                const features = Array.from(document.querySelectorAll('.feature-check:checked'))
+
+                    .map(cb => cb.value)
+
+                    .join(', ');
+
+                const preset = getPresetById(state.presetId);
+
+
+
+                // STYLE
+
+                parts.style.push('(masterpiece)', state.style);
+
+                parts.style.push('Hanna-Barbera / Disney inspired animal cartoon energy', 'expressive anthropomorphic posing, bright cel shading');
+
+                if (preset?.styleTokens?.length) {
+
+                    parts.style.push(...preset.styleTokens);
+
+                }
+
+
+
+                // SUBJECT
+
+                const subjectOverride = preset?.subjectOverride;
+
+                const speciesDescriptor = state.species || 'anthropomorphic animal character';
+
+                const genderDescriptor = state.genderValue;
+
+                if (subjectOverride) {
+
+                    appendTokensToList(parts.subject, subjectOverride);
+
+                } else {
+
+                    parts.subject.push(`concept art of a ${genderDescriptor} ${speciesDescriptor}`);
+
+                }
+
+
+
+                // ANATOMY
+
+                if (state.bodyShapeId !== 'headshot') {
+
+                    parts.anatomy.push(state.bodyShape);
+
+                }
+
+                if (state.poseId === 'dancing') {
+
+                    parts.anatomy.push('dynamic dancing pose', 'weight shift', 'arms in motion', 'joyful movement');
+
+                } else if (state.pose) {
+
+                     parts.anatomy.push(state.pose);
+
+                }
+
+                parts.anatomy.push('anthropomorphic anatomy with expressive animal ears, tail, padded paws');
+
+                if (state.furPattern) {
+
+                    parts.anatomy.push(state.furPattern);
+
+                }
+
+
+
+                // SKIN
+
+                parts.skin.push(state.skinTone);
+
+
+
+                // HEAD (shape)
+
+                let shapeText = state.shape;
+
+                if (state.isFeltStyle && shapeText.includes('sharp edges')) {
+
+                    shapeText = shapeText.replace('sharp edges', 'softened edges');
+
+                }
+
+                parts.head.push(shapeText);
+
+
+
+                // HAIR
+
+                parts.hair.push(`${state.hairColor} hair`, state.hairLength, state.hairStyle);
+
+
+
+                // FACE (eyes/nose/mouth/features)
+
+                if (state.eyeShape.includes('no facial features')) {
+
+                    parts.face.push('no facial features', 'neutral expression');
+
+                } else {
+
+                    parts.face.push(state.eyeShape, state.eyeExpression);
+
+                    if (state.nose.includes('no nose')) {
+
+                        parts.face.push('no nose');
+
+                    } else {
+
+                        parts.face.push(state.nose);
+
+                    }
+
+                    if (state.mouth.includes('no mouth')) {
+
+                        parts.face.push('no mouth');
+
+                    } else {
+
+                        parts.face.push(state.mouth);
+
+                    }
+
+                }
+
+                if (features) {
+
+                    parts.face.push(features);
+
+                }
+
+
+
+                // OUTFIT
+
+                if (state.isFantasyActive) {
+
+                    if (state.fantasy) {
+
+                        parts.outfit.push(`wearing ${state.fantasy}`);
+
+                    }
+
+                } else {
+
+                    const accessoriesList = state.accessories || [];
+
+                const pieces = [
+
+                        state.shirt,
+
+                        state.jacket,
+
+                        state.pants,
+
+                        state.shoes,
+
+                        ...accessoriesList
+
+                    ].filter(Boolean).filter(p => !p.startsWith('no '));
+
+                    if (pieces.length) {
+
+                        parts.outfit.push(`wearing ${pieces.join(', ')}`);
+
+                    }
+
+                    if (state.beard) {
+
+                        parts.outfit.push(state.beard);
+
+                    }
+
+                }
+
+
+
+                // CAMERA
+
+                const cameraOverride = preset?.cameraOverride;
+
+                if (cameraOverride) {
+
+                    appendTokensToList(parts.camera, cameraOverride);
+
+                } else if (state.bodyShapeId === 'headshot') {
+
+                    parts.camera.push('headshot', 'character portrait');
+
+                    parts.negatives.push(HEADSHOT_NEGATIVE);
+
+                } else {
+
+                    parts.camera.push('full body shot', 'character design sheet');
+
+                }
+
+                if (preset?.cameraTokens?.length) {
+
+                    parts.camera.push(...preset.cameraTokens);
+
+                }
+
+
+
+                // BACKGROUND
+
+                if (preset?.backgroundTokens?.length) {
+
+                    parts.background.push(...preset.backgroundTokens);
+
+                }
+
+
+
+                 // RENDER
+
+                if (preset?.qualityTokens?.length) {
+
+                    parts.quality.push(...preset.qualityTokens);
+
+                }
+
+
+
+                // CONSTRAINTS
+
+                if (state.consistencyMode) {
+
+                    parts.constraints.push('same character identity', 'consistent face', 'consistent proportions');
+
+                }
+
+
+
+                // BLUEPRINT MODE
+
+                if (state.blueprintMode) {
+
+                     parts.constraints.push('character design sheet, blueprint, white background, grid lines, annotations');
+
+                    if (state.blueprintView === 'turnaround') {
+
+                        parts.camera.push('turnaround: front view, side view, back view');
+
+                    } else if (state.blueprintView === 'expressions') {
+
+                        parts.camera.push('expression sheet layout', 'multiple face expressions line-up');
+
+                    } else {
+
+                        parts.camera.push('model sheet: T-pose, neutral expression');
+
+                    }
+
+                    parts.negatives.push('dramatic lighting, colored background, complex environment');
+
+                }
+
+
+
+                return parts;
+
+            },
+
+            applyConflictRules(parts, state) {
+
+                const isBoredLike = isBoredExpression(state);
+
+                const isDancing = state.poseId === 'dancing';
+
+
+
+                if (isDancing && isBoredLike && state.deadpanDance) {
+
+                    parts.face = parts.face || [];
+
+                    parts.face.push('deadpan face contrasting with joyful dance');
+
+                }
+
+
+
+                if (state.isChild) {
+
+                    const soften = (token) => (token || '').replace(/strong jawline|pointed chin/ig, 'soft jawline');
+
+                    parts.head = (parts.head || []).map(soften);
+
+                    parts.face = (parts.face || []).map(soften);
+
+                }
+
+
+
+                return parts;
+
+            },
+
+            joinParts(parts) {
+
+                 const order = {
+
+                    quality: 'Quality',
+
+                    style: 'Style',
+
+                    subject: 'Subject',
+
+                    anatomy: 'Body',
+
+                    pose: 'Action / Pose',
+
+                    skin: 'Skin',
+
+                    head: 'Head Shape',
+
+                    hair: 'Hair',
+
+                    face: 'Facial Features',
+
+                    outfit: 'Outfit',
+
+                    camera: 'Framing',
+
+                    lighting: 'Lighting',
+
+                    qualityTokens: 'Render Quality',
+
+                    background: 'Background',
+
+                    constraints: 'Consistency',
+
+                };
+
+
+
+                const all = [];
+
+                Object.keys(order).forEach(key => {
+
+                    const title = order[key];
+
+                    // Create a temporary array from various potential sources for a given key
+
+                    let sourceArray = [];
+
+                    if (parts[key]) sourceArray = parts[key];
+
+                    // Special handling for merged sections
+
+                    if (key === 'anatomy' && parts.pose) sourceArray = [...sourceArray, ...parts.pose];
+
+                    if (key === 'quality' && parts.qualityTokens) sourceArray = [...sourceArray, ...parts.qualityTokens];
+
+                    
+
+                    const content = PromptBuilder.normalizeTokens(sourceArray).join(', ');
+
+                    if (content) {
+
+                        all.push(`${title}:\n${content}`);
+
+                    }
+
+                });
+
+                return all.join('\n\n');
+
+            },
+
+            normalizeTokens(list) {
+
+                const seen = new Set();
+
+                const result = [];
+
+                list.forEach(item => {
+
+                    const token = (item || '').trim();
+
+                    if (!token) return;
+
+                    const lower = token.toLowerCase();
+
+                    if (seen.has(lower)) return;
+
+                    seen.add(lower);
+
+                    result.push(token);
+
+                });
+
+                return result;
+
+            }
+
+        };
+
+
+
+        function updatePrompt(fromAvailability = false) {
+
+            if (isImporting && !fromAvailability) return;
+
+            const state = getState();
+
+            const parts = PromptBuilder.applyConflictRules(PromptBuilder.buildParts(state), state);
+
+            const positivePrompt = PromptBuilder.joinParts(parts);
+
+
+
+            const negativeParts = PromptBuilder.normalizeTokens(parts['negatives'] || []);
+
+            const rawBaseNegative = state.negativePrompt.replace(/^Negative Prompt:\n/, '');
+
+            const isHeadshot = state.bodyShapeId === 'headshot';
+
+            let normalizedBase = rawBaseNegative;
+
+            if (isHeadshot) {
+
+                headshotNegativeAuto = true;
+
+            } else if (headshotNegativeAuto) {
+
+                normalizedBase = removeHeadshotNegative(normalizedBase);
+
+                headshotNegativeAuto = false;
+
+            }
+
+            const finalNegative = [normalizedBase, ...negativeParts].filter(p => p && p.trim() !== '').join(', ');
+
+
+
+            positiveFinal = positivePrompt;
+
+            negativeFinal = finalNegative;
+
+
+
+            document.getElementById('prompt-output').value = positiveFinal;
+
+            const negativeInput = document.getElementById('negativePrompt');
+
+            if (negativeInput) {
+
+                negativeInput.dataset.base = normalizedBase;
+
+                isUpdatingNegativePrompt = true;
+
+                negativeInput.value = `Negative Prompt:\n${negativeFinal}`;
+
+                isUpdatingNegativePrompt = false;
+
+            }
+
+
+
+            if (!fromAvailability) {
+
+                const changed = refreshAvailability();
+
+                if (changed) {
+
+                    updatePrompt(true);
+
+                }
+
+            }
+
+        }
+
+    </script>
+
+</body>
+
+</html>
+

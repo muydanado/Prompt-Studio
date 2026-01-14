@@ -1,0 +1,1355 @@
+﻿<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scene Prompt Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #050505;
+            --card-bg: #0f0f0f;
+            --panel-border: #1f1f1f;
+            --accent: #4125D0;
+            --accent-dim: rgba(65, 37, 208, 0.12);
+            --text-main: #e5e5e5;
+            --text-muted: #737373;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+        .dark-panel {
+            background-color: var(--card-bg);
+            border: 1px solid var(--panel-border);
+            transition: border-color 0.2s ease;
+        }
+        .dark-panel:hover {
+            border-color: #333;
+        }
+
+        .option-card {
+            background-color: #0a0a0a;
+            border: 1px solid var(--panel-border);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            text-align: left;
+        }
+        .option-card:hover {
+            transform: translateY(-2px);
+            border-color: #444;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+        .option-card.selected {
+            border-color: var(--accent);
+            background-color: var(--accent-dim);
+            box-shadow: 0 0 0 1px var(--accent);
+        }
+
+        select, input[type="text"], input[type="color"], textarea {
+            background-color: #0a0a0a;
+            border: 1px solid var(--panel-border);
+            color: var(--text-main);
+            transition: border-color 0.2s;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .section-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .section-title i {
+            color: var(--accent);
+        }
+
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: var(--accent);
+            color: #fff;
+            text-align: center;
+            border-radius: 4px;
+            padding: 12px 16px;
+            position: fixed;
+            z-index: 50;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            opacity: 0;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: opacity 0.3s, bottom 0.3s;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+            bottom: 50px;
+        }
+
+        .label-pill {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #888;
+        }
+
+        button.primary-btn {
+            background: linear-gradient(135deg, rgba(229, 173, 224, 0.25), rgba(229, 173, 224, 0.5));
+            border: 1px solid var(--accent);
+            color: #fff;
+        }
+
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center pb-20">
+
+    <header class="w-full border-b border-[#1f1f1f] bg-black/80 backdrop-blur-md z-20 sticky top-0">
+        <div class="w-full max-w-7xl mx-auto px-6 py-4 flex items-center gap-4 justify-start">
+            <div class="w-3 h-8 bg-[#4125D0] rounded-sm shadow-[0_0_15px_rgba(65,37,208,0.5)]"></div>
+            <div>
+                <h1 class="text-xl font-bold tracking-tight text-white">SCENE PROMPT <span class="text-[#4125D0] font-light">STUDIO</span></h1>
+                <p class="text-[10px] text-[#555] uppercase tracking-[0.2em]">Cenários Cinemáticos & Backgrounds</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="w-full mt-8">
+        <div class="w-full max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div class="lg:col-span-7 space-y-6">
+
+            <div class="dark-panel p-5 rounded-lg">
+                <div class="section-title">
+                    <i class="fa-solid fa-palette icon-highlight"></i> Estilo Visual
+                </div>
+                <div id="style-grid" class="grid grid-cols-3 gap-3"></div>
+            </div>
+
+            <div class="dark-panel p-5 rounded-lg space-y-4">
+                <div class="section-title">
+                    <i class="fa-solid fa-mountain-sun icon-highlight"></i> Ambiente & Época
+                </div>
+                <p class="text-[10px] text-gray-500 uppercase tracking-[0.3em] text-left">
+                    Siga a hierarquia semântica: Tipo → Local → Hora → Clima → Época → Estilo.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] text-gray-400 uppercase tracking-wider mb-2 block">Tipo de ambiente</label>
+                        <div class="relative">
+                            <select id="tipo-ambiente-select" data-field="tipoAmbiente" class="w-full p-3 rounded text-xs"></select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-gray-400 uppercase tracking-wider mb-2 block">Local específico</label>
+                        <div class="relative">
+                            <select id="local-especifico-select" data-field="localEspecifico" class="w-full p-3 rounded text-xs"></select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] text-gray-400 uppercase tracking-wider mb-2 block">Hora do dia</label>
+                        <div class="relative">
+                            <select id="hora-do-dia-select" data-field="horaDoDia" class="w-full p-3 rounded text-xs"></select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                            </div>
+                        </div>
+                        <p class="text-[10px] text-gray-500 mt-1">Luz base, sem descrever o clima.</p>
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-gray-400 uppercase tracking-wider mb-2 block">Clima / Condição</label>
+                        <div class="relative">
+                            <select id="clima-condicao-select" data-field="climaCondicao" class="w-full p-3 rounded text-xs"></select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] text-gray-400 uppercase tracking-wider mb-2 block">Época histórica</label>
+                        <div class="relative">
+                            <select id="epoca-historica-select" data-field="epocaHistorica" class="w-full p-3 rounded text-xs"></select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-gray-400 uppercase tracking-wider mb-2 block">Estilo de mundo</label>
+                        <div class="relative">
+                            <select id="estilo-de-mundo-select" data-field="estiloDeMundo" class="w-full p-3 rounded text-xs"></select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dark-panel p-5 rounded-lg space-y-4">
+                <div class="section-title">
+                    <i class="fa-solid fa-layer-group icon-highlight"></i> Materiais & Detalhes
+                </div>
+                <p class="text-[10px] text-gray-500 uppercase tracking-wider mb-2">Selecione até três materiais dominantes</p>
+                <div id="materials-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] text-gray-400 uppercase tracking-wider mb-2 block">Nível de detalhe</label>
+                        <div class="flex items-center gap-3">
+                            <input type="range" id="detail-range" min="1" max="3" class="w-full" oninput="handleDetailRange(this.value)">
+                            <span id="detail-label" class="text-[12px] font-semibold text-white"></span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-gray-400 uppercase tracking-wider mb-2 block">Clean vs Cluttered</label>
+                        <div class="relative">
+                            <select id="clutter-select" class="w-full p-3 rounded text-xs" onchange="updateClutter(this.value)">
+                                <option value="limpo">Limpo / Minimalista</option>
+                                <option value="balanceado">Balanceado</option>
+                                <option value="cheio">Cheio de elementos</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dark-panel p-5 rounded-lg space-y-4">
+                <div class="section-title">
+                    <i class="fa-solid fa-swatchbook icon-highlight"></i> Paleta & Harmonia
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <label class="text-[10px] text-gray-400 uppercase tracking-wider text-left">
+                        Cor Principal
+                        <input type="color" id="primary-color" class="w-full h-10 rounded-md mt-1 border border-[#1f1f1f]" onchange="handlePaletteColor('primary', this.value)" value="#2B2B2B">
+                    </label>
+                    <label class="text-[10px] text-gray-400 uppercase tracking-wider text-left">
+                        Cor Secundária
+                        <input type="color" id="secondary-color" class="w-full h-10 rounded-md mt-1 border border-[#1f1f1f]" onchange="handlePaletteColor('secondary', this.value)" value="#8A8A8A">
+                    </label>
+                    <label class="text-[10px] text-gray-400 uppercase tracking-wider text-left">
+                        Cor de Acento
+                        <input type="color" id="accent-color" class="w-full h-10 rounded-md mt-1 border border-[#1f1f1f]" onchange="handlePaletteColor('accent', this.value)" value="#E6E3DE">
+                    </label>
+                </div>
+                <div class="flex flex-col gap-2 mt-3">
+                    <label class="text-[10px] text-gray-400 uppercase tracking-wider">Harmonia</label>
+                    <div class="relative">
+                        <select id="palette-harmony-scheme" class="w-full p-3 rounded text-xs" onchange="handleHarmonyChange(this.value)">
+                            <option value="">Automático (padrão)</option>
+                            <option value="analogous">Análogo</option>
+                            <option value="complementary">Complementar</option>
+                            <option value="triadic">Triádico</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                            <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] text-gray-400 uppercase tracking-wider mb-2 block">Harmonia</label>
+                        <div class="relative">
+                            <select id="palette-harmony" class="w-full p-3 rounded text-xs" onchange="updatePaletteHarmony(this.value)"></select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-gray-400 uppercase tracking-wider mb-2 block">Ânimo</label>
+                        <div class="relative">
+                            <select id="palette-mood" class="w-full p-3 rounded text-xs" onchange="updatePaletteMood(this.value)"></select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <button type="button" class="w-full rounded-md border border-[#1f1f1f] px-4 py-3 text-[12px] uppercase tracking-[0.3em]" onclick="generateCoolorsPalette()">Gerar paleta estilo Coolors</button>
+                    <p class="text-[10px] text-gray-500 mt-2">Clique no botão ou nos cartões abaixo para trocar de paleta com um único clique, inspirado no flow do Coolors.</p>
+                </div>
+                <div id="palette-presets" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3"></div>
+            </div>
+
+            <div class="dark-panel p-5 rounded-lg space-y-4">
+                <div class="section-title">
+                    <i class="fa-solid fa-atom icon-highlight"></i> Elementos de Cena
+                </div>
+                <p class="text-[10px] text-gray-500 uppercase tracking-wider mb-2">Escolha os props principais</p>
+                <div id="scene-elements-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+            </div>
+
+            <div class="dark-panel p-5 rounded-lg space-y-4">
+                <div class="section-title">
+                    <i class="fa-solid fa-video icon-highlight"></i> Câmera & Enquadramento
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] text-gray-400 uppercase tracking-wider mb-2 block">Ângulo</label>
+                        <div class="relative">
+                            <select id="camera-angle-select" class="w-full p-3 rounded text-xs"></select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-gray-400 uppercase tracking-wider mb-2 block">Enquadramento</label>
+                        <div class="relative">
+                            <select id="framing-select" class="w-full p-3 rounded text-xs"></select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] text-gray-400 uppercase tracking-wider mb-2 block">Lente</label>
+                        <div class="relative">
+                            <select id="lens-select" class="w-full p-3 rounded text-xs"></select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-gray-400 uppercase tracking-wider mb-2 block">Profundidade</label>
+                        <div class="relative">
+                            <select id="depth-select" class="w-full p-3 rounded text-xs"></select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[10px] text-gray-400 uppercase tracking-wider mb-2 block">Aspect Ratio</label>
+                    <div class="relative">
+                        <select id="aspect-select" class="w-full p-3 rounded text-xs"></select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                            <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="lg:col-span-5 space-y-6 lg:sticky lg:top-6 lg:self-start">
+            <div class="dark-panel p-5 rounded-lg flex flex-col gap-4">
+                <div class="section-title">
+                    <i class="fa-solid fa-terminal icon-highlight"></i> Prompt Final
+                </div>
+                <textarea id="prompt-output" rows="16" class="w-full text-xs font-mono leading-relaxed rounded p-4 resize-none" readonly></textarea>
+                <div class="flex items-center justify-between">
+                    <button class="px-4 py-2 rounded-md text-[12px] font-semibold primary-btn" type="button" onclick="copyToClipboard()">Copiar Prompt</button>
+                    <span class="text-[11px] text-gray-400 uppercase tracking-[0.2em]">Atualizado em tempo real</span>
+                </div>
+            </div>
+            <div class="dark-panel p-5 rounded-lg space-y-3">
+                <div class="section-title">
+                    <i class="fa-solid fa-info-circle icon-highlight"></i> Dicas rápidas
+                </div>
+                <p class="text-[12px] text-gray-400 leading-relaxed">
+                    Combine o estilo com a paleta e os elementos de cena para criar cenários únicos. Use o aspecto cinematográfico para reforçar a narrativa visual e mantenha o prompt livre de personagens para focar no background.
+                </p>
+                <ul class="text-[11px] space-y-1 text-gray-500">
+                    <li>• Estilo 2D: priorize composições limpas e cores chapadas.</li>
+                    <li>• Estilo 3D: adicione materiais e luz volumétrica para profundidade.</li>
+                    <li>• Realista: foque em iluminação precisa, detalhes e proporções cinematográficas.</li>
+                </ul>
+            </div>
+        </div>
+        </div>
+    </main>
+
+    <div id="toast" class="toast">Prompt copiado!</div>
+
+    <script>
+        const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+        const wrapHue = (h) => ((h % 360) + 360) % 360;
+
+        function paletteHexToRgb(hex) {
+            const h = hex.replace("#", "").trim();
+            const full = h.length === 3 ? h.split("").map((c) => c + c).join("") : h;
+            const n = parseInt(full, 16);
+            return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+        }
+        function paletteRgbToHex({ r, g, b }) {
+            const to = (x) => x.toString(16).padStart(2, "0");
+            return `#${to(r)}${to(g)}${to(b)}`.toUpperCase();
+        }
+        function paletteRgbToHsl({ r, g, b }) {
+            r /= 255; g /= 255; b /= 255;
+            const max = Math.max(r, g, b), min = Math.min(r, g, b);
+            let h = 0, s = 0;
+            const l = (max + min) / 2;
+            const d = max - min;
+
+            if (d !== 0) {
+                s = d / (1 - Math.abs(2 * l - 1));
+                switch (max) {
+                    case r: h = 60 * (((g - b) / d) % 6); break;
+                    case g: h = 60 * (((b - r) / d) + 2); break;
+                    case b: h = 60 * (((r - g) / d) + 4); break;
+                }
+            }
+            return { h: wrapHue(h), s: s * 100, l: l * 100 };
+        }
+        function paletteHslToRgb({ h, s, l }) {
+            s /= 100; l /= 100;
+            const c = (1 - Math.abs(2 * l - 1)) * s;
+            const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+            const m = l - c / 2;
+            let r1 = 0, g1 = 0, b1 = 0;
+
+            if (0 <= h && h < 60)       { r1 = c; g1 = x; b1 = 0; }
+            else if (60 <= h && h < 120){ r1 = x; g1 = c; b1 = 0; }
+            else if (120 <= h && h < 180){ r1 = 0; g1 = c; b1 = x; }
+            else if (180 <= h && h < 240){ r1 = 0; g1 = x; b1 = c; }
+            else if (240 <= h && h < 300){ r1 = x; g1 = 0; b1 = c; }
+            else                          { r1 = c; g1 = 0; b1 = x; }
+
+            return {
+                r: Math.round((r1 + m) * 255),
+                g: Math.round((g1 + m) * 255),
+                b: Math.round((b1 + m) * 255)
+            };
+        }
+        function paletteHslToHex(hsl) { return paletteRgbToHex(paletteHslToRgb(hsl)); }
+
+        const MOOD = {
+            realistic: {
+                base:    { s:[10,35], darkL:[10,18], midL:[22,35], lightL:[45,60] },
+                support: { s:[10,30], darkL:[10,18], midL:[22,35], lightL:[45,60] },
+                accent1: { s:[25,55], l:[35,65] },
+                accent2: { s:[15,40], l:[25,55] },
+                neutral: { s:[0,7],   l:[12,75] },
+            },
+            stylized3d: {
+                base:    { s:[25,55], darkL:[12,22], midL:[26,42], lightL:[50,68] },
+                support: { s:[20,50], darkL:[12,22], midL:[26,42], lightL:[50,68] },
+                accent1: { s:[40,75], l:[40,72] },
+                accent2: { s:[25,55], l:[30,60] },
+                neutral: { s:[0,10],  l:[12,80] },
+            },
+            cartoon2d: {
+                base:    { s:[45,80], darkL:[18,30], midL:[35,55], lightL:[60,82] },
+                support: { s:[40,75], darkL:[18,30], midL:[35,55], lightL:[60,82] },
+                accent1: { s:[65,95], l:[45,80] },
+                accent2: { s:[45,80], l:[35,70] },
+                neutral: { s:[0,12],  l:[15,85] },
+            },
+        };
+
+        function offsetsFor9(harmony) {
+            switch (harmony) {
+                case "mono": return { h1: 0,   a1: 0,   a2: 0 };
+                case "analogous": return { h1: 25,  a1: -25, a2: 50 };
+                case "complementary": return { h1: 180, a1: 180, a2: 150 };
+                case "triadic": return { h1: 120, a1: -120, a2: 180 };
+                case "splitComplementary": return { h1: 150, a1: -150, a2: 180 };
+                case "tetradic": return { h1: 90,  a1: 180, a2: 270 };
+                default: return { h1: 25, a1: -25, a2: 50 };
+            }
+        }
+
+        function generatePalette9({
+            primaryHex,
+            harmony = "analogous",
+            mood = "realistic",
+            contrast = 50,
+            temperatureBias = 0
+        } = {}) {
+            const preset = MOOD[mood] || MOOD.realistic;
+            const p0 = paletteRgbToHsl(paletteHexToRgb(primaryHex));
+            let H0 = p0.h;
+            const t = clamp(temperatureBias, -100, 100) / 100;
+            H0 = wrapHue(H0 + t * 8);
+            const c = (clamp(contrast, 0, 100) - 50) / 50;
+            const { h1, a1, a2 } = offsetsFor9(harmony);
+            const H1 = wrapHue(H0 + h1);
+            const A1 = wrapHue(H0 + a1);
+            const A2 = wrapHue(H0 + a2);
+            const bump = (l) => clamp(l + c * 8, 0, 100);
+
+            const baseDark  = { h: H0, s: clamp(p0.s, ...preset.base.s),    l: bump(preset.base.darkL[0]) };
+            const baseMid   = { h: H0, s: clamp(p0.s, ...preset.base.s),    l: bump((preset.base.midL[0] + preset.base.midL[1]) / 2) };
+            const baseLight = { h: H0, s: clamp(p0.s * 0.9, ...preset.base.s), l: bump((preset.base.lightL[0] + preset.base.lightL[1]) / 2) };
+            const supportDark  = { h: H1, s: clamp(p0.s * 0.85, ...preset.support.s), l: bump(preset.support.darkL[0]) };
+            const supportMid   = { h: H1, s: clamp(p0.s * 0.85, ...preset.support.s), l: bump((preset.support.midL[0] + preset.support.midL[1]) / 2) };
+            const supportLight = { h: H1, s: clamp(p0.s * 0.75, ...preset.support.s), l: bump((preset.support.lightL[0] + preset.support.lightL[1]) / 2) };
+            const accent1 = { h: A1, s: clamp(p0.s * 1.15 + 10, ...preset.accent1.s), l: bump(clamp(p0.l + 10, ...preset.accent1.l)) };
+            const accent2 = { h: A2, s: clamp(p0.s * 0.9 + 5,  ...preset.accent2.s), l: bump(clamp(p0.l, ...preset.accent2.l)) };
+            const neutral = { h: H0, s: clamp(3, ...preset.neutral.s), l: bump(clamp(p0.l, ...preset.neutral.l)) };
+
+            return {
+                harmony, mood,
+                baseDark:     paletteHslToHex(baseDark),
+                baseMid:      paletteHslToHex(baseMid),
+                baseLight:    paletteHslToHex(baseLight),
+                supportDark:  paletteHslToHex(supportDark),
+                supportMid:   paletteHslToHex(supportMid),
+                supportLight: paletteHslToHex(supportLight),
+                accent1:      paletteHslToHex(accent1),
+                accent2:      paletteHslToHex(accent2),
+                neutral:      paletteHslToHex(neutral)
+            };
+        }
+
+        const styleMoodMap = {
+            'realista': 'realistic',
+            '3d-cartoon': 'stylized3d',
+            '2d-cartoon': 'cartoon2d'
+        };
+        const harmonyChoices = ['mono','analogous','complementary','triadic','splitComplementary','tetradic'];
+        const paletteNameAdjectives = ['Aurora','Velvet','Nebula','Horizon','Pulse','Luminous','Twilight','Crystal','Spectral','Echo','Meteor','Prism','Vapor'];
+        const paletteNameNouns = ['Dream','Bloom','Wave','Drift','Whisper','Shield','Flux','Rise','Noir','Glow','Tide'];
+        let palettePool = [];
+
+        function randomItem(list) {
+            return list[Math.floor(Math.random() * list.length)];
+        }
+
+        function shiftHexHue(hex, delta) {
+            const hsl = paletteRgbToHsl(paletteHexToRgb(hex));
+            hsl.h = wrapHue(hsl.h + delta);
+            return paletteHslToHex(hsl);
+        }
+
+        const styleOptions = [
+            { value: '2d-cartoon', label: '2D Cartoon', description: 'Linhas limpas & cores chapadas', icon: 'fa-pencil' },
+            { value: '3d-cartoon', label: '3D Cartoon', description: 'Materiais suaves & volumétricos', icon: 'fa-cube' },
+            { value: 'realista', label: 'Realista', description: 'Cinemático / Foto-real', icon: 'fa-camera-retro' }
+        ];
+
+        
+        
+        
+        
+        const materialsList = [
+            { value: 'concreto molhado', label: 'Concreto molhado' },
+            { value: 'metal escuro', label: 'Metal escuro polido' },
+            { value: 'madeira envelhecida', label: 'Madeira envelhecida' },
+            { value: 'vidro molhado', label: 'Vidro molhado' },
+            { value: 'neon glass', label: 'Neon glass' },
+            { value: 'pedra coberta de musgo', label: 'Pedra coberta de musgo' },
+            { value: 'cerâmica brilhante', label: 'Cerâmica brilhante' },
+            { value: 'tijolos ruins', label: 'Tijolos ruins' },
+            { value: 'mármore polido', label: 'Mármore polido' },
+            { value: 'metal enferrujado', label: 'Metal enferrujado' },
+            { value: 'painéis holográficos', label: 'Painéis holográficos' }
+        ];
+
+        const sceneElementsList = [
+            { value: 'neon signs', label: 'Neon signs' },
+            { value: 'ruas molhadas', label: 'Ruas molhadas' },
+            { value: 'neblina leve', label: 'Neblina leve' },
+            { value: 'torres altas', label: 'Torres altas' },
+            { value: 'carros voadores', label: 'Carros voadores' },
+            { value: 'árvores antigas', label: 'Árvores antigas' },
+            { value: 'ruínas flutuantes', label: 'Ruínas flutuantes' },
+            { value: 'móveis retro', label: 'Móveis retro' },
+            { value: 'equipamentos sci-fi', label: 'Equipamentos sci-fi' },
+            { value: 'fogueira bruxuleante', label: 'Fogueira bruxuleante' },
+            { value: 'pássaros metálicos', label: 'Pássaros metálicos' },
+            { value: 'planetas ao fundo', label: 'Planetas ao fundo' }
+        ];
+
+        const paletteHarmonyOptions = [
+            { value: 'complementar', label: 'Complementar' },
+            { value: 'análoga', label: 'Análoga' },
+            { value: 'triádica', label: 'Triádica' },
+            { value: 'monocromática', label: 'Monocromática' },
+            { value: 'tetrádica', label: 'Tetrádica' }
+        ];
+
+        const paletteHarmonyDescriptions = {
+            complementar: 'complementary harmony',
+            análoga: 'analogous harmony',
+            triádica: 'triadic harmony',
+            monocromática: 'monochromatic harmony',
+            tetrádica: 'tetradic harmony'
+        };
+
+        const paletteMoodOptions = [
+            { value: 'balanced', label: 'Equilibrado', description: 'balanced palette' },
+            { value: 'pastel', label: 'Pastel suave', description: 'pastel palette' },
+            { value: 'neon', label: 'Neon vibrante', description: 'neon palette' },
+            { value: 'muted', label: 'Tons suaves', description: 'muted tones' },
+            { value: 'high-contrast', label: 'Alto contraste', description: 'high contrast palette' }
+        ];
+        const HARMONY_SHIFTS = {
+            analogous: { secondary: 30, accent: -30 },
+            complementary: { secondary: 180, accent: 150 },
+            triadic: { secondary: 120, accent: -120 }
+        };
+        const cameraAngles = [
+            { value: 'eye level', label: 'Eye level' },
+            { value: 'low angle', label: 'Low angle' },
+            { value: 'high angle', label: 'High angle' },
+            { value: 'top-down', label: 'Top-down' },
+            { value: 'dutch angle', label: 'Dutch angle' },
+            { value: 'isometric', label: 'Isometric' }
+        ];
+
+        const framings = [
+            { value: 'wide shot', label: 'Wide shot' },
+            { value: 'medium-wide shot', label: 'Medium-wide shot' },
+            { value: 'establishing shot', label: 'Establishing shot' },
+            { value: 'aerial drone', label: 'Aerial / drone' },
+            { value: 'interior wide', label: 'Interior wide' }
+        ];
+
+        const lenses = [
+            { value: '24mm', label: '24mm' },
+            { value: '35mm', label: '35mm' },
+            { value: '50mm', label: '50mm' },
+            { value: 'anamorphic 50mm', label: 'Anamorphic 50mm' }
+        ];
+
+        const depthOptions = [
+            { value: 'deep focus', label: 'Deep focus' },
+            { value: 'shallow depth of field', label: 'Shallow depth of field' }
+        ];
+
+        const aspectRatios = [
+            { value: '16:9', label: '16:9 (padrão)' },
+            { value: '2.39:1', label: '2.39:1 (Scope)' },
+            { value: '1.85:1', label: '1.85:1 (Widescreen)' },
+            { value: '4:3', label: '4:3 (Clássico)' },
+            { value: '1:1', label: '1:1 (Quadrado)' }
+        ];
+
+        const detailLabels = {
+            1: 'Baixo',
+            2: 'Médio',
+            3: 'Alto'
+        };
+
+        const clutterDescriptions = {
+            limpo: 'limpo e minimalista',
+            balanceado: 'balanceado entre forma e conteúdo',
+            cheio: 'cheio de elementos e props'
+        };
+
+        const state = {
+            style: 'realista',
+            tipoAmbiente: '',
+            localEspecifico: '',
+            horaDoDia: '',
+            climaCondicao: '',
+            epocaHistorica: '',
+            estiloDeMundo: '',
+            materials: [],
+            elements: [],
+            detailLevel: 3,
+            clutter: 'cheio',
+            palette: { primary: '#2B2B2B', secondary: '#8A8A8A', accent: '#E6E3DE' },
+            paletteMood: 'balanced',
+            paletteHarmony: 'complementar',
+            paletteHarmonyScheme: '',
+            camera: { angle: 'low angle', framing: 'wide shot', lens: '35mm', depth: 'deep focus', aspect: '16:9' }
+        };
+
+        const AMBIENTE_DATA = {
+            tipoAmbiente: [
+                "Interior","Exterior","Semi-aberto","Subterrâneo","Elevado","Veículo","Aquático","Subaquático","Aéreo","Espaço",
+                "Industrial","Natural","Urbano","Rural","Ruína","Militar","Científico","Virtual","Surreal","Dimensão alternativa"
+            ],
+            horaDoDia: [
+                "Madrugada","Antes do amanhecer (Blue Hour)","Amanhecer","Manhã cedo","Manhã","Meio-dia","Tarde","Fim de tarde",
+                "Pôr do sol (Golden Hour)","Crepúsculo","Noite","Noite profunda","Noite com lua cheia","Noite urbana iluminada",
+                "Luz artificial dominante","Luz mista (natural + artificial)","Luz de estúdio","Luz de holofotes","Contraluz","Iluminação dramática"
+            ],
+            climaCondicao: [
+                "Céu limpo","Nublado","Chuva leve","Chuva forte","Tempestade","Neve","Nevasca","Neblina","Fumaça","Poeira",
+                "Tempestade de areia","Ventania","Calor extremo","Frio extremo","Poluição no ar","Cinzas flutuando","Atmosfera tóxica",
+                "Radioatividade","Aurora","Céu alienígena"
+            ],
+            epocaHistorica: [
+                "Pré-história","Antiguidade","Idade Média","Renascimento","Século XIX","Anos 1910","Anos 1920","Anos 1930","Anos 1940",
+                "Anos 1950","Anos 1960","Anos 1970","Anos 1980","Anos 1990","Anos 2000","Presente","Futuro próximo","Futuro distante",
+                "Pós-humano","Linha do tempo alternativa"
+            ],
+            estiloDeMundo: [
+                "Realista","Histórico","Retro","Vintage","Noir","Pós-apocalíptico","Cyberpunk","Steampunk","Dieselpunk","Atompunk",
+                "Futurista","Sci-fi hard","Sci-fi soft","Fantasia medieval","Fantasia sombria","Solarpunk","Biopunk","Utopiano","Distópico","Surreal"
+            ]
+        };
+
+        const LOCAIS_POR_TIPO = {
+            "Interior": ["Sala de estar","Quarto","Cozinha","Banheiro","Escritório","Sala de aula","Biblioteca","Laboratório","Sala de controle","Corredor","Depósito","Garagem","Boate","Bar","Hospital","Igreja","Loja","Estação de metrô","Galpão","Fábrica"],
+            "Exterior": ["Rua","Beco","Avenida","Calçada","Praça","Parque","Praia","Beira-mar","Porto","Rooftop","Zona industrial","Favela","Vila / vilarejo","Estrada","Caminho","Floresta","Selva","Deserto","Montanha","Ponte"],
+            "Subterrâneo": ["Túnel","Esgoto","Caverna","Bunker","Metrô subterrâneo","Mina","Catacumbas","Cofre","Laboratório subterrâneo","Abrigo"],
+            "Aquático": ["Rio","Lago","Cachoeira","Mangue","Píer","Embarcação","Costão rochoso","Mar aberto","Enseada","Baía"],
+            "Subaquático": ["Recife","Fundo do mar","Naufrágio","Caverna submersa","Cidade submersa","Plataforma submersa","Laboratório submerso","Abismo oceânico","Floresta de kelp","Tubos hidrotermais"],
+            "Aéreo": ["Céu (nuvens)","Convés de aeronave","Balão/Dirigível","Plataforma aérea","Paraquedas","Helicóptero","Asa-delta","Ponte aérea","Cidade flutuante","Interior de aeronave"],
+            "Espaço": ["Órbita terrestre","Estação espacial","Nave (interior)","Nave (exterior)","Lua","Superfície marciana","Asteroide","Anel de saturno (ficcional)","Doca espacial","Colônia espacial"],
+            "Veículo": ["Carro","Ônibus","Trem","Metrô","Caminhão","Motocicleta","Barco","Submarino","Avião","Nave"],
+            "Industrial": ["Linha de produção","Armazém","Siderúrgica","Refinaria","Subestação elétrica","Pátio de contêineres","Usina","Galpão industrial","Sala de máquinas","Duto/oleoduto"],
+            "Científico": ["Laboratório","Sala limpa","Sala de testes","Observatório","Sala de servidores","Sala de controle","Hangar de protótipos","Biotério","Centro de pesquisa","Sala de simulação"],
+            "Militar": ["Base","Quartel","Hangar","Pista de pouso","Bunker","Sala tática","Campo de treinamento","Posto avançado","Depósito de armas (genérico)","Zona desmilitarizada"],
+            "Natural": ["Floresta","Selva","Deserto","Montanha","Cânion","Pantanal","Praia","Caverna","Rio","Lago"],
+            "Urbano": ["Centro","Bairro residencial","Favela","Zona industrial","Avenida","Beco","Estação","Ponte","Rooftop","Praça"],
+            "Rural": ["Fazenda","Sítio","Estrada de terra","Celeiro","Vila","Plantação","Curral","Lagoa","Trilha","Pousada"],
+            "Ruína": ["Prédio colapsado","Rua destruída","Cidade fantasma","Shopping abandonado","Hospital abandonado","Escola abandonada","Fábrica abandonada","Metrô abandonado","Porto abandonado","Ponte quebrada"],
+            "Virtual": ["Sala VR","Grade digital","Cidade simulada","Espaço abstrato","Interface holográfica","Servidor “datacenter” estilizado","Mundo low-poly","Mundo neon","Mundo glitch","Mundo minimal"],
+            "Surreal": ["Deserto espelhado","Floresta impossível","Corredor infinito","Escadas paradoxais","Mar flutuante","Céu líquido","Cidade dobrada","Sala sem gravidade","Horizonte infinito","Sonho vívido"],
+            "Elevado": ["Rooftop","Passarela","Ponte","Mirante","Torre","Guindaste","Varanda alta","Passadiço","Viaduto","Terraço"],
+            "Semi-aberto": ["Mercado coberto","Hangar aberto","Garagem aberta","Galpão com vãos","Pátio interno","Varanda","Estação aberta","Pórtico","Ruína sem teto","Cobertura parcial"],
+            "Dimensão alternativa": ["Cidade invertida","Floresta bioluminescente","Oceano no céu","Ruínas em suspensão","Planície fractal","Mundo de cristal","Mundo de cinzas","Mundo de néon orgânico","Mundo mecânico vivo","Mundo “pintado”"]
+        };
+
+        const DENY_CLIMA_BY_TIPO = {
+            "Espaço": new Set(["Chuva leve","Chuva forte","Tempestade","Neve","Nevasca","Tempestade de areia"]),
+            "Subaquático": new Set(["Chuva leve","Chuva forte","Tempestade","Neve","Nevasca","Tempestade de areia","Ventania","Céu limpo","Nublado","Aurora","Céu alienígena"]),
+            "Interior": new Set(["Tempestade de areia","Nevasca"])
+        };
+
+        const selectMeta = [
+            { field: 'tipoAmbiente', id: 'tipo-ambiente-select', placeholder: 'Tipo de ambiente' },
+            {
+                field: 'localEspecifico',
+                id: 'local-especifico-select',
+                placeholder: (current) => current.tipoAmbiente ? 'Local específico' : 'Escolha o tipo primeiro',
+                disableWhen: (current) => !current.tipoAmbiente
+            },
+            { field: 'horaDoDia', id: 'hora-do-dia-select', placeholder: 'Hora do dia' },
+            { field: 'climaCondicao', id: 'clima-condicao-select', placeholder: 'Clima / condição' },
+            { field: 'epocaHistorica', id: 'epoca-historica-select', placeholder: 'Época histórica' },
+            { field: 'estiloDeMundo', id: 'estilo-de-mundo-select', placeholder: 'Estilo de mundo' }
+        ];
+
+        function getLocalOptions(tipoAmbiente) {
+            return LOCAIS_POR_TIPO[tipoAmbiente] || [];
+        }
+
+        function getClimaOptions(currentState) {
+            const base = [...AMBIENTE_DATA.climaCondicao];
+            const deny = DENY_CLIMA_BY_TIPO[currentState.tipoAmbiente] || [];
+            let out = base.filter(x => !deny.includes(x));
+
+            const praiaLike = new Set(["Praia","Beira-mar","Porto","Mar aberto"]);
+            if (praiaLike.has(currentState.localEspecifico) && currentState.estiloDeMundo !== "Pós-apocalíptico") {
+                out = out.filter(x => x !== "Tempestade de areia");
+            }
+
+            return out;
+        }
+
+        function HARD_BLOCK_STYLE_BY_EPOCA(epoca, estilo) {
+            const ancient = new Set(["Pré-história","Antiguidade","Idade Média","Renascimento"]);
+            const futuristic = new Set(["Cyberpunk","Atompunk","Futurista","Sci-fi hard","Sci-fi soft","Pós-humano"]);
+            if (epoca === "Linha do tempo alternativa") return false;
+            return ancient.has(epoca) && futuristic.has(estilo);
+        }
+
+        function getEstiloOptions(currentState) {
+            return AMBIENTE_DATA.estiloDeMundo.filter(estilo => !HARD_BLOCK_STYLE_BY_EPOCA(currentState.epocaHistorica, estilo));
+        }
+
+        function applyAutoSet(currentState) {
+            const next = { ...currentState };
+            if (next.estiloDeMundo === "Steampunk" && next.epocaHistorica && next.epocaHistorica !== "Linha do tempo alternativa") {
+                next.epocaHistorica = "Século XIX";
+            }
+            if (next.estiloDeMundo === "Cyberpunk" && next.epocaHistorica && !["Futuro distante","Pós-humano","Linha do tempo alternativa"].includes(next.epocaHistorica)) {
+                next.epocaHistorica = "Futuro próximo";
+            }
+            if (!next.climaCondicao && next.estiloDeMundo === "Cyberpunk" && isNoiteLike(next.horaDoDia)) {
+                next.climaCondicao = "Chuva leve";
+            }
+            const poeiraLike = new Set(["Rua destruída","Cidade fantasma","Deserto","Prédio colapsado"]);
+            if (!next.climaCondicao && next.estiloDeMundo === "Pós-apocalíptico" && poeiraLike.has(next.localEspecifico)) {
+                next.climaCondicao = "Poeira";
+            }
+            return next;
+        }
+
+        function validateAndClean(currentState) {
+            const next = { ...currentState };
+            const localOpts = getLocalOptions(next.tipoAmbiente);
+            if (next.localEspecifico && !localOpts.includes(next.localEspecifico)) next.localEspecifico = "";
+            const climaOpts = getClimaOptions(next);
+            if (next.climaCondicao && !climaOpts.includes(next.climaCondicao)) next.climaCondicao = "";
+            const estiloOpts = getEstiloOptions(next);
+            if (next.estiloDeMundo && !estiloOpts.includes(next.estiloDeMundo)) next.estiloDeMundo = "";
+            return next;
+        }
+
+        function recalcAll(currentState) {
+            let next = validateAndClean(currentState);
+            next = applyAutoSet(next);
+            next = validateAndClean(next);
+            return next;
+        }
+
+        function getOptionsForField(field) {
+            switch (field) {
+                case 'tipoAmbiente':
+                    return AMBIENTE_DATA.tipoAmbiente;
+                case 'localEspecifico':
+                    return state.tipoAmbiente ? getLocalOptions(state.tipoAmbiente) : [];
+                case 'horaDoDia':
+                    return AMBIENTE_DATA.horaDoDia;
+                case 'climaCondicao':
+                    return getClimaOptions(state);
+                case 'epocaHistorica':
+                    return AMBIENTE_DATA.epocaHistorica;
+                case 'estiloDeMundo':
+                    return getEstiloOptions(state);
+                default:
+                    return [];
+            }
+        }
+
+        function renderAmbientControls() {
+            selectMeta.forEach(meta => {
+                const select = document.getElementById(meta.id);
+                if (!select) return;
+                const options = getOptionsForField(meta.field);
+                select.innerHTML = '';
+                const placeholderText = typeof meta.placeholder === 'function' ? meta.placeholder(state) : meta.placeholder;
+                const placeholderOption = document.createElement('option');
+                placeholderOption.value = '';
+                placeholderOption.textContent = placeholderText;
+                select.appendChild(placeholderOption);
+                options.forEach(value => {
+                    const option = document.createElement('option');
+                    option.value = value;
+                    option.textContent = value;
+                    select.appendChild(option);
+                });
+                const currentValue = state[meta.field] || '';
+                if (currentValue && options.includes(currentValue)) {
+                    select.value = currentValue;
+                } else {
+                    select.value = '';
+                    if (currentValue) {
+                        state[meta.field] = '';
+                    }
+                }
+                select.disabled = typeof meta.disableWhen === 'function' ? meta.disableWhen(state) : false;
+            });
+        }
+
+        function handleAmbientChange(field, value) {
+            const nextState = recalcAll({ ...state, [field]: value || '' });
+            Object.assign(state, nextState);
+            renderAmbientControls();
+            updatePrompt();
+        }
+
+        function attachAmbientListeners() {
+            selectMeta.forEach(meta => {
+                const select = document.getElementById(meta.id);
+                if (!select) return;
+                select.addEventListener('change', (event) => handleAmbientChange(meta.field, event.target.value));
+            });
+        }
+
+        function refreshAmbientControls() {
+            const next = recalcAll(state);
+            Object.assign(state, next);
+            renderAmbientControls();
+            updatePrompt();
+        }
+
+        function initAmbientSection() {
+            attachAmbientListeners();
+            refreshAmbientControls();
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            renderStyleGrid();
+            populateSelect('camera-angle-select', cameraAngles, state.camera.angle);
+            populateSelect('framing-select', framings, state.camera.framing);
+            populateSelect('lens-select', lenses, state.camera.lens);
+            populateSelect('depth-select', depthOptions, state.camera.depth);
+            populateSelect('aspect-select', aspectRatios, state.camera.aspect);
+            populateSelect('palette-harmony', paletteHarmonyOptions, state.paletteHarmony);
+            populateSelect('palette-mood', paletteMoodOptions, state.paletteMood);
+            document.getElementById('detail-range').value = state.detailLevel;
+            updateDetailLabel(state.detailLevel);
+            document.getElementById('clutter-select').value = state.clutter;
+            document.getElementById('primary-color').value = state.palette.primary;
+            document.getElementById('secondary-color').value = state.palette.secondary;
+            document.getElementById('accent-color').value = state.palette.accent;
+            const harmonySchemeSelect = document.getElementById('palette-harmony-scheme');
+            if (harmonySchemeSelect) {
+                harmonySchemeSelect.value = state.paletteHarmonyScheme;
+            }
+            renderMaterialChips();
+            renderSceneElements();
+            generatePalettePool();
+            initAmbientSection();
+            attachSelectListeners();
+            updatePrompt();
+        });
+
+        function renderStyleGrid() {
+            const grid = document.getElementById('style-grid');
+            grid.innerHTML = '';
+            styleOptions.forEach(option => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = `option-card p-3 text-[11px] flex flex-col gap-1 ${state.style === option.value ? 'selected' : ''}`;
+                button.innerHTML = `
+                    <i class="fa-solid ${option.icon} text-[16px]"></i>
+                    <span class="text-sm font-semibold">${option.label}</span>
+                    <span class="text-[10px] text-gray-400">${option.description}</span>
+                `;
+                button.onclick = () => {
+                    state.style = option.value;
+                    renderStyleGrid();
+                    generatePalettePool();
+                    updatePrompt();
+                };
+                grid.appendChild(button);
+            });
+        }
+
+        function renderMaterialChips() {
+            const grid = document.getElementById('materials-grid');
+            grid.innerHTML = '';
+            materialsList.forEach(material => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = `option-card p-3 text-[11px] ${state.materials.includes(material.value) ? 'selected' : ''}`;
+                button.innerHTML = `<span class="text-[11px] text-gray-400">${material.label}</span>`;
+                button.onclick = () => toggleMaterial(material.value, button);
+                grid.appendChild(button);
+            });
+        }
+
+        function renderSceneElements() {
+            const grid = document.getElementById('scene-elements-grid');
+            grid.innerHTML = '';
+            sceneElementsList.forEach(element => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = `option-card p-3 text-[11px] ${state.elements.includes(element.value) ? 'selected' : ''}`;
+                button.innerHTML = `<span class="text-[11px] text-gray-400">${element.label}</span>`;
+                button.onclick = () => toggleElement(element.value, button);
+                grid.appendChild(button);
+            });
+        }
+
+        function toggleMaterial(value, button) {
+            if (state.materials.includes(value)) {
+                state.materials = state.materials.filter(item => item !== value);
+                button.classList.remove('selected');
+            } else {
+                state.materials.push(value);
+                button.classList.add('selected');
+            }
+            updatePrompt();
+        }
+
+        function toggleElement(value, button) {
+            if (state.elements.includes(value)) {
+                state.elements = state.elements.filter(item => item !== value);
+                button.classList.remove('selected');
+            } else {
+                state.elements.push(value);
+                button.classList.add('selected');
+            }
+            updatePrompt();
+        }
+
+        function handleDetailRange(val) {
+            state.detailLevel = Number(val);
+            updateDetailLabel(state.detailLevel);
+            updatePrompt();
+        }
+
+        function updateDetailLabel(value) {
+            const label = detailLabels[value] || 'Médio';
+            document.getElementById('detail-label').innerText = label;
+        }
+
+        function updateClutter(value) {
+            state.clutter = value;
+            updatePrompt();
+        }
+
+        function handlePaletteColor(key, value) {
+            state.palette[key] = value;
+            if (key === 'primary') {
+                if (state.paletteHarmonyScheme) {
+                    applyHarmonyScheme(state.paletteHarmonyScheme);
+                } else {
+                    generatePalettePool();
+                }
+            }
+            updatePrompt();
+        }
+
+        function applyHarmonyScheme(scheme) {
+            const primary = state.palette.primary;
+            const shifts = HARMONY_SHIFTS[scheme];
+            if (!primary || !shifts) return;
+            const secondary = shiftHexHue(primary, shifts.secondary);
+            const accent = shiftHexHue(primary, shifts.accent);
+            state.palette.secondary = secondary;
+            state.palette.accent = accent;
+            document.getElementById('secondary-color').value = secondary;
+            document.getElementById('accent-color').value = accent;
+        }
+
+        function handleHarmonyChange(value) {
+            state.paletteHarmonyScheme = value;
+            if (!value) return;
+            state.paletteHarmony = value;
+            applyHarmonyScheme(value);
+            setSelectValue('palette-harmony', value);
+            updatePrompt();
+        }
+
+        function updatePaletteHarmony(value) {
+            state.paletteHarmony = value;
+            updatePrompt();
+        }
+
+        function updatePaletteMood(value) {
+            state.paletteMood = value;
+            updatePrompt();
+        }
+
+        function renderPalettePresets() {
+            const grid = document.getElementById('palette-presets');
+            if (!grid) return;
+            grid.innerHTML = '';
+            palettePool.forEach(preset => {
+                const swatches = preset.colors.slice(0, 5);
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'option-card p-3 text-left';
+                const paletteDots = swatches.map(color => `<span class="w-5 h-5 rounded-sm" style="background:${color}"></span>`).join('');
+                button.innerHTML = `
+                    <div class="flex gap-1 mb-2">
+                        ${paletteDots}
+                    </div>
+                    <div class="text-[10px] text-gray-400">${preset.label}</div>
+                `;
+                button.onclick = () => applyPalettePreset(preset);
+                grid.appendChild(button);
+            });
+        }
+
+        function applyPalettePreset(preset) {
+            const primaryColor = preset.colors[1] || preset.colors[0];
+            const secondaryColor = preset.colors[2] || preset.colors[1] || primaryColor;
+            const accentColor = preset.colors[6] || preset.colors[5] || preset.colors[3];
+            state.palette = {
+                primary: primaryColor,
+                secondary: secondaryColor,
+                accent: accentColor
+            };
+            state.paletteHarmony = preset.harmony;
+            state.paletteMood = preset.mood;
+            document.getElementById('primary-color').value = state.palette.primary;
+            document.getElementById('secondary-color').value = state.palette.secondary;
+            document.getElementById('accent-color').value = state.palette.accent;
+            setSelectValue('palette-harmony', state.paletteHarmony);
+            setSelectValue('palette-mood', state.paletteMood);
+            updatePrompt();
+        }
+
+        function generateCoolorsPalette() {
+            generatePalettePool(true);
+        }
+
+        function generatePalettePool(applyFirst = false) {
+            const baseHex = state.palette.primary || '#E5ADE0';
+            const mood = styleMoodMap[state.style] || 'realistic';
+            const pool = Array.from({ length: 12 }, (_, index) => {
+                const delta = (Math.random() - 0.5) * 80 + index * 4;
+                const primaryHex = shiftHexHue(baseHex, delta);
+                const palette = generatePalette9({
+                    primaryHex,
+                    harmony: randomItem(harmonyChoices),
+                    mood,
+                    contrast: 40 + Math.random() * 30,
+                    temperatureBias: (Math.random() - 0.5) * 30
+                });
+                return {
+                    label: `${randomItem(paletteNameAdjectives)} ${randomItem(paletteNameNouns)}`,
+                    colors: [
+                        palette.baseDark,
+                        palette.baseMid,
+                        palette.baseLight,
+                        palette.supportDark,
+                        palette.supportMid,
+                        palette.supportLight,
+                        palette.accent1,
+                        palette.accent2,
+                        palette.neutral
+                    ],
+                    harmony: palette.harmony,
+                    mood: palette.mood
+                };
+            });
+            palettePool = pool;
+            renderPalettePresets();
+            if (applyFirst && palettePool.length) {
+                applyPalettePreset(palettePool[0]);
+            }
+        }
+
+        function updateCameraSetting(key, value) {
+            state.camera[key] = value;
+            updatePrompt();
+        }
+
+        function populateSelect(id, options, defaultValue) {
+            const select = document.getElementById(id);
+            if (!select) return;
+            select.innerHTML = '';
+            options.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.value;
+                option.textContent = item.label;
+                select.appendChild(option);
+            });
+            select.value = defaultValue || options[0]?.value || '';
+        }
+
+        function attachSelectListeners() {
+            attachSelect('camera-angle-select', value => updateCameraSetting('angle', value));
+            attachSelect('framing-select', value => updateCameraSetting('framing', value));
+            attachSelect('lens-select', value => updateCameraSetting('lens', value));
+            attachSelect('depth-select', value => updateCameraSetting('depth', value));
+            attachSelect('aspect-select', value => updateCameraSetting('aspect', value));
+        }
+
+        function attachSelect(id, callback) {
+            const select = document.getElementById(id);
+            if (!select) return;
+            select.addEventListener('change', (event) => callback(event.target.value));
+        }
+
+        function setSelectValue(id, value) {
+            const select = document.getElementById(id);
+            if (!select) return;
+            select.value = value;
+        }
+
+        const BASE_PRESET_REALISTA =
+"BASE RULES (Realista):\n"
+"- Artificial lighting overrides sunlight: if spotlights/rim/neon are present, treat the scene as low-sun or darkened even under clear skies.\n"
+"- Minimalism guard: few large readable shapes, strong negative space, no clutter, controlled prop density.\n"
+"- Depth enforcer: clear foreground/midground/background separation with atmospheric perspective and scale cues.\n"
+"- Material interpreter: expand generic materials into physically plausible surfaces (earth/dust/gravel/stone/concrete/aged metal/glass) consistent with the setting.\n"
+"- Color discipline: keep palette roles stable (primary dominates, secondary supports, accents are sparse highlights); only minor shifts due to physical light interaction.\n"
+"- Cinematic framing: obey lens/angle/aspect ratio/depth-of-field as real cinematography.\n"
+"- Background purity: no characters, no readable text, no logos, no watermarks.\n";
+
+        const BASE_PRESET_3D =
+"BASE RULES (3D Cartoon):\n"
+"- Stylized 3D look: clean forms, readable silhouettes, smooth gradients, controlled micro-detail.\n"
+"- Minimalism guard: avoid clutter; props must be few and intentionally placed.\n"
+"- Depth enforcer: foreground/midground/background separation with clear scale.\n"
+"- Material interpreter: keep textures simplified and cohesive (hand-painted or stylized PBR), no photoreal noise.\n"
+"- Color discipline: palette roles stable (primary/secondary/accents) with gentle lighting influence.\n"
+"- Lighting rule: keep lighting clean and graphic; avoid harsh realistic glare unless requested.\n"
+"- Background purity: no characters, no readable text, no logos, no watermarks.\n";
+
+        const BASE_PRESET_2D =
+"BASE RULES (2D Cartoon):\n"
+"- Flat 2D illustration: bold color blocks, clean outlines (if style implies), minimal texture noise.\n"
+"- Minimalism guard: strong negative space; avoid visual clutter.\n"
+"- Depth enforcer: depth via layered planes, scale steps, and atmospheric simplification.\n"
+"- Material interpreter: simplify materials into readable graphic surfaces (no photoreal texture).\n"
+"- Color discipline: keep palette roles stable (primary dominates, secondary supports, accents pop).\n"
+"- Lighting rule: graphic lighting only; no photoreal lens artifacts.\n"
+"- Background purity: no characters, no readable text, no logos, no watermarks.\n";
+
+        function getBasePreset(style) {
+            if (style === 'realista') return BASE_PRESET_REALISTA;
+            if (style === '3d-cartoon') return BASE_PRESET_3D;
+            if (style === '2d-cartoon') return BASE_PRESET_2D;
+            return '';
+        }
+
+        function injectBasePreset(promptText, style) {
+            const base = getBasePreset(style);
+            if (!base || promptText.includes(base)) return promptText;
+            const marker = 'Negative prompt:';
+            const insert = `\n${base}`;
+            const idx = promptText.indexOf(marker);
+            if (idx === -1) {
+                return `${promptText}${insert}`;
+            }
+            return `${promptText.slice(0, idx)}${insert}\n${promptText.slice(idx)}`;
+        }
+
+        function updatePrompt() {
+            const style = styleOptions.find(item => item.value === state.style);
+            const styleLabel = style?.label || 'Cena';
+            const environment = state.localEspecifico || state.tipoAmbiente || 'ambiente indefinido';
+            const era = state.epocaHistorica || 'Presente';
+            const atmosphere = state.climaCondicao || 'atmosfera neutra';
+            const lighting = state.horaDoDia || 'luz neutra';
+            const materials = state.materials.length ? state.materials.join(', ') : 'materiais variados';
+            const detail = detailLabels[state.detailLevel] || 'Médio';
+            const clutter = clutterDescriptions[state.clutter] || 'balanceado entre espaços';
+            const elements = state.elements.length ? state.elements.join(', ') : 'elementos sutis';
+            const paletteMood = paletteMoodOptions.find(item => item.value === state.paletteMood)?.description || 'balanced palette';
+            const harmony = paletteHarmonyDescriptions[state.paletteHarmony] || state.paletteHarmony;
+            const paletteLine = `${paletteMood}, ${harmony}, primary ${describeColor(state.palette.primary)}, secondary ${describeColor(state.palette.secondary)}, accents ${describeColor(state.palette.accent)}`;
+            const camera = state.camera;
+            const aspectLabel = aspectRatios.find(item => item.value === (camera.aspect || '16:9'))?.label || camera.aspect;
+            const styleFlavor = state.style === 'realista'
+                ? 'cinematic photo-real render'
+                : state.style === '3d-cartoon'
+                    ? 'stylized 3D render with volumetric lighting'
+                    : 'flat 2D illustration with bold color blocks';
+            const cameraLine = `${camera.angle} angle, ${camera.framing}, ${camera.lens} lens, ${camera.depth}, aspect ratio ${aspectLabel}`;
+
+            const blocks = [
+                `${styleLabel} background composition`,
+                `${environment} setting, época ${era}, atmosfera ${atmosphere}`,
+                `Lighting: ${lighting}`,
+                `Materials & textures: ${materials}`,
+                `Detail: ${detail} level, composição ${clutter}`,
+                `Scene elements: ${elements}`,
+                `Palette: ${paletteLine}`,
+                `Camera: ${cameraLine}`,
+                `Quality: ultra-detailed, ${styleFlavor}, cinematic grading, 8K`
+            ];
+
+            const positivePrompt = blocks.join(',\n\n');
+            const negativePrompt = 'personagens, pessoas, texto, watermark, baixa resolução, borrado, artefatos, overpainted';
+            let promptText = `${positivePrompt}\n\nNegative prompt:\n${negativePrompt}`;
+            promptText = injectBasePreset(promptText, state.style);
+            document.getElementById('prompt-output').value = promptText;
+        }
+
+        function describeColor(hex) {
+            if (!hex) return '';
+            const rgb = hexToRgb(hex);
+            if (!rgb) return hex;
+            const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+            const name = colorNameFromHue(hsl.h);
+            const brightness = (rgb.r + rgb.g + rgb.b) / 3;
+            const saturation = Math.max(rgb.r, rgb.g, rgb.b) - Math.min(rgb.r, rgb.g, rgb.b);
+            let tone = 'suave';
+            if (brightness > 200) tone = 'claro';
+            if (brightness < 80) tone = 'profundo';
+            if (saturation > 90) tone = 'vibrante';
+            return `${tone} ${name} ${hex.toUpperCase()}`;
+        }
+
+        function hexToRgb(hex) {
+            let sanitized = hex.replace('#', '');
+            if (sanitized.length === 3) {
+                sanitized = sanitized.split('').map(c => c + c).join('');
+            }
+            if (sanitized.length !== 6) return null;
+            const bigint = parseInt(sanitized, 16);
+            return {
+                r: (bigint >> 16) & 255,
+                g: (bigint >> 8) & 255,
+                b: bigint & 255
+            };
+        }
+
+        function rgbToHsl(r, g, b) {
+            r /= 255;
+            g /= 255;
+            b /= 255;
+            const max = Math.max(r, g, b);
+            const min = Math.min(r, g, b);
+            let h = 0;
+            let s = 0;
+            const l = (max + min) / 2;
+
+            if (max !== min) {
+                const diff = max - min;
+                s = l > 0.5 ? diff / (2 - max - min) : diff / (max + min);
+                switch (max) {
+                    case r:
+                        h = (g - b) / diff + (g < b ? 6 : 0);
+                        break;
+                    case g:
+                        h = (b - r) / diff + 2;
+                        break;
+                    case b:
+                        h = (r - g) / diff + 4;
+                        break;
+                }
+                h /= 6;
+            }
+
+            return { h: h * 360, s, l };
+        }
+
+        function colorNameFromHue(hue) {
+            if (hue >= 340 || hue < 20) return 'vermelho';
+            if (hue < 45) return 'laranja';
+            if (hue < 70) return 'amarelo';
+            if (hue < 150) return 'verde';
+            if (hue < 200) return 'ciano';
+            if (hue < 260) return 'azul';
+            if (hue < 320) return 'magenta';
+            return 'violeta';
+        }
+
+        function copyToClipboard() {
+            const textarea = document.getElementById('prompt-output');
+            textarea.select();
+            textarea.setSelectionRange(0, 99999);
+            document.execCommand('copy');
+            showToast();
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+    </script>
+</body>
+</html>
