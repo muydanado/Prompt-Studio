@@ -861,30 +861,39 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
         const styles3D = [];
 
         const fantasyOutfits = [
-            { id: 'none', label: 'Nenhuma Fantasia', value: '' },
-            { id: 'pirate', label: 'Pirata', value: 'pirate costume with tricorn hat, striped shirt, sash, boots, eye patch' },
-            { id: 'astronaut', label: 'Astronauta', value: 'astronaut suit with helmet and life support pack' },
-            { id: 'knight', label: 'Cavaleiro', value: 'medieval knight armor, tabard, sword and shield' },
-            { id: 'ninja', label: 'Ninja', value: 'stealth ninja outfit with mask and tabi boots' },
-            { id: 'superhero', label: 'Super-herói', value: 'superhero jumpsuit with cape and emblem chest' },
-            { id: 'samurai', label: 'Samurai', value: 'samurai armor, kimono layers, katana sword, kabuto helmet' },
-            { id: 'cowboy', label: 'Cowboy', value: 'western cowboy outfit with stetson, fringe jacket, bandana, boots' },
-            { id: 'viking', label: 'Viking', value: 'viking warrior attire with fur cloak, horned helmet, axe, braided beard' },
-            { id: 'ballerina', label: 'Bailarina', value: 'ballet tutu, pointe shoes, delicate tulle, graceful pose' },
-            { id: 'rockstar', label: 'Rock Star', value: 'glittery stage outfit, leather jacket, microphone stand, dramatic lighting' },
-            { id: 'steampunk', label: 'Steampunk', value: 'steampunk outfit with goggles, corset, brass gears, mechanical arm pieces' },
-            { id: 'tropical', label: 'Tropical', value: 'Latin American urban outfit, fitted t-shirt, open tropical shirt, slim jeans, sneakers, gold chain necklace, leather bracelet, sunglasses, vibrant warm colors, casual street style, clean cartoon look' },
-            { id: 'cyberpunk', label: 'Cyberpunk', value: 'cyberpunk street attire with neon trims, visors, tech implants, glowing tattoos' },
-            { id: 'archer', label: 'Arqueiro', value: 'elven archer uniform, leather quiver, longbow, hooded cloak' },
-            { id: 'indigenous', label: 'Indígena', value: 'Generic Brazilian indigenous outfit, simple cotton loincloth, diagonal cloth sash, seed bead necklaces, wooden bead accessories, simple feather headband with 2–12 feathers, red and black body paint made of urucum and jenipapo in clean geometric patterns, barefoot, flat colors, clean cartoon style, no modern clothing' },
-            { id: 'space_marine', label: 'Space Marine', value: 'powered armor plating, helmet visor, energy rifle, tactical belts' },
-            { id: 'acrobat', label: 'Acrobata', value: 'circus acrobat costume, sequined leotard, flowing ribbons, dynamic pose' },
-            { id: 'diver', label: 'Mergulhador', value: 'vintage diving suit, brass helmet, air hoses, weighted boots' },
-            { id: 'ranger', label: 'Guarda-Florestal', value: 'forest ranger gear, camo vest, binoculars, rugged boots' },
-            { id: 'gladiator', label: 'Gladiador', value: 'roman gladiator armor, crest helmet, shield, short sword' },
-            { id: 'king_tribal', label: 'Rei Tribal Africano', value: 'tribal king regalia, feathers, royal scepter' },
-            { id: 'zombie', label: 'Zumbi', value: 'zombie costume, tattered cloth, decaying texture' }
+            { id: 'none', label: 'Nenhuma Fantasia', value: '', femaleValue: '' },
+            { id: 'pirate', label: 'Pirata', value: 'pirate costume with tricorn hat, striped shirt, sash, boots, eye patch', femaleValue: 'pirate outfit, fitted corset, short pirate skirt, high boots, waist belt, bandana, sword' },
+            { id: 'astronaut', label: 'Astronauta', value: 'astronaut suit with helmet and life support pack', femaleValue: 'female astronaut outfit, fitted space suit dress with helmet, life support pack, sleek boots' },
+            { id: 'knight', label: 'Cavaleiro', value: 'medieval knight armor, tabard, sword and shield', femaleValue: 'medieval knight outfit, fitted breastplate, layered skirt, tabard, sword and shield' },
+            { id: 'ninja', label: 'Ninja', value: 'stealth ninja outfit with mask and tabi boots', femaleValue: 'ninja outfit, fitted wrap blouse, short wrap skirt, tabi boots, mask' },
+            { id: 'superhero', label: 'Super-her??i', value: 'superhero jumpsuit with cape and emblem chest', femaleValue: 'superhero outfit, fitted bodysuit, cape, emblem belt, sleek boots' },
+            { id: 'samurai', label: 'Samurai', value: 'samurai armor, kimono layers, katana sword, kabuto helmet', femaleValue: 'samurai outfit with fitted armor, kimono-style dress, waist sash, katana' },
+            { id: 'cowboy', label: 'Cowboy', value: 'western cowboy outfit with stetson, fringe jacket, bandana, boots', femaleValue: 'cowgirl outfit, fitted fringe jacket, denim mini skirt, boots, bandana, lasso' },
+            { id: 'viking', label: 'Viking', value: 'viking warrior attire with fur cloak, horned helmet, axe, braided beard', femaleValue: 'viking outfit, fitted tunic dress, leather belt, fur cape, boots, axe' },
+            { id: 'ballerina', label: 'Bailarina', value: 'ballet tutu, pointe shoes, delicate tulle, graceful pose', femaleValue: 'ballerina outfit, tutu dress, fitted bodice, pointe shoes, graceful pose' },
+            { id: 'rockstar', label: 'Rock Star', value: 'glittery stage outfit, leather jacket, microphone stand, dramatic lighting', femaleValue: 'rockstar outfit, fitted leather corset, studded mini skirt, high boots, microphone' },
+            { id: 'steampunk', label: 'Steampunk', value: 'steampunk outfit with goggles, corset, brass gears, mechanical arm pieces', femaleValue: 'steampunk outfit, corset, layered skirt, goggles, brass gears, mechanical accessories' },
+            { id: 'tropical', label: 'Tropical', value: 'Latin American urban outfit, fitted t-shirt, open tropical shirt, slim jeans, sneakers, gold chain necklace, leather bracelet, sunglasses, vibrant warm colors, casual street style, clean cartoon look', femaleValue: 'Latin American tropical outfit, short tropical sundress (flowy summer dress) with vibrant warm colors, light fabric, sandals or sneakers, gold necklace, leather bracelet, sunglasses, casual street style' },
+            { id: 'cyberpunk', label: 'Cyberpunk', value: 'cyberpunk street attire with neon trims, visors, tech implants, glowing tattoos', femaleValue: 'cyberpunk outfit, fitted tech bodysuit dress, cropped jacket, boots, neon visor' },
+            { id: 'archer', label: 'Arqueiro', value: 'elven archer uniform, leather quiver, longbow, hooded cloak', femaleValue: 'elven archer outfit, fitted tunic dress with split skirt, leather quiver, longbow, hooded cloak' },
+            { id: 'indigenous', label: 'Ind??gena', value: 'Generic Brazilian indigenous outfit, simple cotton loincloth, diagonal cloth sash, seed bead necklaces, wooden bead accessories, simple feather headband with 2??"12 feathers, red and black body paint made of urucum and jenipapo in clean geometric patterns, barefoot, flat colors, clean cartoon style, no modern clothing', femaleValue: 'Brazilian indigenous outfit, wrapped fabric skirt, bead necklaces, feather headband, clean cartoon style' },
+            { id: 'space_marine', label: 'Space Marine', value: 'powered armor plating, helmet visor, energy rifle, tactical belts', femaleValue: 'space marine outfit, fitted armored bodysuit dress, helmet visor, energy rifle, tactical harness' },
+            { id: 'acrobat', label: 'Acrobata', value: 'circus acrobat costume, sequined leotard, flowing ribbons, dynamic pose', femaleValue: 'circus acrobat costume, sequined bodysuit dress, short tutu skirt, flowing ribbons, dynamic pose' },
+            { id: 'diver', label: 'Mergulhador', value: 'vintage diving suit, brass helmet, air hoses, weighted boots', femaleValue: 'vintage diving outfit, fitted wetsuit dress, brass helmet, air hoses, weighted boots' },
+            { id: 'ranger', label: 'Guarda-Florestal', value: 'forest ranger gear, camo vest, binoculars, rugged boots', femaleValue: 'forest ranger outfit, fitted blouse, utility skirt, binoculars, rugged boots' },
+            { id: 'gladiator', label: 'Gladiador', value: 'roman gladiator armor, crest helmet, shield, short sword', femaleValue: 'gladiator outfit, fitted armor top, short battle skirt, crest helmet, shield, short sword' },
+            { id: 'king_tribal', label: 'Rei Tribal Africano', value: 'tribal king regalia, feathers, royal scepter', femaleValue: 'tribal queen outfit, fitted ceremonial dress, feathers, royal scepter, ornate jewelry' },
+            { id: 'zombie', label: 'Zumbi', value: 'zombie costume, tattered cloth, decaying texture', femaleValue: 'zombie outfit, tattered sundress, decaying texture, torn sneakers' }
         ];
+
+        function resolveFantasyPrompt(fantasyId, genderCategory) {
+            const entry = fantasyOutfits.find(item => item.id === fantasyId);
+            if (!entry) return '';
+            if (genderCategory === 'female' && entry.femaleValue) {
+                return entry.femaleValue;
+            }
+            return entry.value || '';
+        }
 
         const ethnicityList = [
             'Europeu',
@@ -2049,6 +2058,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
             document.querySelectorAll('#gender-grid .option-card').forEach(el => el.classList.remove('selected'));
             element.classList.add('selected');
             selectedGender = value;
+            selectedFantasy = resolveFantasyPrompt(selectedFantasyId, getGenderCategory());
             syncBeardAvailability();
             updatePrompt();
         }
@@ -2645,7 +2655,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
         function selectClothing(kind, optionId) {
             if (kind === 'fantasy') {
                 selectedFantasyId = optionId;
-                selectedFantasy = fantasyOutfits.find(f => f.id === optionId)?.value || '';
+                selectedFantasy = resolveFantasyPrompt(optionId, getGenderCategory());
                 toggleClothingDisabled(selectedFantasyId !== 'none');
                 const fantasySelect = document.getElementById('fantasy-select');
                 if (fantasySelect) fantasySelect.value = optionId;
