@@ -1748,10 +1748,6 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
             return changed;
         }
 
-        function dimensionValues() {
-            return ['2D', '3D'];
-        }
-
         function pickRandom(list) {
             if (!Array.isArray(list) || list.length === 0) return null;
             const index = Math.floor(Math.random() * list.length);
@@ -1767,34 +1763,8 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
             return clone;
         }
 
-        function randomizeDimensionAndStyle() {
-            const dimension = pickRandom(dimensionValues());
-            if (!dimension) return;
-            const dimensionInput = document.querySelector(`input[name="dimension"][value="${dimension}"]`);
-            if (dimensionInput) {
-                dimensionInput.checked = true;
-            }
-            updateStyleOptions();
-            const candidates = presets.filter(p => p.dimension === dimension);
-            const presetChoice = pickRandom(candidates);
-            if (presetChoice) {
-                const styleSelect = document.getElementById('art-style');
-                if (styleSelect) styleSelect.value = presetChoice.id;
-                applyPreset(presetChoice.id);
-            }
-        }
-
         function randomize() {
-            randomizeDimensionAndStyle();
-
-            const genderChoice = pickRandom(genders);
-            if (genderChoice) {
-                const genderCards = document.querySelectorAll('#gender-grid .option-card');
-                const idx = genders.indexOf(genderChoice);
-                if (genderCards[idx]) {
-                    selectGender(genderCards[idx], genderChoice.value);
-                }
-            }
+            
 
             const bodyCandidates = bodyShapes.filter(shape => isOptionAllowed('bodyShape', shape.id, getState()));
             const bodyChoice = pickRandom(bodyCandidates);
