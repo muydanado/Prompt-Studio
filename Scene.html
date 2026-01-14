@@ -377,8 +377,13 @@
 
         <div class="lg:col-span-5 space-y-6 lg:sticky lg:top-6 lg:self-start">
             <div class="dark-panel p-5 rounded-lg flex flex-col gap-4">
-                <div class="section-title">
-                    <i class="fa-solid fa-terminal icon-highlight"></i> Prompt Final
+                <div class="flex items-center justify-between">
+                    <div class="section-title">
+                        <i class="fa-solid fa-terminal icon-highlight"></i> Prompt Final
+                    </div>
+                    <button type="button" class="text-[11px] tracking-[0.3em] uppercase flex items-center gap-1 rounded-md border border-transparent px-3 py-1 text-white/70 hover:text-white hover:border-[#4125D0] transition-colors" onclick="randomizeScene()">
+                        <i class="fa-solid fa-dice"></i> Random
+                    </button>
                 </div>
                 <textarea id="prompt-output" rows="16" class="w-full text-xs font-mono leading-relaxed rounded p-4 resize-none" readonly></textarea>
                 <div class="flex items-center justify-between">
@@ -1135,6 +1140,98 @@
             if (applyFirst && palettePool.length) {
                 applyPalettePreset(palettePool[0]);
             }
+        }
+
+        function randomSubset(list, maxCount) {
+            const pool = [...list];
+            const result = [];
+            const target = Math.min(maxCount, pool.length);
+            while (result.length < target && pool.length) {
+                const idx = Math.floor(Math.random() * pool.length);
+                result.push(pool.splice(idx, 1)[0]);
+            }
+            return result;
+        }
+
+        function randomHexColor() {
+            return '#' + Math.floor(Math.random() * 0xffffff).toString(16).padStart(6, '0');
+        }
+
+        function randomizeScene() {
+            state.style = randomItem(styleOptions).value;
+            const tipo = randomItem(AMBIENTE_DATA.tipoAmbiente);
+            state.tipoAmbiente = tipo || '';
+            const locals = getLocalOptions(state.tipoAmbiente);
+            state.localEspecifico = locals.length ? randomItem(locals) : '';
+            state.horaDoDia = randomItem(AMBIENTE_DATA.horaDoDia);
+            state.epocaHistorica = randomItem(AMBIENTE_DATA.epocaHistorica);
+            const estiloOpts = getEstiloOptions(state);
+            state.estiloDeMundo = estiloOpts.length ? randomItem(estiloOpts) : randomItem(AMBIENTE_DATA.estiloDeMundo);
+            const climaOpts = getClimaOptions(state);
+            state.climaCondicao = climaOpts.length ? randomItem(climaOpts) : '';
+
+            state.materials = randomSubset(materialsList.map(item => item.value), 3);
+            state.elements = randomSubset(sceneElementsList.map(item => item.value), 3);
+            state.detailLevel = Math.floor(Math.random() * 3) + 1;
+            const clutterOptions = Object.keys(clutterDescriptions);
+            state.clutter = randomItem(clutterOptions) || 'balanceado';
+
+            const moodChoice = randomItem(paletteMoodOptions);
+            state.paletteMood = moodChoice?.value || 'balanced';
+            const harmonyChoice = randomItem(paletteHarmonyOptions);
+            state.paletteHarmony = harmonyChoice?.value || 'complementar';
+            state.paletteHarmonyScheme = '';
+
+            const paletteMoodKey = styleMoodMap[state.style] || 'realistic';
+            const palette = generatePalette9({
+                primaryHex: randomHexColor(),
+                harmony: randomItem(harmonyChoices),
+                mood: paletteMoodKey,
+                contrast: 35 + Math.random() * 40,
+                temperatureBias: (Math.random() - 0.5) * 30
+            });
+            state.palette.primary = palette.baseDark;
+            state.palette.secondary = palette.baseMid;
+            state.palette.accent = palette.accent1;
+
+            const cameraAngle = randomItem(cameraAngles).value;
+            const framingChoice = randomItem(framings).value;
+            const lensChoice = randomItem(lenses).value;
+            const depthChoice = randomItem(depthOptions).value;
+            const aspectChoice = randomItem(aspectRatios).value;
+            state.camera = {
+                angle: cameraAngle,
+                framing: framingChoice,
+                lens: lensChoice,
+                depth: depthChoice,
+                aspect: aspectChoice
+            };
+
+            const normalized = recalcAll(state);
+            Object.assign(state, normalized);
+
+            renderStyleGrid();
+            renderAmbientControls();
+            renderMaterialChips();
+            renderSceneElements();
+            generatePalettePool();
+
+            document.getElementById('detail-range').value = state.detailLevel;
+            updateDetailLabel(state.detailLevel);
+            document.getElementById('clutter-select').value = state.clutter;
+            document.getElementById('primary-color').value = state.palette.primary;
+            document.getElementById('secondary-color').value = state.palette.secondary;
+            document.getElementById('accent-color').value = state.palette.accent;
+
+            setSelectValue('palette-harmony', state.paletteHarmony);
+            setSelectValue('palette-mood', state.paletteMood);
+            setSelectValue('camera-angle-select', state.camera.angle);
+            setSelectValue('framing-select', state.camera.framing);
+            setSelectValue('lens-select', state.camera.lens);
+            setSelectValue('depth-select', state.camera.depth);
+            setSelectValue('aspect-select', state.camera.aspect);
+
+            updatePrompt();
         }
 
         function updateCameraSetting(key, value) {

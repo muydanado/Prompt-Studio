@@ -1748,6 +1748,157 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
             return changed;
         }
 
+        function pickRandom(list) {
+            if (!Array.isArray(list) || list.length === 0) return null;
+            const index = Math.floor(Math.random() * list.length);
+            return list[index];
+        }
+
+        function shuffleArray(list) {
+            const clone = Array.from(list || []);
+            for (let i = clone.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [clone[i], clone[j]] = [clone[j], clone[i]];
+            }
+            return clone;
+        }
+
+        function randomize() {
+            const presetChoice = pickRandom(presets);
+            if (presetChoice) {
+                applyPreset(presetChoice.id);
+            }
+
+            const genderChoice = pickRandom(genders);
+            if (genderChoice) {
+                const genderCards = document.querySelectorAll('#gender-grid .option-card');
+                const idx = genders.indexOf(genderChoice);
+                if (genderCards[idx]) {
+                    selectGender(genderCards[idx], genderChoice.value);
+                }
+            }
+
+            const bodyCandidates = bodyShapes.filter(shape => isOptionAllowed('bodyShape', shape.id, getState()));
+            const bodyChoice = pickRandom(bodyCandidates);
+            if (bodyChoice) {
+                const card = document.querySelector(`#body-shape-grid .option-card[data-id="${bodyChoice.id}"]`);
+                if (card) selectBodyShape(card, bodyChoice.value, bodyChoice.id);
+            }
+
+            const chooseExpressionCard = () => {
+                const expressionCards = Array.from(document.querySelectorAll('#eye-expression-grid .option-card'));
+                const allowedExpressions = expressionCards.filter(card => isOptionAllowed('eyeExpression', card.dataset.id, getState()));
+                return pickRandom(allowedExpressions);
+            };
+
+            if (!lockState.face) {
+                const headShape = pickRandom(shapes);
+                if (headShape) {
+                    const card = document.querySelector(`#shape-grid .option-card[data-id="${headShape.id}"]`);
+                    if (card) selectShape(card, headShape.value);
+                }
+                const skinChoice = pickRandom(skinTones.filter(tone => !tone.skipRandom));
+                if (skinChoice) {
+                    const skinSwatch = document.querySelector(`#skin-grid .color-swatch[data-value="${skinChoice.value}"]`);
+                    if (skinSwatch) selectSkinTone(skinSwatch, skinChoice.value);
+                }
+                const eyeShapeChoice = pickRandom(eyeShapes);
+                if (eyeShapeChoice) {
+                    const card = document.querySelector(`#eye-shape-grid .option-card[data-id="${eyeShapeChoice.id}"]`);
+                    if (card) selectEyeShape(card, eyeShapeChoice.value, eyeShapeChoice.id);
+                }
+                const noseChoice = pickRandom(noses);
+                if (noseChoice) {
+                    const card = document.querySelector(`#nose-grid .option-card[data-id="${noseChoice.id}"]`);
+                    if (card) selectNose(card, noseChoice.value);
+                }
+                if (!lockState.expression) {
+                    const targetCard = chooseExpressionCard();
+                    if (targetCard) {
+                        const expressionItem = eyeExpressions.find(e => e.id === targetCard.dataset.id);
+                        selectEyeExpression(targetCard, expressionItem?.value || targetCard.dataset.id, expressionItem?.id);
+                    }
+                }
+                const allowedMouths = mouths.filter(mouth => isOptionAllowed('mouth', mouth.id, getState()));
+                const mouthChoice = pickRandom(allowedMouths);
+                if (mouthChoice) {
+                    const card = document.querySelector(`#mouth-grid .option-card[data-id="${mouthChoice.id}"]`);
+                    if (card) selectMouth(card, mouthChoice.value);
+                }
+            }
+
+            else if (!lockState.expression) {
+                const targetCard = chooseExpressionCard();
+                if (targetCard) {
+                    const expressionItem = eyeExpressions.find(e => e.id === targetCard.dataset.id);
+                    selectEyeExpression(targetCard, expressionItem?.value || targetCard.dataset.id, expressionItem?.id);
+                }
+            }
+
+            if (!lockState.hair) {
+                const lengthChoice = pickRandom(hairLengths);
+                if (lengthChoice) {
+                    const lengthCard = document.querySelector(`#hair-length-grid .option-card[data-id="${lengthChoice.id}"]`);
+                    if (lengthCard) {
+                        selectHairLength(lengthCard, lengthChoice.value, lengthChoice.id);
+                        const styles = hairStyles[lengthChoice.id] || [];
+                        const styleChoice = pickRandom(styles);
+                        if (styleChoice) {
+                            const styleCard = document.querySelector(`#hair-style-grid .option-card[data-id="${styleChoice.id}"]`);
+                            if (styleCard) selectHairStyle(styleCard, styleChoice.value);
+                        }
+                    }
+                }
+                const colorChoice = pickRandom(hairColors);
+                if (colorChoice) {
+                    const colorSwatch = document.querySelector(`#hair-color-grid .color-swatch[data-value="${colorChoice.value}"]`);
+                    if (colorSwatch) selectHairColor(colorSwatch, colorChoice.value);
+                }
+            }
+
+            if (!lockState.outfit) {
+                const useFantasy = Math.random() < 0.35;
+                if (useFantasy) {
+                    const fantasyChoice = pickRandom(fantasyOutfits) || fantasyOutfits[0];
+                    selectClothing('fantasy', fantasyChoice.id);
+                } else {
+                    ['shirt', 'jacket', 'pants', 'shoes'].forEach(kind => {
+                        const options = clothingOptions[kind];
+                        if (!options || options.length === 0) return;
+                        const choice = pickRandom(options);
+                        const selectEl = document.getElementById(`${kind}-select`);
+                        if (selectEl) selectEl.value = choice.id;
+                        selectClothing(kind, choice.id);
+                    });
+                }
+            }
+
+            if (!lockState.accessories) {
+                document.querySelectorAll('.accessory-check').forEach(cb => cb.checked = false);
+                const candidateIds = shuffleArray(accessories.map(a => a.id));
+                const targetCount = Math.floor(Math.random() * 4);
+                const picked = [];
+                candidateIds.forEach(id => {
+                    if (picked.length >= targetCount) return;
+                    const snapshot = { ...getState(), selectedAccessoryIds: picked };
+                    if (isOptionAllowed('accessory', id, snapshot)) {
+                        const checkbox = document.querySelector(`.accessory-check[value="${id}"]`);
+                        if (checkbox) checkbox.checked = true;
+                        picked.push(id);
+                    }
+                });
+                selectAccessories();
+            }
+
+            if (!lockState.action && poses.length) {
+                const poseChoice = pickRandom(poses);
+                if (poseChoice) selectPose(poseChoice.id);
+            }
+
+            refreshAvailability();
+            updatePrompt();
+        }
+
         // Initialization
         document.addEventListener('DOMContentLoaded', () => {
             loadLockState();
