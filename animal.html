@@ -3411,7 +3411,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
                     if (picked.length >= targetCount) return;
                     const snapshot = { ...getState(), selectedAccessoryIds: picked };
                     if (isOptionAllowed('accessory', id, snapshot)) {
-                        const checkbox = document.querySelector(\".accessory-check[value='\" + id + \"']\");
+                        const checkbox = document.querySelector(`.accessory-check[value=\"${id}\"]`);
                         if (checkbox) checkbox.checked = true;
                         picked.push(id);
                     }
