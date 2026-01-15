@@ -858,15 +858,20 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
         ];
 
         const styles2D = [];
+
         styles2D.push({
             id: "moebius",
             label: "Moebius — Ligne Claire Sci-Fi",
             dimension: "2D",
+
+            // BLOQUEIOS DE PROPORÇÃO (isto substitui seu 'locks')
             bodyShapeId: "slender",
             shapeId: "teardrop",
             eyeShapeId: "almond",
             mouthId: "thin",
             poseId: "gazing",
+
+            // NÚCLEO VISUAL MOEBIUS
             styleTokens: [
                 "clean ligne claire ink lines",
                 "thin elegant outlines",
@@ -883,12 +888,16 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
                 "slow sci-fi",
                 "visual poetry"
             ],
+
+            // CÂMERA — O que cria escala Moebius
             cameraTokens: [
                 "wide shot",
                 "cinematic composition",
                 "deep perspective",
                 "sense of scale"
             ],
+
+            // AMBIENTE — força a vibe da imagem 2
             backgroundTokens: [
                 "vast alien desert",
                 "floating rock formations",
@@ -897,11 +906,13 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
                 "soft clouds",
                 "dreamlike atmosphere"
             ],
+
             qualityTokens: [
                 "high resolution illustration",
                 "clean vector look",
                 "smooth color blocks"
             ],
+
             negativePrompt: `
 chibi, funko, pixar, disney, cute cartoon,
 big head, short body, baby proportions,
@@ -912,6 +923,7 @@ thick outlines, heavy shadows, gritty, cyberpunk,
 busy background, cluttered composition
 `
         });
+
         const styles3D = [];
 
         const fantasyOutfits = [
@@ -1098,7 +1110,7 @@ busy background, cluttered composition
             }
         };
 
-        const presets = [
+        const presetDefinitions = [
             // Presets 3D
             {
                 id: 'pixar',
@@ -1394,6 +1406,15 @@ busy background, cluttered composition
             }
         ];
 
+        presetDefinitions.forEach(preset => {
+            if (preset.dimension === '2D') {
+                styles2D.push(preset);
+            } else {
+                styles3D.push(preset);
+            }
+        });
+
+        const presets = [...styles2D, ...styles3D];
 
         function getDefaultOption(list, id, fallbackIndex = 0) {
             return list.find(item => item.id === id) || list[fallbackIndex] || list[0];
