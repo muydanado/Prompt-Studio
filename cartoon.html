@@ -858,6 +858,60 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
         ];
 
         const styles2D = [];
+        styles2D.push({
+            id: "moebius",
+            label: "Moebius — Ligne Claire Sci-Fi",
+            dimension: "2D",
+            bodyShapeId: "slender",
+            shapeId: "teardrop",
+            eyeShapeId: "almond",
+            mouthId: "thin",
+            poseId: "gazing",
+            styleTokens: [
+                "clean ligne claire ink lines",
+                "thin elegant outlines",
+                "no hatching",
+                "no cross shading",
+                "flat pastel colors",
+                "subtle gradients",
+                "airy lighting",
+                "vast negative space",
+                "european sci-fi comic style",
+                "1970s–1980s french sci-fi illustration",
+                "moebius inspired",
+                "poetic surrealism",
+                "slow sci-fi",
+                "visual poetry"
+            ],
+            cameraTokens: [
+                "wide shot",
+                "cinematic composition",
+                "deep perspective",
+                "sense of scale"
+            ],
+            backgroundTokens: [
+                "vast alien desert",
+                "floating rock formations",
+                "distant futuristic city",
+                "gigantic sky",
+                "soft clouds",
+                "dreamlike atmosphere"
+            ],
+            qualityTokens: [
+                "high resolution illustration",
+                "clean vector look",
+                "smooth color blocks"
+            ],
+            negativePrompt: `
+chibi, funko, pixar, disney, cute cartoon,
+big head, short body, baby proportions,
+kawaii, super deformed,
+3d, cgi, unreal engine, blender,
+photorealistic, realistic skin, pores, hair strands,
+thick outlines, heavy shadows, gritty, cyberpunk,
+busy background, cluttered composition
+`
+        });
         const styles3D = [];
 
         const fantasyOutfits = [
