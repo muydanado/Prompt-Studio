@@ -1414,6 +1414,12 @@ busy background, cluttered composition
             }
         });
 
+        const moebiusIndex = styles2D.findIndex(preset => preset.id === 'moebius');
+        if (moebiusIndex > -1) {
+            const [moebiusPreset] = styles2D.splice(moebiusIndex, 1);
+            styles2D.push(moebiusPreset);
+        }
+
         const presets = [...styles2D, ...styles3D];
 
         function getDefaultOption(list, id, fallbackIndex = 0) {
