@@ -858,72 +858,6 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
         ];
 
         const styles2D = [];
-
-        styles2D.push({
-            id: "moebius",
-            label: "Moebius — Ligne Claire Sci-Fi",
-            dimension: "2D",
-
-            // BLOQUEIOS DE PROPORÇÃO (isto substitui seu 'locks')
-            bodyShapeId: "slender",
-            shapeId: "teardrop",
-            eyeShapeId: "almond",
-            mouthId: "thin",
-            poseId: "gazing",
-
-            // NÚCLEO VISUAL MOEBIUS
-            styleTokens: [
-                "clean ligne claire ink lines",
-                "thin elegant outlines",
-                "no hatching",
-                "no cross shading",
-                "flat pastel colors",
-                "subtle gradients",
-                "airy lighting",
-                "vast negative space",
-                "european sci-fi comic style",
-                "1970s–1980s french sci-fi illustration",
-                "moebius inspired",
-                "poetic surrealism",
-                "slow sci-fi",
-                "visual poetry"
-            ],
-
-            // CÂMERA — O que cria escala Moebius
-            cameraTokens: [
-                "wide shot",
-                "cinematic composition",
-                "deep perspective",
-                "sense of scale"
-            ],
-
-            // AMBIENTE — força a vibe da imagem 2
-            backgroundTokens: [
-                "vast alien desert",
-                "floating rock formations",
-                "distant futuristic city",
-                "gigantic sky",
-                "soft clouds",
-                "dreamlike atmosphere"
-            ],
-
-            qualityTokens: [
-                "high resolution illustration",
-                "clean vector look",
-                "smooth color blocks"
-            ],
-
-            negativePrompt: `
-chibi, funko, pixar, disney, cute cartoon,
-big head, short body, baby proportions,
-kawaii, super deformed,
-3d, cgi, unreal engine, blender,
-photorealistic, realistic skin, pores, hair strands,
-thick outlines, heavy shadows, gritty, cyberpunk,
-busy background, cluttered composition
-`
-        });
-
         const styles3D = [];
 
         const fantasyOutfits = [
@@ -1234,6 +1168,47 @@ busy background, cluttered composition
                 qualityTokens: ['crisp inking'],
                 negativePrompt: 'cross-hatching, heavy shading, gradients, painterly texture, sketchy lines, 3d'
             },
+            {
+                id: 'moebius',
+                label: 'MOEBIUS (Rig — Ligne Claire Sci-Fi)',
+                dimension: '2D',
+                styleValue:
+                    'clean ligne claire ink lines, thin elegant linework, no hatching, no cross-hatching, flat pastel colors with subtle gradients, airy high-key lighting, vast negative space, retro-futuristic European sci-fi comic style, poetic surrealism, calm contemplative mood',
+                styleTokens: [
+                    'clear line art',
+                    'smooth color blocks',
+                    'minimal texture',
+                    'soft shadows',
+                    'dreamlike composition'
+                ],
+                cameraTokens: ['wide shot', 'deep perspective', 'strong composition', 'sense of scale'],
+                backgroundTokens: ['minimalist sci-fi environment', 'distant horizon', 'soft clouds'],
+                qualityTokens: ['line clarity', 'crisp inking'],
+                negativePrompt: [
+                    'chibi',
+                    'kawaii',
+                    'super deformed',
+                    'funko',
+                    'pixar',
+                    'disney',
+                    'big head',
+                    'short body',
+                    'cute baby face',
+                    'button eyes',
+                    'dot eyes',
+                    '3d render',
+                    'cgi',
+                    'unreal engine',
+                    'blender',
+                    'photorealistic',
+                    'heavy texture',
+                    'skin pores',
+                    'realistic hair strands',
+                    'grain',
+                    'noise',
+                    'watermark'
+                ].join(', ')
+            },
              {
                 id: 'vector',
                 label: 'Cartoon Vetorial',
@@ -1509,6 +1484,7 @@ busy background, cluttered composition
         let selectedBodyShape = DEFAULT_BODY_SHAPE.value;
         let selectedBodyShapeId = DEFAULT_BODY_SHAPE.id;
         let selectedShape = shapes[0].value;
+        let selectedShapeId = shapes[0].id;
         let selectedHairLength = hairLengths[1].value;
         let selectedHairLengthId = hairLengths[1].id;
         let selectedHairStyle = hairStyles['short'][0].value;
@@ -1520,6 +1496,7 @@ busy background, cluttered composition
         let selectedEyeExpressionId = DEFAULT_EYE_EXPRESSION.id;
         let selectedNose = DEFAULT_NOSE.value; 
         let selectedMouth = DEFAULT_MOUTH.value; // Default: Smile
+        let selectedMouthId = DEFAULT_MOUTH.id;
         let selectedShirt = clothingOptions.shirt[0].value;
         let selectedJacket = clothingOptions.jacket[0].value;
         let selectedPants = clothingOptions.pants[0].value;
@@ -1626,6 +1603,7 @@ busy background, cluttered composition
                 bodyShape: selectedBodyShape,
                 bodyShapeId: selectedBodyShapeId,
                 shape: selectedShape,
+                shapeId: selectedShapeId,
                 hairLength: selectedHairLength,
                 hairLengthId: selectedHairLengthId,
                 hairStyle: selectedHairStyle,
@@ -1636,6 +1614,7 @@ busy background, cluttered composition
                 eyeExpression: selectedEyeExpression,
                 nose: selectedNose,
                 mouth: selectedMouth,
+                mouthId: selectedMouthId,
                 shirt: selectedShirt,
                 shirtId: selectedShirtId,
                 jacket: selectedJacket,
@@ -1664,7 +1643,35 @@ busy background, cluttered composition
             return 'neutral';
         }
 
+        function isMoebiusActive(state) {
+            return (state?.presetId || '') === 'moebius';
+        }
+
+        const MOEBIUS_ALLOWED = {
+            bodyShape: new Set(['slender', 'average', 'muscular']),
+            shape: new Set(['oval', 'teardrop', 'heart', 'rectangle', 'hexagon']),
+            eyeShape: new Set(['almond', 'slanted', 'angular', 'wide', 'square_eye']),
+            eyeExpression: new Set(['neutral', 'suspicious', 'tired', 'bored']),
+            mouth: new Set(['thin', 'smile'])
+        };
+
+        const MOEBIUS_BLOCKED = {
+            bodyShape: new Set(['chibi', 'bean', 'headshot']),
+            shape: new Set(['round']),
+            eyeShape: new Set(['dot', 'round']),
+            eyeExpression: new Set(['love', 'stars', 'money', 'crazy', 'scared']),
+            mouth: new Set(['tongue', 'open', 'pout'])
+        };
+
         function isOptionAllowed(kind, optionValueOrId, state) {
+            const currentState = state || getState();
+            if (isMoebiusActive(currentState)) {
+                const id = (optionValueOrId || '').toString();
+                const allowedSet = MOEBIUS_ALLOWED[kind];
+                const blockedSet = MOEBIUS_BLOCKED[kind];
+                if (blockedSet && blockedSet.has(id)) return false;
+                if (allowedSet) return allowedSet.has(id);
+            }
             if (kind === 'feature') {
                 if (state.isChild) {
                     if (optionValueOrId === 'wrinkles, aged skin') return false;
@@ -1772,6 +1779,26 @@ busy background, cluttered composition
                 }
             });
 
+            // --- Shape grid availability (NOVO) ---
+            document.querySelectorAll('#shape-grid .option-card').forEach(card => {
+                const id = card.dataset.id;
+                const allowed = isOptionAllowed('shape', id, state);
+                card.classList.toggle('disabled-section', !allowed);
+                card.classList.toggle('opacity-30', !allowed);
+                card.classList.toggle('pointer-events-none', !allowed);
+                card.style.display = '';
+            });
+
+            // --- Eye shape grid availability (NOVO) ---
+            document.querySelectorAll('#eye-shape-grid .option-card').forEach(card => {
+                const id = card.dataset.id;
+                const allowed = isOptionAllowed('eyeShape', id, state);
+                card.classList.toggle('disabled-section', !allowed);
+                card.classList.toggle('opacity-30', !allowed);
+                card.classList.toggle('pointer-events-none', !allowed);
+                card.style.display = '';
+            });
+
             const bodyCards = document.querySelectorAll('#body-shape-grid .option-card');
             let firstAllowedBody = null;
             bodyCards.forEach(card => {
@@ -1845,13 +1872,15 @@ busy background, cluttered composition
         }
 
         function randomize() {
-            
+            const stateSnapshot = getState();
+            const moebiusOn = isMoebiusActive(stateSnapshot);
 
-            const bodyCandidates = bodyShapes.filter(shape => isOptionAllowed('bodyShape', shape.id, getState()));
-            const bodyChoice = pickRandom(bodyCandidates);
+            const bodyPool = moebiusOn
+                ? bodyShapes.filter(shape => isOptionAllowed('bodyShape', shape.id, stateSnapshot))
+                : bodyShapes;
+            const bodyChoice = pickRandom(bodyPool);
             if (bodyChoice) {
-                const card = document.querySelector(`#body-shape-grid .option-card[data-id="${bodyChoice.id}"]`);
-                if (card) selectBodyShape(card, bodyChoice.value, bodyChoice.id);
+                selectBodyShapeById(bodyChoice.id);
             }
 
             const chooseExpressionCard = () => {
@@ -1861,21 +1890,21 @@ busy background, cluttered composition
             };
 
             if (!lockState.face) {
-                const headShape = pickRandom(shapes);
-                if (headShape) {
-                    const card = document.querySelector(`#shape-grid .option-card[data-id="${headShape.id}"]`);
-                    if (card) selectShape(card, headShape.value);
-                }
+                const shapePool = moebiusOn
+                    ? shapes.filter(shape => isOptionAllowed('shape', shape.id, stateSnapshot))
+                    : shapes;
+                const headShape = pickRandom(shapePool);
+                if (headShape) selectShapeById(headShape.id);
                 const skinChoice = pickRandom(skinTones.filter(tone => !tone.skipRandom));
                 if (skinChoice) {
                     const skinSwatch = document.querySelector(`#skin-grid .color-swatch[data-value="${skinChoice.value}"]`);
                     if (skinSwatch) selectSkinTone(skinSwatch, skinChoice.value);
                 }
-                const eyeShapeChoice = pickRandom(eyeShapes);
-                if (eyeShapeChoice) {
-                    const card = document.querySelector(`#eye-shape-grid .option-card[data-id="${eyeShapeChoice.id}"]`);
-                    if (card) selectEyeShape(card, eyeShapeChoice.value, eyeShapeChoice.id);
-                }
+                const eyeShapePool = moebiusOn
+                    ? eyeShapes.filter(shape => isOptionAllowed('eyeShape', shape.id, stateSnapshot))
+                    : eyeShapes;
+                const eyeShapeChoice = pickRandom(eyeShapePool);
+                if (eyeShapeChoice) selectEyeShapeById(eyeShapeChoice.id);
                 const noseChoice = pickRandom(noses);
                 if (noseChoice) {
                     const card = document.querySelector(`#nose-grid .option-card[data-id="${noseChoice.id}"]`);
@@ -1888,12 +1917,11 @@ busy background, cluttered composition
                         selectEyeExpression(targetCard, expressionItem?.value || targetCard.dataset.id, expressionItem?.id);
                     }
                 }
-                const allowedMouths = mouths.filter(mouth => isOptionAllowed('mouth', mouth.id, getState()));
-                const mouthChoice = pickRandom(allowedMouths);
-                if (mouthChoice) {
-                    const card = document.querySelector(`#mouth-grid .option-card[data-id="${mouthChoice.id}"]`);
-                    if (card) selectMouth(card, mouthChoice.value);
-                }
+                const mouthPool = moebiusOn
+                    ? mouths.filter(mouth => isOptionAllowed('mouth', mouth.id, stateSnapshot))
+                    : mouths;
+                const mouthChoice = pickRandom(mouthPool);
+                if (mouthChoice) selectMouthById(mouthChoice.id);
             }
 
             else if (!lockState.expression) {
@@ -2078,7 +2106,10 @@ busy background, cluttered composition
                 div.className = `option-card p-3 rounded-lg text-center text-xs group`;
                 div.dataset.id = item.id;
                 div.innerHTML = `${getSvgForBodyShape(item.id)}<span class="block mt-2 font-medium text-gray-400 group-hover:text-white transition-colors">${item.label}</span>`;
-                div.onclick = () => selectBodyShape(div, item.value, item.id);
+                div.onclick = () => {
+                    if (div.classList.contains('disabled-section')) return;
+                    selectBodyShape(div, item.value, item.id);
+                };
                 container.appendChild(div);
             });
         }
@@ -2091,7 +2122,10 @@ busy background, cluttered composition
                 div.className = `option-card p-3 rounded-lg text-center text-xs group`;
                 div.dataset.id = shape.id;
                 div.innerHTML = `${getSvgForShape(shape.id)}<span class="block mt-2 font-medium text-gray-400 group-hover:text-white transition-colors">${shape.label}</span>`;
-                div.onclick = () => selectShape(div, shape.value);
+                div.onclick = () => {
+                    if (div.classList.contains('disabled-section')) return;
+                    selectShape(div, shape.value, shape.id);
+                };
                 container.appendChild(div);
             });
         }
@@ -2164,7 +2198,10 @@ busy background, cluttered composition
                 div.className = `option-card p-3 rounded-lg text-center text-xs group`;
                 div.dataset.id = item.id;
                 div.innerHTML = `${getSvgForEyeShape(item.id)}<span class="block mt-2 font-medium text-gray-400 group-hover:text-white transition-colors">${item.label}</span>`;
-                div.onclick = () => selectEyeShape(div, item.value, item.id);
+                div.onclick = () => {
+                    if (div.classList.contains('disabled-section')) return;
+                    selectEyeShape(div, item.value, item.id);
+                };
                 container.appendChild(div);
             });
         }
@@ -2176,7 +2213,10 @@ busy background, cluttered composition
                 div.className = `option-card p-3 rounded-lg text-center text-xs group`;
                 div.dataset.id = item.id;
                 div.innerHTML = `${getSvgForEyeExpression(item.id)}<span class="block mt-2 font-medium text-gray-400 group-hover:text-white transition-colors">${item.label}</span>`;
-                div.onclick = () => selectEyeExpression(div, item.value, item.id);
+                div.onclick = () => {
+                    if (div.classList.contains('disabled-section')) return;
+                    selectEyeExpression(div, item.value, item.id);
+                };
                 container.appendChild(div);
             });
         }
@@ -2202,7 +2242,10 @@ busy background, cluttered composition
                 div.className = `option-card p-3 rounded-lg text-center text-xs group`;
                 div.dataset.id = item.id;
                 div.innerHTML = `${getSvgForMouth(item.id)}<span class="block mt-2 font-medium text-gray-400 group-hover:text-white transition-colors">${item.label}</span>`;
-                div.onclick = () => selectMouth(div, item.value);
+                div.onclick = () => {
+                    if (div.classList.contains('disabled-section')) return;
+                    selectMouth(div, item.value, item.id);
+                };
                 container.appendChild(div);
             });
         }
@@ -2291,10 +2334,11 @@ busy background, cluttered composition
             updatePrompt();
         }
 
-        function selectShape(element, value) {
+        function selectShape(element, value, id) {
             document.querySelectorAll('#shape-grid .option-card').forEach(el => el.classList.remove('selected'));
             element.classList.add('selected');
             selectedShape = value;
+            selectedShapeId = id || selectedShapeId;
             updatePrompt();
         }
 
@@ -2371,6 +2415,35 @@ busy background, cluttered composition
                 }
             }
             syncDimensionNegativeBase();
+
+            const state = getState();
+            if (preset.id === 'moebius') {
+                const dim2D = document.querySelector('input[name="dimension"][value="2D"]');
+                if (dim2D && !dim2D.checked) {
+                    dim2D.checked = true;
+                    updateStyleOptions();
+                    return;
+                }
+
+                ensureValidSelection('bodyShape', state.bodyShapeId, Array.from(MOEBIUS_ALLOWED.bodyShape), 'slender');
+                ensureValidSelection('shape', state.shapeId, Array.from(MOEBIUS_ALLOWED.shape), 'oval');
+                ensureValidSelection('eyeShape', state.eyeShapeId, Array.from(MOEBIUS_ALLOWED.eyeShape), 'almond');
+                ensureValidSelection('eyeExpression', state.eyeExpressionId, Array.from(MOEBIUS_ALLOWED.eyeExpression), 'neutral');
+                ensureValidSelection('mouth', state.mouthId, Array.from(MOEBIUS_ALLOWED.mouth), 'thin');
+
+                document.querySelectorAll('.feature-check').forEach(cb => {
+                    const value = (cb.value || '').toLowerCase();
+                    if (value.includes('chubby cheeks') || value.includes('dimples')) {
+                        cb.checked = false;
+                    }
+                });
+
+                refreshAvailability();
+                updatePrompt();
+                return;
+            }
+
+            refreshAvailability();
             updatePrompt();
         }
         
@@ -2409,10 +2482,16 @@ busy background, cluttered composition
             if (target) selectHairColor(target, tone.value);
         }
 
+        function selectBodyShapeById(id) {
+            const body = bodyShapes.find(entry => entry.id === id);
+            const card = document.querySelector(`#body-shape-grid .option-card[data-id="${id}"]`);
+            if (body && card) selectBodyShape(card, body.value, body.id);
+        }
+
         function selectShapeById(id) {
             const shape = shapes.find(entry => entry.id === id);
             const card = document.querySelector(`#shape-grid .option-card[data-id="${id}"]`);
-            if (shape && card) selectShape(card, shape.value);
+            if (shape && card) selectShape(card, shape.value, shape.id);
         }
 
         function selectHairLengthById(id) {
@@ -2434,6 +2513,12 @@ busy background, cluttered composition
             if (shape && card) selectEyeShape(card, shape.value, shape.id);
         }
 
+        function selectEyeExpressionById(id) {
+            const expression = eyeExpressions.find(entry => entry.id === id);
+            const card = document.querySelector(`#eye-expression-grid .option-card[data-id="${id}"]`);
+            if (expression && card) selectEyeExpression(card, expression.value, expression.id);
+        }
+
         function selectNoseById(id) {
             const nose = noses.find(entry => entry.id === id);
             const card = document.querySelector(`#nose-grid .option-card[data-id="${id}"]`);
@@ -2443,7 +2528,35 @@ busy background, cluttered composition
         function selectMouthById(id) {
             const mouth = mouths.find(entry => entry.id === id);
             const card = document.querySelector(`#mouth-grid .option-card[data-id="${id}"]`);
-            if (mouth && card) selectMouth(card, mouth.value);
+            if (mouth && card) selectMouth(card, mouth.value, mouth.id);
+        }
+
+        function ensureValidSelection(kind, selectedId, allowedIds = [], fallbackId) {
+            if (!Array.isArray(allowedIds) || allowedIds.length === 0) return false;
+            const currentId = selectedId || '';
+            if (allowedIds.includes(currentId)) return true;
+
+            const fallback = allowedIds.includes(fallbackId) ? fallbackId : allowedIds[0];
+            if (!fallback) return false;
+
+            switch (kind) {
+                case 'bodyShape':
+                    selectBodyShapeById(fallback);
+                    break;
+                case 'shape':
+                    selectShapeById(fallback);
+                    break;
+                case 'eyeShape':
+                    selectEyeShapeById(fallback);
+                    break;
+                case 'eyeExpression':
+                    selectEyeExpressionById(fallback);
+                    break;
+                case 'mouth':
+                    selectMouthById(fallback);
+                    break;
+            }
+            return true;
         }
 
         function applyEthnicityPreset(value) {
@@ -2652,7 +2765,7 @@ busy background, cluttered composition
                 const shapeEntry = shapes.find(s => s.value === stateData.shape) || shapes[0];
                 const cards = document.querySelectorAll('#shape-grid .option-card');
                 const target = cards[shapes.indexOf(shapeEntry)] || cards[0];
-                if (target) selectShape(target, shapeEntry.value);
+                if (target) selectShape(target, shapeEntry.value, shapeEntry.id);
             }
 
             // Hair length & style
@@ -2713,7 +2826,7 @@ busy background, cluttered composition
                 const entry = mouths.find(m => m.value === stateData.mouth) || DEFAULT_MOUTH;
                 const cards = document.querySelectorAll('#mouth-grid .option-card');
                 const target = cards[mouths.indexOf(entry)];
-                if (target) selectMouth(target, entry.value);
+                if (target) selectMouth(target, entry.value, entry.id);
             }
 
             // Pose
@@ -2865,10 +2978,11 @@ busy background, cluttered composition
             updatePrompt();
         }
 
-        function selectMouth(element, value) {
+        function selectMouth(element, value, id) {
             document.querySelectorAll('#mouth-grid .option-card').forEach(el => el.classList.remove('selected'));
             element.classList.add('selected');
             selectedMouth = value;
+            selectedMouthId = id || selectedMouthId;
             updatePrompt();
         }
 
