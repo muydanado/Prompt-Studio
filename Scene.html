@@ -146,9 +146,25 @@
 
             <div class="dark-panel p-5 rounded-lg">
                 <div class="section-title">
-                    <i class="fa-solid fa-palette icon-highlight"></i> Estilo Visual
+                    <i class="fa-solid fa-layer-group icon-highlight"></i> Dimensão
                 </div>
-                <div id="style-grid" class="grid grid-cols-3 gap-3"></div>
+                <div id="dimension-grid" class="grid grid-cols-3 gap-3"></div>
+            </div>
+
+            <div class="dark-panel p-5 rounded-lg space-y-3">
+                <div class="section-title">
+                    <i class="fa-solid fa-clapperboard icon-highlight"></i> Estilo Visual
+                </div>
+
+                <label class="text-[10px] text-gray-400 uppercase tracking-wider mb-2 block">Diretor / Linguagem</label>
+                <div class="relative">
+                    <select id="visual-style-select" class="w-full p-3 rounded text-xs"></select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                        <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                    </div>
+                </div>
+
+                <p id="visual-style-hint" class="text-[10px] text-gray-500 mt-2"></p>
             </div>
 
             <div class="dark-panel p-5 rounded-lg space-y-4">
@@ -542,7 +558,7 @@
             };
         }
 
-        const styleMoodMap = {
+        const dimensionMoodMap = {
             'realista': 'realistic',
             '3d-cartoon': 'stylized3d',
             '2d-cartoon': 'cartoon2d'
@@ -562,7 +578,7 @@
             return paletteHslToHex(hsl);
         }
 
-        const styleOptions = [
+        const dimensionOptions = [
             { value: '2d-cartoon', label: '2D Cartoon', description: 'Linhas limpas & cores chapadas', icon: 'fa-pencil' },
             { value: '3d-cartoon', label: '3D Cartoon', description: 'Materiais suaves & volumétricos', icon: 'fa-cube' },
             { value: 'realista', label: 'Realista', description: 'Cinemático / Foto-real', icon: 'fa-camera-retro' }
@@ -572,6 +588,73 @@
         
         
         
+        const visualStyleOptions = [
+            { value: '', label: 'Nenhum (padrão)', hint: 'Sem assinatura de diretor; usa apenas Dimensão + Paleta + Câmara.' },
+            { value: 'wes_anderson', label: 'Wes Anderson', hint: 'Simetria, composição central, paleta pastel, "storybook", clean.' },
+            { value: 'tim_burton', label: 'Tim Burton', hint: 'Gótico estilizado, alto contraste, shapes tortos, "whimsical dark".' },
+            { value: 'denis_villeneuve', label: 'Denis Villeneuve', hint: 'Minimalismo épico, escala, atmosfera densa, tons frios/areia.' },
+            { value: 'michael_bay', label: 'Michael Bay', hint: 'Ação glossy, alto contraste, dramatic lighting, lens flare controlado.' }
+        ];
+
+        const VISUAL_STYLE_PRESETS = {
+            wes_anderson: {
+                dimension: '2d-cartoon',
+                palette: { primary: '#F2D7C9', secondary: '#B7D3E8', accent: '#E6C84F' },
+                paletteMood: 'pastel',
+                paletteHarmony: 'analogous',
+                paletteHarmonyScheme: 'analogous',
+                camera: { angle: 'eye level', framing: 'establishing shot', lens: '50mm', depth: 'deep focus', aspect: '1.85:1' },
+                detailLevel: 2,
+                clutter: 'limpo',
+                promptTraits: [
+                    'symmetrical framing', 'centered composition', 'diorama-like staging',
+                    'pastel color palette', 'clean lines', 'controlled minimalism'
+                ]
+            },
+            tim_burton: {
+                dimension: '2d-cartoon',
+                palette: { primary: '#1B1B1B', secondary: '#5C6B73', accent: '#E0E0E0' },
+                paletteMood: 'muted',
+                paletteHarmony: 'monocromatica',
+                paletteHarmonyScheme: '',
+                camera: { angle: 'low angle', framing: 'wide shot', lens: '35mm', depth: 'deep focus', aspect: '2.39:1' },
+                detailLevel: 3,
+                clutter: 'balanceado',
+                promptTraits: [
+                    'gothic whimsical tone', 'high contrast lighting', 'crooked architecture',
+                    'elongated shapes', 'storybook darkness', 'stylized set design'
+                ]
+            },
+            denis_villeneuve: {
+                dimension: 'realista',
+                palette: { primary: '#2A3138', secondary: '#6E7C86', accent: '#D6B15A' },
+                paletteMood: 'muted',
+                paletteHarmony: 'complementar',
+                paletteHarmonyScheme: '',
+                camera: { angle: 'eye level', framing: 'wide shot', lens: 'anamorphic 50mm', depth: 'deep focus', aspect: '2.39:1' },
+                detailLevel: 2,
+                clutter: 'limpo',
+                promptTraits: [
+                    'epic scale minimalism', 'atmospheric haze', 'soft contrast', 'monumental silhouettes',
+                    'slow sci-fi mood', 'subtle cinematic grading'
+                ]
+            },
+            michael_bay: {
+                dimension: 'realista',
+                palette: { primary: '#0B1D2C', secondary: '#2C3E50', accent: '#F39C12' },
+                paletteMood: 'high-contrast',
+                paletteHarmony: 'complementar',
+                paletteHarmonyScheme: 'complementary',
+                camera: { angle: 'low angle', framing: 'aerial drone', lens: '24mm', depth: 'deep focus', aspect: '16:9' },
+                detailLevel: 3,
+                clutter: 'cheio',
+                promptTraits: [
+                    'high energy cinematic look', 'punchy contrast', 'dramatic highlights',
+                    'dynamic perspective', 'glossy blockbuster grading', 'controlled lens flare'
+                ]
+            }
+        };
+
         const materialsList = [
             { value: 'concreto molhado', label: 'Concreto molhado' },
             { value: 'metal escuro', label: 'Metal escuro polido' },
@@ -679,7 +762,8 @@
         };
 
         const state = {
-            style: 'realista',
+            dimension: 'realista',
+            visualStyle: '',
             tipoAmbiente: '',
             localEspecifico: '',
             horaDoDia: '',
@@ -906,7 +990,8 @@
             refreshAmbientControls();
         }
         document.addEventListener('DOMContentLoaded', () => {
-            renderStyleGrid();
+            renderDimensionGrid();
+            renderVisualStyleSelect();
             populateSelect('camera-angle-select', cameraAngles, state.camera.angle);
             populateSelect('framing-select', framings, state.camera.framing);
             populateSelect('lens-select', lenses, state.camera.lens);
@@ -932,26 +1017,122 @@
             updatePrompt();
         });
 
-        function renderStyleGrid() {
-            const grid = document.getElementById('style-grid');
+        function renderDimensionGrid() {
+            const grid = document.getElementById('dimension-grid');
+            if (!grid) return;
             grid.innerHTML = '';
-            styleOptions.forEach(option => {
+            dimensionOptions.forEach(option => {
                 const button = document.createElement('button');
                 button.type = 'button';
-                button.className = `option-card p-3 text-[11px] flex flex-col gap-1 ${state.style === option.value ? 'selected' : ''}`;
+                button.className = `option-card p-3 text-[11px] flex flex-col gap-1 ${state.dimension === option.value ? 'selected' : ''}`;
                 button.innerHTML = `
                     <i class="fa-solid ${option.icon} text-[16px]"></i>
                     <span class="text-sm font-semibold">${option.label}</span>
                     <span class="text-[10px] text-gray-400">${option.description}</span>
                 `;
                 button.onclick = () => {
-                    state.style = option.value;
-                    renderStyleGrid();
+                    state.dimension = option.value;
+                    renderDimensionGrid();
                     generatePalettePool();
                     updatePrompt();
                 };
                 grid.appendChild(button);
             });
+        }
+
+        function renderVisualStyleSelect() {
+            const select = document.getElementById('visual-style-select');
+            if (!select) return;
+
+            select.innerHTML = '';
+            visualStyleOptions.forEach(opt => {
+                const option = document.createElement('option');
+                option.value = opt.value;
+                option.textContent = opt.label;
+                select.appendChild(option);
+            });
+
+            select.value = state.visualStyle || '';
+            updateVisualStyleHint(state.visualStyle || '');
+
+            select.onchange = (event) => {
+                const val = event.target.value || '';
+                state.visualStyle = val;
+                applyVisualStylePreset(val);
+                updateVisualStyleHint(val);
+                updatePrompt();
+            };
+        }
+
+        function updateVisualStyleHint(value) {
+            const hintEl = document.getElementById('visual-style-hint');
+            if (!hintEl) return;
+            const opt = visualStyleOptions.find(x => x.value === value);
+            hintEl.textContent = opt?.hint || '';
+        }
+
+        function applyVisualStylePreset(value) {
+            if (!value) return;
+            const preset = VISUAL_STYLE_PRESETS[value];
+            if (!preset) return;
+
+            if (preset.dimension) {
+                state.dimension = preset.dimension;
+                renderDimensionGrid();
+            }
+
+            if (preset.palette) {
+                state.palette = { ...state.palette, ...preset.palette };
+                const p = state.palette;
+                const elP = document.getElementById('primary-color');
+                const elS = document.getElementById('secondary-color');
+                const elA = document.getElementById('accent-color');
+                if (elP) elP.value = p.primary;
+                if (elS) elS.value = p.secondary;
+                if (elA) elA.value = p.accent;
+            }
+
+            if (preset.paletteMood) {
+                state.paletteMood = preset.paletteMood;
+                setSelectValue('palette-mood', preset.paletteMood);
+            }
+            if (preset.paletteHarmony) {
+                state.paletteHarmony = preset.paletteHarmony;
+                setSelectValue('palette-harmony', preset.paletteHarmony);
+            }
+            if (typeof preset.paletteHarmonyScheme !== 'undefined') {
+                state.paletteHarmonyScheme = preset.paletteHarmonyScheme || '';
+                const schemeSelect = document.getElementById('palette-harmony-scheme');
+                if (schemeSelect) schemeSelect.value = state.paletteHarmonyScheme;
+                if (state.paletteHarmonyScheme) {
+                    applyHarmonyScheme(state.paletteHarmonyScheme);
+                }
+            }
+
+            if (preset.camera) {
+                state.camera = { ...state.camera, ...preset.camera };
+                setSelectValue('camera-angle-select', state.camera.angle);
+                setSelectValue('framing-select', state.camera.framing);
+                setSelectValue('lens-select', state.camera.lens);
+                setSelectValue('depth-select', state.camera.depth);
+                setSelectValue('aspect-select', state.camera.aspect);
+            }
+
+            if (preset.detailLevel) {
+                state.detailLevel = preset.detailLevel;
+                const range = document.getElementById('detail-range');
+                if (range) range.value = String(state.detailLevel);
+                updateDetailLabel(state.detailLevel);
+            }
+            if (preset.clutter) {
+                state.clutter = preset.clutter;
+                const clutterSelect = document.getElementById('clutter-select');
+                if (clutterSelect) clutterSelect.value = state.clutter;
+            }
+
+            if (typeof generatePalettePool === 'function') {
+                generatePalettePool();
+            }
         }
 
         function renderMaterialChips() {
@@ -1107,7 +1288,7 @@
 
         function generatePalettePool(applyFirst = false) {
             const baseHex = state.palette.primary || '#E5ADE0';
-            const mood = styleMoodMap[state.style] || 'realistic';
+            const mood = dimensionMoodMap[state.dimension] || 'realistic';
             const pool = Array.from({ length: 12 }, (_, index) => {
                 const delta = (Math.random() - 0.5) * 80 + index * 4;
                 const primaryHex = shiftHexHue(baseHex, delta);
@@ -1158,7 +1339,8 @@
         }
 
         function randomizeScene() {
-            state.style = randomItem(styleOptions).value;
+            state.dimension = randomItem(dimensionOptions).value;
+            state.visualStyle = '';
             const tipo = randomItem(AMBIENTE_DATA.tipoAmbiente);
             state.tipoAmbiente = tipo || '';
             const locals = getLocalOptions(state.tipoAmbiente);
@@ -1182,7 +1364,7 @@
             state.paletteHarmony = harmonyChoice?.value || 'complementar';
             state.paletteHarmonyScheme = '';
 
-            const paletteMoodKey = styleMoodMap[state.style] || 'realistic';
+            const paletteMoodKey = dimensionMoodMap[state.dimension] || 'realistic';
             const palette = generatePalette9({
                 primaryHex: randomHexColor(),
                 harmony: randomItem(harmonyChoices),
@@ -1210,7 +1392,8 @@
             const normalized = recalcAll(state);
             Object.assign(state, normalized);
 
-            renderStyleGrid();
+            renderDimensionGrid();
+            renderVisualStyleSelect();
             renderAmbientControls();
             renderMaterialChips();
             renderSceneElements();
@@ -1322,8 +1505,8 @@
         }
 
         function updatePrompt() {
-            const style = styleOptions.find(item => item.value === state.style);
-            const styleLabel = style?.label || 'Cena';
+            const dimension = dimensionOptions.find(item => item.value === state.dimension);
+            const dimensionLabel = dimension?.label || 'Cena';
             const environment = state.localEspecifico || state.tipoAmbiente || 'ambiente indefinido';
             const era = state.epocaHistorica || 'Presente';
             const atmosphere = state.climaCondicao || 'atmosfera neutra';
@@ -1337,15 +1520,20 @@
             const paletteLine = `${paletteMood}, ${harmony}, primary ${describeColor(state.palette.primary)}, secondary ${describeColor(state.palette.secondary)}, accents ${describeColor(state.palette.accent)}`;
             const camera = state.camera;
             const aspectLabel = aspectRatios.find(item => item.value === (camera.aspect || '16:9'))?.label || camera.aspect;
-            const styleFlavor = state.style === 'realista'
+            const visualStyleOpt = visualStyleOptions.find(x => x.value === state.visualStyle);
+            const visualStyleLabel = visualStyleOpt?.label || '';
+            const visualPreset = state.visualStyle ? VISUAL_STYLE_PRESETS[state.visualStyle] : null;
+            const visualTraits = visualPreset?.promptTraits?.length ? visualPreset.promptTraits.join(', ') : '';
+            const visualLine = state.visualStyle ? `Visual style: ${visualStyleLabel} inspired, ${visualTraits}` : '';
+            const styleFlavor = state.dimension === 'realista'
                 ? 'cinematic photo-real render'
-                : state.style === '3d-cartoon'
+                : state.dimension === '3d-cartoon'
                     ? 'stylized 3D render with volumetric lighting'
                     : 'flat 2D illustration with bold color blocks';
             const cameraLine = `${camera.angle} angle, ${camera.framing}, ${camera.lens} lens, ${camera.depth}, aspect ratio ${aspectLabel}`;
 
             const blocks = [
-                `${styleLabel} background composition`,
+                `${dimensionLabel} background composition`,
                 `${environment} setting, época ${era}, atmosfera ${atmosphere}`,
                 `Lighting: ${lighting}`,
                 `Materials & textures: ${materials}`,
@@ -1353,13 +1541,14 @@
                 `Scene elements: ${elements}`,
                 `Palette: ${paletteLine}`,
                 `Camera: ${cameraLine}`,
+                ...(visualLine ? [visualLine] : []),
                 `Quality: ultra-detailed, ${styleFlavor}, cinematic grading, 8K`
             ];
 
             const positivePrompt = blocks.join(',\n\n');
             const negativePrompt = 'personagens, pessoas, texto, watermark, baixa resolução, borrado, artefatos, overpainted';
             let promptText = `${positivePrompt}\n\nNegative prompt:\n${negativePrompt}`;
-            promptText = injectBasePreset(promptText, state.style);
+            promptText = injectBasePreset(promptText, state.dimension);
             document.getElementById('prompt-output').value = promptText;
         }
 
