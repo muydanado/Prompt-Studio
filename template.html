@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spaceship Prompt Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #050505;
+            --card-bg: #0f0f0f;
+            --panel-border: #1f1f1f;
+            --accent: #DFE0E2;
+            --accent-dim: rgba(223, 224, 226, 0.12);
+            --text-main: #e5e5e5;
+            --text-muted: #737373;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+        .dark-panel {
+            background-color: var(--card-bg);
+            border: 1px solid var(--panel-border);
+            transition: border-color 0.2s ease;
+        }
+        .dark-panel:hover {
+            border-color: #333;
+        }
+
+        .option-card {
+            background-color: #0a0a0a;
+            border: 1px solid var(--panel-border);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            text-align: left;
+        }
+        .option-card:hover {
+            transform: translateY(-2px);
+            border-color: #444;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+        .option-card.selected {
+            border-color: var(--accent);
+            background-color: var(--accent-dim);
+            box-shadow: 0 0 0 1px var(--accent);
+        }
+
+        select, input[type="text"], input[type="color"], textarea {
+            background-color: #0a0a0a;
+            border: 1px solid var(--panel-border);
+            color: var(--text-main);
+            transition: border-color 0.2s;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .section-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .section-title i {
+            color: var(--accent);
+        }
+
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: var(--accent);
+            color: #fff;
+            text-align: center;
+            border-radius: 4px;
+            padding: 12px 16px;
+            position: fixed;
+            z-index: 50;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            opacity: 0;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: opacity 0.3s, bottom 0.3s;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+            bottom: 50px;
+        }
+
+        .label-pill {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #888;
+        }
+
+        button.primary-btn {
+            background: linear-gradient(135deg, rgba(229, 173, 224, 0.25), rgba(229, 173, 224, 0.5));
+            border: 1px solid var(--accent);
+            color: #fff;
+        }
+
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center pb-20">
+
+    <header class="w-full border-b border-[#1f1f1f] bg-black/80 backdrop-blur-md z-20 sticky top-0">
+        <div class="w-full max-w-7xl mx-auto px-6 py-4 flex items-center gap-4 justify-start">
+            <div class="w-3 h-8 bg-[#DFE0E2] rounded-sm shadow-[0_0_15px_rgba(223,224,226,0.5)]"></div>
+            <div>
+                <h1 class="text-xl font-bold tracking-tight text-white">SPACESHIP PROMPT <span class="text-[#DFE0E2] font-light">STUDIO</span></h1>
+                <p class="text-[10px] text-[#555] uppercase tracking-[0.2em]">Naves Espaciais e Veículos Sci-Fi</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="w-full mt-8">
+        <div class="w-full max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div class="lg:col-span-7 space-y-6">
+
+            </div>
+
+        <div class="lg:col-span-5 space-y-6 lg:sticky lg:top-6 lg:self-start">
+            <div class="dark-panel p-5 rounded-lg flex flex-col gap-4">
+                <div class="flex items-center justify-between">
+                    <div class="section-title">
+                        <i class="fa-solid fa-terminal icon-highlight"></i> Prompt Final
+                    </div>
+                    <button type="button" class="text-[11px] tracking-[0.3em] uppercase flex items-center gap-1 rounded-md border border-transparent px-3 py-1 text-white/70 hover:text-white hover:border-[#DFE0E2] transition-colors" onclick="randomize()">
+                        <i class="fa-solid fa-dice"></i> Random
+                    </button>
+                </div>
+                <textarea id="prompt-output" rows="16" class="w-full text-xs font-mono leading-relaxed rounded p-4 resize-none" readonly></textarea>
+                <div class="flex items-center justify-between">
+                    <button class="px-4 py-2 rounded-md text-[12px] font-semibold primary-btn" type="button" onclick="copyToClipboard()">Copiar Prompt</button>
+                    <span class="text-[11px] text-gray-400 uppercase tracking-[0.2em]">Atualizado em tempo real</span>
+                </div>
+            </div>
+            <div class="dark-panel p-5 rounded-lg space-y-3">
+                <div class="section-title">
+                    <i class="fa-solid fa-info-circle icon-highlight"></i> Dicas rápidas
+                </div>
+                <p class="text-[12px] text-gray-400 leading-relaxed">
+                    Combine o tipo de nave, facção e detalhes para criar designs únicos. Use a câmera para dar um tom cinematográfico.
+                </p>
+                <ul class="text-[11px] space-y-1 text-gray-500">
+                    <li>• Para naves de exploração, use formas mais suaves e cores claras.</li>
+                    <li>• Para naves de guerra, use designs angulares e cores escuras.</li>
+                    <li>• Adicione "desgaste" ou "condição" para mais realismo.</li>
+                </ul>
+            </div>
+        </div>
+        </div>
+    </main>
+
+    <div id="toast" class="toast">Prompt copiado!</div>
+
+    <script>
+        // Data for the prompt generator
+        const data = {
+            ship_type: ["Caça", "Bombardeiro", "Cargueiro", "Corveta", "Fragata", "Cruzador", "Destroyer", "Nave de exploração", "Nave de colonização", "Estação espacial móvel"],
+            faction: ["Império Galáctico", "Aliança Rebelde", "Federação Unida", "Corporação Mercante", "Piratas espaciais", "Civilização antiga", "Raça biomecânica", "Frota nômade"],
+            design_style: ["Angular e agressivo", "Curvo e elegante", "Assimétrico e exótico", "Modular e funcional", "Retrofuturista", "Orgânico e vivo"],
+            primary_material: ["Titânio polido", "Fibra de carbono escura", "Cerâmica branca", "Liga metálica desconhecida", "Biomaterial orgânico", "Cristal energético"],
+            condition: ["Novo em folha", "Levemente desgastado", "Com marcas de batalha", "Antigo e enferrujado", "Customizado com modificações visíveis"],
+            camera_angle: ["visão lateral", "visão frontal", "visão traseira", "close-up em detalhes", "ângulo baixo (low angle)", "ângulo alto (high angle)"],
+            lighting: ["Luz solar direta", "Iluminação de nebulosa", "Brilho de motores", "Luzes internas visíveis", "Sombreado por um planeta"],
+        };
+
+        // State object to hold the current selections
+        const state = {};
+
+        // Function to generate the prompt
+        function generatePrompt() {
+            const parts = [
+                `Uma nave espacial do tipo **${state.ship_type}**`,
+                `da facção **${state.faction}**`,
+                `com um design **${state.design_style}**`,
+                `feita de **${state.primary_material}**`,
+                `em condição **${state.condition}**`,
+                `vista de um **${state.camera_angle}**`,
+                `sob **${state.lighting}**.`
+            ];
+            const prompt = parts.filter(p => p.includes('**') && state[p.split('**')[0].split(' ').pop().slice(0,-1)]).join(", ");
+            document.getElementById("prompt-output").value = prompt;
+        }
+
+        // Function to create a section
+        function createSection(title, key, options) {
+            const parentDiv = document.querySelector(".lg\\:col-span-7");
+            const section = document.createElement("div");
+            section.className = "dark-panel p-5 rounded-lg";
+            section.dataset.sectionKey = key;
+            const sectionTitle = document.createElement("div");
+            sectionTitle.className = "section-title";
+            sectionTitle.innerHTML = `<i class="fa-solid fa-rocket icon-highlight"></i> ${title}`;
+            section.appendChild(sectionTitle);
+
+            const grid = document.createElement("div");
+            grid.className = "grid grid-cols-2 md:grid-cols-3 gap-3";
+
+            options.forEach(option => {
+                const button = document.createElement("button");
+                button.className = "option-card p-3 text-[11px]";
+                button.textContent = option;
+                button.onclick = () => {
+                    state[key] = option;
+                    // Remove 'selected' from all buttons in this section
+                    const allButtons = section.querySelectorAll('.option-card');
+                    allButtons.forEach(btn => btn.classList.remove('selected'));
+                    // Add 'selected' to the clicked button
+                    button.classList.add('selected');
+                    generatePrompt();
+                };
+                grid.appendChild(button);
+            });
+
+            section.appendChild(grid);
+            parentDiv.appendChild(section);
+        }
+
+        // Function to randomize all selections
+        function randomize() {
+            for (const key in data) {
+                const options = data[key];
+                const randomOption = options[Math.floor(Math.random() * options.length)];
+                state[key] = randomOption;
+            }
+
+            // Update UI to reflect randomized state
+            const sections = document.querySelectorAll('.lg\\:col-span-7 .dark-panel');
+            sections.forEach(section => {
+                const key = section.dataset.sectionKey;
+                if (key && state[key]) {
+                    const allButtons = section.querySelectorAll('.option-card');
+                    allButtons.forEach(btn => btn.classList.remove('selected'));
+                    const selectedButton = Array.from(allButtons).find(btn => btn.textContent === state[key]);
+                    if (selectedButton) {
+                        selectedButton.classList.add('selected');
+                    }
+                }
+            });
+            generatePrompt();
+        }
+
+        function copyToClipboard() {
+            const textarea = document.getElementById('prompt-output');
+            textarea.select();
+            textarea.setSelectionRange(0, 99999);
+            document.execCommand('copy');
+            showToast();
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+
+        // Initialize the UI
+        document.addEventListener("DOMContentLoaded", () => {
+            Object.keys(data).forEach(key => {
+                const title = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                createSection(title, key, data[key]);
+            });
+            randomize(); // Start with a random prompt
+        });
+    </script>
+</body>
+</html>

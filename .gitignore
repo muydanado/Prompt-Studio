@@ -1,3 +1,9 @@
 .vercel
 .env*.local
 save-files/
+backup/
+*.zip
+*.pdf
+*.py
+*backup*
+old.html
