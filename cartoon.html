@@ -1209,7 +1209,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
                     'watermark'
                 ].join(', ')
             },
-             {
+            {
                 id: 'vector',
                 label: 'Cartoon Vetorial',
                 dimension: '2D',
@@ -1219,6 +1219,158 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
                 backgroundTokens: ['simple gradient background'],
                 qualityTokens: ['sharp vector lines'],
                 negativePrompt: 'sketchy, textured, 3d, photographic'
+            },
+            {
+                id: 'burton',
+                label: 'Tim Burton (Burtonesco)',
+                dimension: '2D',
+                styleValue: 'burtonesque gothic whimsical cartoon style, German Expressionism influence, elongated pale characters, big melancholic eyes, elegant thin limbs, spooky-cute vibe, macabre humor and poetic sadness',
+                styleTokens: [
+                    'high contrast lighting',
+                    'sharp silhouettes',
+                    'hand-drawn ink lines',
+                    'slightly scratchy linework',
+                    'dark desaturated palette with vibrant accents',
+                    'foggy atmosphere',
+                    'crooked architecture',
+                    'dreamlike gothic set design'
+                ],
+                cameraTokens: ['dramatic rim light', 'moody shadows', 'vignette'],
+                backgroundTokens: ['twisted gothic town', 'expressionist angled buildings', 'mist and moonlight'],
+                qualityTokens: ['clean line clarity', 'strong graphic shapes'],
+                negativePrompt: [
+                    'pixar',
+                    'disney',
+                    'anime',
+                    'chibi',
+                    'kawaii',
+                    'super deformed',
+                    'bright cheerful palette',
+                    'muscular body',
+                    'chubby body',
+                    'short neck',
+                    'baby face',
+                    'photorealistic',
+                    '3d render',
+                    'cgi',
+                    'unreal engine',
+                    'blender',
+                    'skin pores',
+                    'realistic hair strands',
+                    'watermark',
+                    'text'
+                ].join(', ')
+            },
+            {
+                id: 'burton_3d_render',
+                label: 'Tim Burton (Burtonesco) — 3D Render',
+                dimension: '3D',
+                styleValue: 'burtonesque gothic whimsical stylized 3D render, German Expressionism influence, elongated pale characters, big melancholic eyes, elegant thin limbs, moody carnival lighting, cinematic polish',
+                styleTokens: [
+                    'soft subsurface scattering',
+                    'dramatic rim light',
+                    'glossy gradients',
+                    'polished edges',
+                    'expressive shadows',
+                    'soft studio bounce fill'
+                ],
+                cameraTokens: ['dramatic rim light', 'moody shadows', 'cinematic depth'],
+                backgroundTokens: ['twisted gothic town', 'expressionist angled buildings', 'mist and moonlight'],
+                qualityTokens: ['highly detailed render', 'film-quality polish', 'strong graphic shapes'],
+                negativePrompt: [
+                    'stop-motion film still',
+                    'handcrafted puppet look',
+                    'clay / latex materials',
+                    'visible seams and stitches',
+                    'miniature set realism',
+                    'tilt-shift feel'
+                ].join(', ')
+            },
+            {
+                id: 'burton_3d_stopmotion',
+                label: 'Tim Burton (Burtonesco) — 3D Stop-Motion',
+                dimension: '3D',
+                styleValue: 'Tim Burton stop-motion puppet style, gothic whimsical stop-motion, German Expressionism influence, elongated pale characters, oversized head, big melancholic eyes, ultra long thin neck, elegant thin limbs, spooky-cute vibe, macabre humor and poetic sadness, handcrafted miniature set',
+                styleTokens: [
+                    'stop-motion film still',
+                    'handcrafted puppet look',
+                    'clay / latex materials',
+                    'fabric clothing texture',
+                    'visible seams and stitches',
+                    'slightly uneven handmade surfaces',
+                    'matte skin, no realism',
+                    'crooked expressionist proportions',
+                    'miniature set realism',
+                    'tilt-shift feel',
+                    'shallow depth of field',
+                    'foggy atmosphere',
+                    'crooked architecture',
+                    'dark desaturated palette with vibrant accents'
+                ],
+                cameraTokens: [
+                    'low-key cinematic lighting',
+                    'practical lights, candlelight glow',
+                    'soft falloff shadows',
+                    'subtle rim light only',
+                    'macro / miniature depth cues',
+                    'stop-motion film still framing',
+                    'slight vignette'
+                ],
+                backgroundTokens: [
+                    'miniature gothic town set',
+                    'expressionist angled buildings',
+                    'crooked rooftops and twisted silhouettes',
+                    'mist and moonlight',
+                    'tiny practical lanterns and windows glow'
+                ],
+                qualityTokens: [
+                    'stop-motion film still',
+                    'handcrafted puppet realism',
+                    'strong graphic shapes',
+                    'print-friendly contrast'
+                ],
+                negativePrompt: [
+                    'photorealistic',
+                    'photo',
+                    'photography',
+                    'DSLR',
+                    'real world lighting',
+                    'beauty lighting',
+                    'softbox',
+                    'studio lighting',
+                    'hyper realistic',
+                    'ultra detailed',
+                    '8k',
+                    'UHD',
+                    'HDR',
+                    'skin pores',
+                    'wrinkles',
+                    'freckles',
+                    'realistic human skin',
+                    'realistic hair strands',
+                    'flyaway hair',
+                    'iris texture',
+                    'sclera veins',
+                    'eye reflections',
+                    'perfect symmetry',
+                    'clean CGI',
+                    'digital polish',
+                    'pixar',
+                    'disney',
+                    'anime',
+                    'chibi',
+                    'kawaii',
+                    'muscular body',
+                    'chubby body',
+                    'short neck',
+                    'uncanny valley',
+                    '3d scan',
+                    'photogrammetry',
+                    'watermark',
+                    'logo',
+                    'signature',
+                    'text'
+                ].join(', ')
             },
             {
                 id: '90s',
@@ -1663,6 +1815,27 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
             mouth: new Set(['tongue', 'open', 'pout'])
         };
 
+        function isBurtonActive(state) {
+            const s = state || getState();
+            return s && (
+                s.presetId === 'burton' ||
+                s.presetId === 'burton_3d_render' ||
+                s.presetId === 'burton_3d_stopmotion'
+            );
+        }
+
+        const BURTON_ALLOWED = {
+            bodyShape: new Set(['slender']),
+            shape: new Set(['rectangle', 'teardrop', 'triangle_down', 'asymmetric']),
+            eyeShape: new Set(['droopy', 'slanted', 'vertical', 'wide', 'angular']),
+            eyeExpression: new Set(['neutral', 'tired', 'sad', 'bored', 'suspicious']),
+            mouth: new Set(['thin', 'neutral', 'frown', 'beak', 'smile', 'open', 'teeth'])
+        };
+
+        const BURTON_BLOCKED = {
+            bodyShape: new Set(['muscular', 'chubby', 'curvy', 'pear', 'petite', 'blocky', 'chibi', 'bean', 'heavy_top', 'headshot'])
+        };
+
         function isOptionAllowed(kind, optionValueOrId, state) {
             const currentState = state || getState();
             if (isMoebiusActive(currentState)) {
@@ -1671,6 +1844,18 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
                 const blockedSet = MOEBIUS_BLOCKED[kind];
                 if (blockedSet && blockedSet.has(id)) return false;
                 if (allowedSet) return allowedSet.has(id);
+            }
+            if (isBurtonActive(currentState)) {
+                const id = (optionValueOrId || '').toString();
+                const allowedSet = BURTON_ALLOWED[kind];
+                const blockedSet = BURTON_BLOCKED[kind];
+
+                if (blockedSet && blockedSet.has(id)) return false;
+                if (allowedSet) return allowedSet.has(id);
+
+                if (kind === 'feature') {
+                    return true;
+                }
             }
             if (kind === 'feature') {
                 if (state.isChild) {
@@ -1735,6 +1920,18 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
                     if (label) label.classList.remove('opacity-30', 'pointer-events-none');
                 }
             });
+
+            // --- Burton: "long neck" sempre ON e travado ---
+            if (isBurtonActive(state)) {
+                document.querySelectorAll('.feature-check').forEach(cb => {
+                    if ((cb.value || '').toLowerCase() === 'long neck') {
+                        cb.checked = true;
+                        cb.disabled = true;
+                        const label = cb.closest('label');
+                        if (label) label.classList.add('opacity-80');
+                    }
+                });
+            }
 
             const exprCards = document.querySelectorAll('#eye-expression-grid .option-card');
             let firstAllowedCard = null;
@@ -2436,6 +2633,32 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
                     if (value.includes('chubby cheeks') || value.includes('dimples')) {
                         cb.checked = false;
                     }
+                });
+
+                refreshAvailability();
+                updatePrompt();
+                return;
+            }
+
+            if (preset.id === 'burton' || preset.id === 'burton_3d_render' || preset.id === 'burton_3d_stopmotion') {
+                const desiredDim = preset.dimension;
+                const dimInput = document.querySelector(`input[name="dimension"][value="${desiredDim}"]`);
+                if (dimInput && !dimInput.checked) {
+                    dimInput.checked = true;
+                    updateStyleOptions();
+                    return;
+                }
+
+                const state = getState();
+
+                ensureValidSelection('bodyShape', state.bodyShapeId, Array.from(BURTON_ALLOWED.bodyShape), 'slender');
+                ensureValidSelection('shape', state.shapeId, Array.from(BURTON_ALLOWED.shape), 'rectangle');
+                ensureValidSelection('eyeShape', state.eyeShapeId, Array.from(BURTON_ALLOWED.eyeShape), 'droopy');
+                ensureValidSelection('eyeExpression', state.eyeExpressionId, Array.from(BURTON_ALLOWED.eyeExpression), 'tired');
+                ensureValidSelection('mouth', state.mouthId, Array.from(BURTON_ALLOWED.mouth), 'thin');
+
+                document.querySelectorAll('.feature-check').forEach(cb => {
+                    if ((cb.value || '').toLowerCase() === 'long neck') cb.checked = true;
                 });
 
                 refreshAvailability();
