@@ -12,19 +12,21 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400&display=swap"
+        rel="stylesheet">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-
         :root {
 
             --bg-dark: #0a0a0a;
 
             --card-bg: #141414;
 
-            --accent: #E600DF; /* Red accent from reference */
+            --accent: #E600DF;
+            /* Red accent from reference */
 
             --text-gray: #a3a3a3;
 
@@ -52,13 +54,22 @@
 
         /* Scrollbar customizada */
 
-        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
 
-        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
 
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
 
-        ::-webkit-scrollbar-thumb:hover { background: #555; }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
 
 
 
@@ -74,13 +85,14 @@
 
         }
 
-        
+
 
         /* Option Card Styles */
 
         .option-card {
 
-            background-color: #000; /* Darker than panel */
+            background-color: #000;
+            /* Darker than panel */
 
             border: 1px solid var(--border-color);
 
@@ -100,7 +112,7 @@
 
             border-color: #555;
 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 
         }
 
@@ -108,25 +120,26 @@
 
             border-color: var(--accent);
 
-            background-color: #1a1111; /* Slight red tint dark bg */
+            background-color: #1a1111;
+            /* Slight red tint dark bg */
 
         }
 
-            .option-card.selected svg {
+        .option-card.selected svg {
 
-                color: var(--accent);
+            color: var(--accent);
 
-            }
+        }
 
 
 
-            /* Make all Font Awesome icons match the accent */
+        /* Make all Font Awesome icons match the accent */
 
-            i[class*="fa-"] {
+        i[class*="fa-"] {
 
-                color: var(--accent);
+            color: var(--accent);
 
-            }
+        }
 
 
 
@@ -138,7 +151,8 @@
 
             height: 40px;
 
-            border-radius: 9999px; /* Pill shape */
+            border-radius: 9999px;
+            /* Pill shape */
 
             cursor: pointer;
 
@@ -166,7 +180,7 @@
 
         }
 
-        
+
 
         /* Custom Inputs */
 
@@ -228,7 +242,7 @@
 
             transition: opacity 0.3s, bottom 0.3s;
 
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
 
         }
 
@@ -241,9 +255,6 @@
             bottom: 50px;
 
         }
-
-
-
     </style>
 
 </head>
@@ -262,7 +273,8 @@
 
             <div>
 
-                <h1 class="text-xl font-bold tracking-tight text-white">CARTOON ANIMAL PROMPT <span class="text-[#E600DF] font-light">STUDIO</span></h1>
+                <h1 class="text-xl font-bold tracking-tight text-white">CARTOON ANIMAL PROMPT <span
+                        class="text-[#E600DF] font-light">STUDIO</span></h1>
 
                 <p class="text-[10px] text-gray-400 uppercase tracking-[0.3em] mt-1">Anthropomorphic animals creator</p>
 
@@ -280,245 +292,58 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-        
+
 
                 <!-- Controls Section -->
 
                 <div class="lg:col-span-7 space-y-6">
 
-            
 
-             <!-- Dimension Switch -->
 
-            <div class="dark-panel p-5 rounded-lg">
+                    <!-- Dimension Switch -->
 
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <div class="dark-panel p-5 rounded-lg">
 
-                    <i class="fa-solid fa-cube text-white"></i> Dimensão
+                        <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
 
-                </h3>
+                            <i class="fa-solid fa-cube text-white"></i> Dimensão
 
-                <div class="flex gap-4">
+                        </h3>
 
-                    <label class="flex-1 cursor-pointer group">
+                        <div class="flex gap-4">
 
-                        <input type="radio" name="dimension" value="2D" class="peer sr-only" checked onchange="updateStyleOptions()">
+                            <label class="flex-1 cursor-pointer group">
 
-                        <div class="p-4 rounded-lg border border-[#262626] bg-black peer-checked:border-[#E600DF] peer-checked:bg-[#E600DF]/10 flex items-center justify-center gap-3 transition-all group-hover:border-gray-600">
+                                <input type="radio" name="dimension" value="2D" class="peer sr-only" checked
+                                    onchange="updateStyleOptions()">
 
-                            <i class="fa-solid fa-pen-nib text-xl text-gray-400 peer-checked:text-[#E600DF]"></i>
+                                <div
+                                    class="p-4 rounded-lg border border-[#262626] bg-black peer-checked:border-[#E600DF] peer-checked:bg-[#E600DF]/10 flex items-center justify-center gap-3 transition-all group-hover:border-gray-600">
 
-                            <span class="font-semibold text-sm text-gray-300 peer-checked:text-white">2D Flat / Vetor</span>
+                                    <i
+                                        class="fa-solid fa-pen-nib text-xl text-gray-400 peer-checked:text-[#E600DF]"></i>
 
-                        </div>
+                                    <span class="font-semibold text-sm text-gray-300 peer-checked:text-white">2D Flat /
+                                        Vetor</span>
 
-                    </label>
-
-                    <label class="flex-1 cursor-pointer group">
-
-                        <input type="radio" name="dimension" value="3D" class="peer sr-only" onchange="updateStyleOptions()">
-
-                        <div class="p-4 rounded-lg border border-[#262626] bg-black peer-checked:border-[#E600DF] peer-checked:bg-[#E600DF]/10 flex items-center justify-center gap-3 transition-all group-hover:border-gray-600">
-
-                            <i class="fa-solid fa-cubes text-xl text-gray-400 peer-checked:text-[#E600DF]"></i>
-
-                            <span class="font-semibold text-sm text-gray-300 peer-checked:text-white">3D Render</span>
-
-                        </div>
-
-                    </label>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- Style Modifiers -->
-
-            <div class="dark-panel p-5 rounded-lg">
-
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-
-                    <i class="fa-solid fa-palette text-white"></i> Estilo Artístico
-
-                </h3>
-
-                <div class="relative">
-
-                    <select id="art-style" class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 focus:border-[#E600DF] focus:outline-none transition-colors appearance-none cursor-pointer" onchange="applyPreset(this.value)">
-
-                        <!-- Javascript will populate this -->
-
-                    </select>
-
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-
-                        <i class="fa-solid fa-chevron-down text-xs"></i>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- Gender Selector -->
-
-            <div class="dark-panel p-5 rounded-lg">
-
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-
-                    <i class="fa-solid fa-venus-mars text-white"></i> Género
-
-                </h3>
-
-            <div class="grid grid-cols-3 sm:grid-cols-5 gap-3" id="gender-grid">
-
-                <!-- Javascript will populate this -->
-
-            </div>
-
-        </div>
-
-
-
-            <!-- Animal Species Selector -->
-
-            <div class="dark-panel p-5 rounded-lg">
-
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-2 flex items-center gap-2">
-
-                    <i class="fa-solid fa-paw text-white"></i> Espécie Animal
-
-                </h3>
-
-                <p class="text-[11px] text-gray-500 mb-3">Escolha o arquétipo animal antropomórfico e seu tom visual.</p>
-
-                <div class="grid grid-cols-3 sm:grid-cols-5 gap-3" id="species-grid">
-
-                    <!-- Javascript will populate this -->
-
-                </div>
-
-            </div>
-
-
-
-            <!-- Body Shape Selector -->
-
-            <div class="dark-panel p-5 rounded-lg">
-
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-
-                    <i class="fa-solid fa-child-reaching text-white"></i> Formato do Corpo
-
-                </h3>
-
-            <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="body-shape-grid">
-
-                <!-- Javascript will populate this -->
-
-            </div>
-
-        </div>
-
-
-
-            <!-- Fur / Textura -->
-
-            <div class="dark-panel p-5 rounded-lg">
-
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-2 flex items-center gap-2">
-
-                    <i class="fa-solid fa-feather text-white"></i> Pelagem / Textura
-
-                </h3>
-
-                <p class="text-[11px] text-gray-500 mb-3">Defina o padrão de pelo/penas para reforçar o visual animal.</p>
-
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="fur-grid">
-
-                    <!-- Javascript will populate this -->
-
-                </div>
-
-            </div>
-
-
-
-            <!-- Pose Selector -->
-
-            <!-- Consistency Toggle -->
-
-            <div class="dark-panel p-5 rounded-lg">
-
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-
-                    <i class="fa-solid fa-shield-halved text-white"></i> Consistência (mesmo personagem)
-
-                </h3>
-
-                <label class="flex items-center space-x-3 text-sm text-gray-300">
-
-                    <input type="checkbox" id="consistency-toggle" class="w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" onchange="toggleConsistency(this.checked)">
-
-                    <span>Forçar consistência de identidade</span>
-
-                </label>
-
-            </div>
-
-
-
-            <!-- Blueprint Mode -->
-
-            <div class="dark-panel p-5 rounded-lg">
-
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-
-                    <i class="fa-solid fa-drafting-compass text-white"></i> Blueprint (estudio)
-
-                </h3>
-
-                <div class="flex flex-col gap-3">
-
-                    <label class="flex items-center space-x-3 text-sm text-gray-300">
-
-                        <input type="checkbox" id="blueprint-toggle" class="w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" onchange="toggleBlueprint(this.checked)">
-
-                        <span>Ativar blueprint de proporcoes</span>
-
-                    </label>
-
-                    <div class="flex flex-col sm:flex-row gap-3 sm:items-center">
-
-                        <span class="text-xs text-gray-400 uppercase tracking-wide">Formato</span>
-
-                        <div class="flex gap-3 text-xs text-gray-300">
-
-                            <label class="flex items-center gap-2 cursor-pointer">
-
-                                <input type="radio" name="blueprint-view" value="single" checked class="w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" onchange="selectBlueprintView(this.value)">
-
-                                Single view
+                                </div>
 
                             </label>
 
-                            <label class="flex items-center gap-2 cursor-pointer">
+                            <label class="flex-1 cursor-pointer group">
 
-                                <input type="radio" name="blueprint-view" value="turnaround" class="w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" onchange="selectBlueprintView(this.value)">
+                                <input type="radio" name="dimension" value="3D" class="peer sr-only"
+                                    onchange="updateStyleOptions()">
 
-                                3-view turnaround
+                                <div
+                                    class="p-4 rounded-lg border border-[#262626] bg-black peer-checked:border-[#E600DF] peer-checked:bg-[#E600DF]/10 flex items-center justify-center gap-3 transition-all group-hover:border-gray-600">
 
-                            </label>
+                                    <i class="fa-solid fa-cubes text-xl text-gray-400 peer-checked:text-[#E600DF]"></i>
 
-                            <label class="flex items-center gap-2 cursor-pointer">
+                                    <span class="font-semibold text-sm text-gray-300 peer-checked:text-white">3D
+                                        Render</span>
 
-                                <input type="radio" name="blueprint-view" value="expressions" class="w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" onchange="selectBlueprintView(this.value)">
-
-                                Expression sheet
+                                </div>
 
                             </label>
 
@@ -526,407 +351,30 @@
 
                     </div>
 
-                </div>
 
-            </div>
 
+                    <!-- Style Modifiers -->
 
+                    <div class="dark-panel p-5 rounded-lg">
 
+                        <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
 
+                            <i class="fa-solid fa-palette text-white"></i> Estilo Artístico
 
-            <div class="dark-panel p-5 rounded-lg">
-
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-
-                    <i class="fa-solid fa-person-running text-white"></i> Acao / Pose
-
-                    <button type="button" data-lock-btn="action" onclick="toggleLock('action')" class="ml-auto text-[10px] text-gray-400 hover:text-white border border-[#262626] px-2 py-1 rounded">LOCK</button>
-
-                </h3>
-
-                <div class="space-y-3">
-
-                    <select id="pose-select" class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 text-sm focus:border-[#E600DF] focus:outline-none" onchange="selectPose(this.value)">
-
-                    </select>
-
-                    <label id="deadpan-contrast-row" class="flex items-center space-x-2 text-xs text-gray-400 hidden">
-
-                        <input type="checkbox" id="deadpan-dance-toggle" class="w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" onchange="toggleDeadpanDance(this.checked)">
-
-                        <span>Contraste intencional (danca deadpan)</span>
-
-                    </label>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- Skin Tone Selector -->
-
-            <div class="dark-panel p-5 rounded-lg">
-
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-
-                    <i class="fa-solid fa-droplet text-white"></i> Cor da Pele
-
-                </h3>
-
-                <div class="grid grid-cols-6 sm:grid-cols-8 gap-3" id="skin-grid">
-
-                    <!-- Javascript will populate this -->
-
-                </div>
-
-            </div>
-
-
-
-            <!-- Shape Selector -->
-
-            <div class="dark-panel p-5 rounded-lg">
-
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-
-                    <i class="fa-solid fa-draw-polygon text-white"></i> Formato Base (Cabeça)
-
-                    <button type="button" data-lock-btn="face" onclick="toggleLock('face')" class="ml-auto text-[10px] text-gray-400 hover:text-white border border-[#262626] px-2 py-1 rounded">LOCK</button>
-
-                </h3>
-
-                <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="shape-grid">
-
-                    <!-- Javascript will populate this -->
-
-                </div>
-
-            </div>
-
-            <!-- Features Checkbox -->
-
-            <div class="dark-panel p-5 rounded-lg">
-
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-
-                    <i class="fa-solid fa-sliders text-white"></i> Características
-
-                </h3>
-
-                <div class="grid grid-cols-4 gap-3">
-
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
-
-                        <input type="checkbox" class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="strong jawline" onchange="updatePrompt()">
-
-                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Maxilar Forte</span>
-
-                    </label>
-
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
-
-                        <input type="checkbox" class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="pointed chin" onchange="updatePrompt()">
-
-                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Queixo Pontudo</span>
-
-                    </label>
-
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
-
-                        <input type="checkbox" class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="chubby cheeks" onchange="updatePrompt()">
-
-                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Bochechas</span>
-
-                    </label>
-
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
-
-                        <input type="checkbox" class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="long neck" onchange="updatePrompt()">
-
-                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Pescoço Longo</span>
-
-                    </label>
-
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
-
-                        <input type="checkbox" class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="high forehead" onchange="updatePrompt()">
-
-                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Testa Alta</span>
-
-                    </label>
-
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
-
-                        <input type="checkbox" class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="prominent ears" onchange="updatePrompt()">
-
-                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Orelhas Grandes</span>
-
-                    </label>
-
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
-
-                        <input type="checkbox" class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="freckles" onchange="updatePrompt()">
-
-                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Sardas</span>
-
-                    </label>
-
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
-
-                        <input type="checkbox" class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="facial scar" onchange="updatePrompt()">
-
-                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Cicatriz</span>
-
-                    </label>
-
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
-
-                        <input type="checkbox" class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="dimples" onchange="updatePrompt()">
-
-                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Covinhas</span>
-
-                    </label>
-
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
-
-                        <input type="checkbox" class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="wrinkles, aged skin" onchange="updatePrompt()">
-
-                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Rugas</span>
-
-                    </label>
-
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
-
-                        <input type="checkbox" class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="beauty mark, mole" onchange="updatePrompt()">
-
-                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Sinal</span>
-
-                    </label>
-
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
-
-                        <input type="checkbox" class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="gap teeth" onchange="updatePrompt()">
-
-                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Dentes Separados</span>
-
-                    </label>
-
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
-
-                        <input type="checkbox" class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="bushy eyebrows" onchange="updatePrompt()">
-
-                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Sobrancelhas Grossas</span>
-
-                    </label>
-
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
-
-                        <input type="checkbox" class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="cleft chin" onchange="updatePrompt()">
-
-                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Queixo Furado</span>
-
-                    </label>
-
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
-
-                        <input type="checkbox" class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="face tattoo" onchange="updatePrompt()">
-
-                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Tatuagem</span>
-
-                    </label>
-
-                    <select id="beard-select" class="p-2 rounded border border-[#262626] bg-black text-gray-200 text-xs focus:border-[#E600DF] focus:outline-none" onchange="selectBeard(this.value)">
-
-                        <option value="">Sem barba</option>
-
-                        <option value="light stubble beard">Barba Rala</option>
-
-                        <option value="full beard">Barba Completa</option>
-
-                        <option value="goatee beard">Cavanhaque</option>
-
-                        <option value="mustache only">Apenas Bigode</option>
-
-                    </select>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- Hair Length Selector -->
-
-            <div class="dark-panel p-5 rounded-lg">
-
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-
-                    <i class="fa-solid fa-ruler-vertical text-white"></i> Cabelo: Comprimento
-
-                    <button type="button" data-lock-btn="hair" onclick="toggleLock('hair')" class="ml-auto text-[10px] text-gray-400 hover:text-white border border-[#262626] px-2 py-1 rounded">LOCK</button>
-
-                </h3>
-
-                <div class="grid grid-cols-4 gap-3" id="hair-length-grid">
-
-                    <!-- Javascript will populate this -->
-
-                </div>
-
-            </div>
-
-
-
-            <!-- Hair Style Selector -->
-
-            <div class="dark-panel p-5 rounded-lg" id="hair-style-panel">
-
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-
-                    <i class="fa-solid fa-scissors text-white"></i> Cabelo: Estilo
-
-                </h3>
-
-                <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="hair-style-grid">
-
-                    <!-- Javascript will populate this -->
-
-                </div>
-
-            </div>
-
-
-
-            <!-- Hair Color Selector (NEW) -->
-
-            <div class="dark-panel p-5 rounded-lg">
-
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-
-                    <i class="fa-solid fa-palette text-white"></i> Cabelo: Cor
-
-                </h3>
-
-                <div class="grid grid-cols-4 sm:grid-cols-8 gap-3" id="hair-color-grid">
-
-                    <!-- Javascript will populate this -->
-
-                </div>
-
-            </div>
-
-            <!-- Eye Shape Selector -->
-
-            <div class="dark-panel p-5 rounded-lg">
-
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-
-                    <i class="fa-regular fa-eye text-white"></i> Olhos: Formato
-
-                </h3>
-
-                <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="eye-shape-grid">
-
-                    <!-- Javascript will populate this -->
-
-                </div>
-
-            </div>
-
-
-
-            <!-- Eye Expression Selector -->
-
-            <div class="dark-panel p-5 rounded-lg" id="expression-panel">
-
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-
-                    <i class="fa-solid fa-face-smile text-white"></i> Olhos: Expressão
-
-                    <button type="button" data-lock-btn="expression" onclick="toggleLock('expression')" class="ml-auto text-[10px] text-gray-400 hover:text-white border border-[#262626] px-2 py-1 rounded">LOCK</button>
-
-                </h3>
-
-                <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="eye-expression-grid">
-
-                    <!-- Javascript will populate this -->
-
-                </div>
-
-            </div>
-
-
-
-            <!-- Nose Selector -->
-
-            <div class="dark-panel p-5 rounded-lg" id="nose-panel">
-
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-
-                    <i class="fa-solid fa-play text-white fa-rotate-270" style="font-size: 0.8em;"></i> Nariz
-
-                </h3>
-
-                <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="nose-grid">
-
-                    <!-- Javascript will populate this -->
-
-                </div>
-
-            </div>
-
-
-
-            <!-- Mouth Selector -->
-
-            <div class="dark-panel p-5 rounded-lg" id="mouth-panel">
-
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-
-                    <i class="fa-solid fa-lips text-white"></i> Boca
-
-                </h3>
-
-                <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="mouth-grid">
-
-                    <!-- Javascript will populate this -->
-
-                </div>
-
-            </div>
-
-
-
-            <!-- Vestuário -->
-
-            <div class="dark-panel p-5 rounded-lg">
-
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-
-                    <i class="fa-solid fa-shirt text-white"></i> Vestuário
-
-                    <button type="button" data-lock-btn="outfit" onclick="toggleLock('outfit')" class="ml-auto text-[10px] text-gray-400 hover:text-white border border-[#262626] px-2 py-1 rounded">LOCK</button>
-
-                </h3>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-                    <div class="space-y-2">
-
-                        <label class="text-xs text-gray-400 flex items-center gap-2">
-
-                            <span class="inline-flex w-5 h-5 items-center justify-center text-gray-300" id="icon-shirt"></span> Camisas
-
-                        </label>
+                        </h3>
 
                         <div class="relative">
 
-                            <select id="shirt-select" class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 focus:border-[#E600DF] focus:outline-none transition-colors appearance-none cursor-pointer" onchange="selectClothing('shirt', this.value)">
+                            <select id="art-style"
+                                class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 focus:border-[#E600DF] focus:outline-none transition-colors appearance-none cursor-pointer"
+                                onchange="applyPreset(this.value)">
+
+                                <!-- Javascript will populate this -->
 
                             </select>
 
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                            <div
+                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
 
                                 <i class="fa-solid fa-chevron-down text-xs"></i>
 
@@ -936,23 +384,160 @@
 
                     </div>
 
-                    <div class="space-y-2">
 
-                        <label class="text-xs text-gray-400 flex items-center gap-2">
 
-                            <span class="inline-flex w-5 h-5 items-center justify-center text-gray-300" id="icon-jacket"></span> Casacos
+                    <!-- Gender Selector -->
+
+                    <div class="dark-panel p-5 rounded-lg">
+
+                        <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+
+                            <i class="fa-solid fa-venus-mars text-white"></i> Género
+
+                        </h3>
+
+                        <div class="grid grid-cols-3 sm:grid-cols-5 gap-3" id="gender-grid">
+
+                            <!-- Javascript will populate this -->
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- Animal Species Selector -->
+
+                    <div class="dark-panel p-5 rounded-lg">
+
+                        <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-2 flex items-center gap-2">
+
+                            <i class="fa-solid fa-paw text-white"></i> Espécie Animal
+
+                        </h3>
+
+                        <p class="text-[11px] text-gray-500 mb-3">Escolha o arquétipo animal antropomórfico e seu tom
+                            visual.</p>
+
+                        <div class="grid grid-cols-3 sm:grid-cols-5 gap-3" id="species-grid">
+
+                            <!-- Javascript will populate this -->
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- Body Shape Selector -->
+
+                    <div class="dark-panel p-5 rounded-lg">
+
+                        <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+
+                            <i class="fa-solid fa-child-reaching text-white"></i> Formato do Corpo
+
+                        </h3>
+
+                        <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="body-shape-grid">
+
+                            <!-- Javascript will populate this -->
+
+                        </div>
+
+                    </div>
+
+
+
+
+
+
+
+                    <!-- Pose Selector -->
+
+                    <!-- Consistency Toggle -->
+
+                    <div class="dark-panel p-5 rounded-lg">
+
+                        <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+
+                            <i class="fa-solid fa-shield-halved text-white"></i> Consistência (mesmo personagem)
+
+                        </h3>
+
+                        <label class="flex items-center space-x-3 text-sm text-gray-300">
+
+                            <input type="checkbox" id="consistency-toggle"
+                                class="w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                onchange="toggleConsistency(this.checked)">
+
+                            <span>Forçar consistência de identidade</span>
 
                         </label>
 
-                        <div class="relative">
+                    </div>
 
-                            <select id="jacket-select" class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 focus:border-[#E600DF] focus:outline-none transition-colors appearance-none cursor-pointer" onchange="selectClothing('jacket', this.value)">
 
-                            </select>
 
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                    <!-- Blueprint Mode -->
 
-                                <i class="fa-solid fa-chevron-down text-xs"></i>
+                    <div class="dark-panel p-5 rounded-lg">
+
+                        <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+
+                            <i class="fa-solid fa-drafting-compass text-white"></i> Blueprint (estudio)
+
+                        </h3>
+
+                        <div class="flex flex-col gap-3">
+
+                            <label class="flex items-center space-x-3 text-sm text-gray-300">
+
+                                <input type="checkbox" id="blueprint-toggle"
+                                    class="w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                    onchange="toggleBlueprint(this.checked)">
+
+                                <span>Ativar blueprint de proporcoes</span>
+
+                            </label>
+
+                            <div class="flex flex-col sm:flex-row gap-3 sm:items-center">
+
+                                <span class="text-xs text-gray-400 uppercase tracking-wide">Formato</span>
+
+                                <div class="flex gap-3 text-xs text-gray-300">
+
+                                    <label class="flex items-center gap-2 cursor-pointer">
+
+                                        <input type="radio" name="blueprint-view" value="single" checked
+                                            class="w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                            onchange="selectBlueprintView(this.value)">
+
+                                        Single view
+
+                                    </label>
+
+                                    <label class="flex items-center gap-2 cursor-pointer">
+
+                                        <input type="radio" name="blueprint-view" value="turnaround"
+                                            class="w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                            onchange="selectBlueprintView(this.value)">
+
+                                        3-view turnaround
+
+                                    </label>
+
+                                    <label class="flex items-center gap-2 cursor-pointer">
+
+                                        <input type="radio" name="blueprint-view" value="expressions"
+                                            class="w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                            onchange="selectBlueprintView(this.value)">
+
+                                        Expression sheet
+
+                                    </label>
+
+                                </div>
 
                             </div>
 
@@ -960,23 +545,598 @@
 
                     </div>
 
-                    <div class="space-y-2">
 
-                        <label class="text-xs text-gray-400 flex items-center gap-2">
 
-                            <span class="inline-flex w-5 h-5 items-center justify-center text-gray-300" id="icon-pants"></span> Calças
 
-                        </label>
 
-                        <div class="relative">
+                    <div class="dark-panel p-5 rounded-lg">
 
-                            <select id="pants-select" class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 focus:border-[#E600DF] focus:outline-none transition-colors appearance-none cursor-pointer" onchange="selectClothing('pants', this.value)">
+                        <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+
+                            <i class="fa-solid fa-person-running text-white"></i> Acao / Pose
+
+                            <button type="button" data-lock-btn="action" onclick="toggleLock('action')"
+                                class="ml-auto text-[10px] text-gray-400 hover:text-white border border-[#262626] px-2 py-1 rounded">LOCK</button>
+
+                        </h3>
+
+                        <div class="space-y-3">
+
+                            <select id="pose-select"
+                                class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 text-sm focus:border-[#E600DF] focus:outline-none"
+                                onchange="selectPose(this.value)">
 
                             </select>
 
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                            <label id="deadpan-contrast-row"
+                                class="flex items-center space-x-2 text-xs text-gray-400 hidden">
 
-                                <i class="fa-solid fa-chevron-down text-xs"></i>
+                                <input type="checkbox" id="deadpan-dance-toggle"
+                                    class="w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                    onchange="toggleDeadpanDance(this.checked)">
+
+                                <span>Contraste intencional (danca deadpan)</span>
+
+                            </label>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- Skin Tone Selector -->
+
+                    <div class="dark-panel p-5 rounded-lg">
+
+                        <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+
+                            <i class="fa-solid fa-droplet text-white"></i> Cor do Pêlo/Penas
+
+                        </h3>
+
+                        <div class="grid grid-cols-6 sm:grid-cols-8 gap-3" id="skin-grid">
+
+                            <!-- Javascript will populate this -->
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- Shape Selector -->
+
+                    <div class="dark-panel p-5 rounded-lg">
+
+                        <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+
+                            <i class="fa-solid fa-draw-polygon text-white"></i> Formato Base (Cabeça)
+
+                            <button type="button" data-lock-btn="face" onclick="toggleLock('face')"
+                                class="ml-auto text-[10px] text-gray-400 hover:text-white border border-[#262626] px-2 py-1 rounded">LOCK</button>
+
+                        </h3>
+
+                        <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="shape-grid">
+
+                            <!-- Javascript will populate this -->
+
+                        </div>
+
+                    </div>
+
+                    <!-- Features Checkbox -->
+
+                    <div class="dark-panel p-5 rounded-lg">
+
+                        <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+
+                            <i class="fa-solid fa-sliders text-white"></i> Características
+
+                        </h3>
+
+                        <div class="grid grid-cols-4 gap-3">
+
+                            <label
+                                class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+
+                                <input type="checkbox"
+                                    class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                    value="strong jawline" onchange="updatePrompt()">
+
+                                <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Maxilar
+                                    Forte</span>
+
+                            </label>
+
+                            <label
+                                class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+
+                                <input type="checkbox"
+                                    class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                    value="pointed chin" onchange="updatePrompt()">
+
+                                <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Queixo
+                                    Pontudo</span>
+
+                            </label>
+
+                            <label
+                                class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+
+                                <input type="checkbox"
+                                    class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                    value="chubby cheeks" onchange="updatePrompt()">
+
+                                <span
+                                    class="text-xs text-gray-400 group-hover:text-white transition-colors">Bochechas</span>
+
+                            </label>
+
+                            <label
+                                class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+
+                                <input type="checkbox"
+                                    class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                    value="long neck" onchange="updatePrompt()">
+
+                                <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Pescoço
+                                    Longo</span>
+
+                            </label>
+
+                            <label
+                                class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+
+                                <input type="checkbox"
+                                    class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                    value="high forehead" onchange="updatePrompt()">
+
+                                <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Testa
+                                    Alta</span>
+
+                            </label>
+
+                            <label
+                                class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+
+                                <input type="checkbox"
+                                    class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                    value="prominent ears" onchange="updatePrompt()">
+
+                                <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Orelhas
+                                    Grandes</span>
+
+                            </label>
+
+                            <label
+                                class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+
+                                <input type="checkbox"
+                                    class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                    value="freckles" onchange="updatePrompt()">
+
+                                <span
+                                    class="text-xs text-gray-400 group-hover:text-white transition-colors">Sardas</span>
+
+                            </label>
+
+                            <label
+                                class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+
+                                <input type="checkbox"
+                                    class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                    value="facial scar" onchange="updatePrompt()">
+
+                                <span
+                                    class="text-xs text-gray-400 group-hover:text-white transition-colors">Cicatriz</span>
+
+                            </label>
+
+                            <label
+                                class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+
+                                <input type="checkbox"
+                                    class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                    value="dimples" onchange="updatePrompt()">
+
+                                <span
+                                    class="text-xs text-gray-400 group-hover:text-white transition-colors">Covinhas</span>
+
+                            </label>
+
+                            <label
+                                class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+
+                                <input type="checkbox"
+                                    class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                    value="wrinkles, aged skin" onchange="updatePrompt()">
+
+                                <span
+                                    class="text-xs text-gray-400 group-hover:text-white transition-colors">Rugas</span>
+
+                            </label>
+
+                            <label
+                                class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+
+                                <input type="checkbox"
+                                    class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                    value="beauty mark, mole" onchange="updatePrompt()">
+
+                                <span
+                                    class="text-xs text-gray-400 group-hover:text-white transition-colors">Sinal</span>
+
+                            </label>
+
+                            <label
+                                class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+
+                                <input type="checkbox"
+                                    class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                    value="gap teeth" onchange="updatePrompt()">
+
+                                <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Dentes
+                                    Separados</span>
+
+                            </label>
+
+                            <label
+                                class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+
+                                <input type="checkbox"
+                                    class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                    value="bushy eyebrows" onchange="updatePrompt()">
+
+                                <span
+                                    class="text-xs text-gray-400 group-hover:text-white transition-colors">Sobrancelhas
+                                    Grossas</span>
+
+                            </label>
+
+                            <label
+                                class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+
+                                <input type="checkbox"
+                                    class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                    value="cleft chin" onchange="updatePrompt()">
+
+                                <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Queixo
+                                    Furado</span>
+
+                            </label>
+
+                            <label
+                                class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+
+                                <input type="checkbox"
+                                    class="feature-check w-4 h-4 text-[#E600DF] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                    value="face tattoo" onchange="updatePrompt()">
+
+                                <span
+                                    class="text-xs text-gray-400 group-hover:text-white transition-colors">Tatuagem</span>
+
+                            </label>
+
+                            <select id="beard-select"
+                                class="p-2 rounded border border-[#262626] bg-black text-gray-200 text-xs focus:border-[#E600DF] focus:outline-none"
+                                onchange="selectBeard(this.value)">
+
+                                <option value="">Sem barba</option>
+
+                                <option value="light stubble beard">Barba Rala</option>
+
+                                <option value="full beard">Barba Completa</option>
+
+                                <option value="goatee beard">Cavanhaque</option>
+
+                                <option value="mustache only">Apenas Bigode</option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- Hair Length Selector -->
+
+                    <div class="dark-panel p-5 rounded-lg">
+
+                        <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+
+                            <i class="fa-solid fa-ruler-vertical text-white"></i> Cabelo: Comprimento
+
+                            <button type="button" data-lock-btn="hair" onclick="toggleLock('hair')"
+                                class="ml-auto text-[10px] text-gray-400 hover:text-white border border-[#262626] px-2 py-1 rounded">LOCK</button>
+
+                        </h3>
+
+                        <div class="grid grid-cols-4 gap-3" id="hair-length-grid">
+
+                            <!-- Javascript will populate this -->
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- Hair Style Selector -->
+
+                    <div class="dark-panel p-5 rounded-lg" id="hair-style-panel">
+
+                        <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+
+                            <i class="fa-solid fa-scissors text-white"></i> Cabelo: Estilo
+
+                        </h3>
+
+                        <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="hair-style-grid">
+
+                            <!-- Javascript will populate this -->
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- Hair Color Selector (NEW) -->
+
+                    <div class="dark-panel p-5 rounded-lg">
+
+                        <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+
+                            <i class="fa-solid fa-palette text-white"></i> Cabelo: Cor
+
+                        </h3>
+
+                        <div class="grid grid-cols-4 sm:grid-cols-8 gap-3" id="hair-color-grid">
+
+                            <!-- Javascript will populate this -->
+
+                        </div>
+
+                    </div>
+
+                    <!-- Eye Shape Selector -->
+
+                    <div class="dark-panel p-5 rounded-lg">
+
+                        <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+
+                            <i class="fa-regular fa-eye text-white"></i> Olhos: Formato
+
+                        </h3>
+
+                        <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="eye-shape-grid">
+
+                            <!-- Javascript will populate this -->
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- Eye Expression Selector -->
+
+                    <div class="dark-panel p-5 rounded-lg" id="expression-panel">
+
+                        <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+
+                            <i class="fa-solid fa-face-smile text-white"></i> Olhos: Expressão
+
+                            <button type="button" data-lock-btn="expression" onclick="toggleLock('expression')"
+                                class="ml-auto text-[10px] text-gray-400 hover:text-white border border-[#262626] px-2 py-1 rounded">LOCK</button>
+
+                        </h3>
+
+                        <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="eye-expression-grid">
+
+                            <!-- Javascript will populate this -->
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- Nose Selector -->
+
+                    <div class="dark-panel p-5 rounded-lg" id="nose-panel">
+
+                        <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+
+                            <i class="fa-solid fa-play text-white fa-rotate-270" style="font-size: 0.8em;"></i> Nariz
+
+                        </h3>
+
+                        <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="nose-grid">
+
+                            <!-- Javascript will populate this -->
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- Mouth Selector -->
+
+                    <div class="dark-panel p-5 rounded-lg" id="mouth-panel">
+
+                        <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+
+                            <i class="fa-solid fa-lips text-white"></i> Boca
+
+                        </h3>
+
+                        <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="mouth-grid">
+
+                            <!-- Javascript will populate this -->
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- Vestuário -->
+
+                    <div class="dark-panel p-5 rounded-lg">
+
+                        <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+
+                            <i class="fa-solid fa-shirt text-white"></i> Vestuário
+
+                            <button type="button" data-lock-btn="outfit" onclick="toggleLock('outfit')"
+                                class="ml-auto text-[10px] text-gray-400 hover:text-white border border-[#262626] px-2 py-1 rounded">LOCK</button>
+
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                            <div class="space-y-2">
+
+                                <label class="text-xs text-gray-400 flex items-center gap-2">
+
+                                    <span class="inline-flex w-5 h-5 items-center justify-center text-gray-300"
+                                        id="icon-shirt"></span> Camisas
+
+                                </label>
+
+                                <div class="relative">
+
+                                    <select id="shirt-select"
+                                        class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 focus:border-[#E600DF] focus:outline-none transition-colors appearance-none cursor-pointer"
+                                        onchange="selectClothing('shirt', this.value)">
+
+                                    </select>
+
+                                    <div
+                                        class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+
+                                        <i class="fa-solid fa-chevron-down text-xs"></i>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="space-y-2">
+
+                                <label class="text-xs text-gray-400 flex items-center gap-2">
+
+                                    <span class="inline-flex w-5 h-5 items-center justify-center text-gray-300"
+                                        id="icon-jacket"></span> Casacos
+
+                                </label>
+
+                                <div class="relative">
+
+                                    <select id="jacket-select"
+                                        class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 focus:border-[#E600DF] focus:outline-none transition-colors appearance-none cursor-pointer"
+                                        onchange="selectClothing('jacket', this.value)">
+
+                                    </select>
+
+                                    <div
+                                        class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+
+                                        <i class="fa-solid fa-chevron-down text-xs"></i>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="space-y-2">
+
+                                <label class="text-xs text-gray-400 flex items-center gap-2">
+
+                                    <span class="inline-flex w-5 h-5 items-center justify-center text-gray-300"
+                                        id="icon-pants"></span> Calças
+
+                                </label>
+
+                                <div class="relative">
+
+                                    <select id="pants-select"
+                                        class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 focus:border-[#E600DF] focus:outline-none transition-colors appearance-none cursor-pointer"
+                                        onchange="selectClothing('pants', this.value)">
+
+                                    </select>
+
+                                    <div
+                                        class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+
+                                        <i class="fa-solid fa-chevron-down text-xs"></i>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="space-y-2">
+
+                                <label class="text-xs text-gray-400 flex items-center gap-2">
+
+                                    <span class="inline-flex w-5 h-5 items-center justify-center text-gray-300"
+                                        id="icon-shoes"></span> Calçados
+
+                                </label>
+
+                                <div class="relative">
+
+                                    <select id="shoes-select"
+                                        class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 focus:border-[#E600DF] focus:outline-none transition-colors appearance-none cursor-pointer"
+                                        onchange="selectClothing('shoes', this.value)">
+
+                                    </select>
+
+                                    <div
+                                        class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+
+                                        <i class="fa-solid fa-chevron-down text-xs"></i>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="space-y-2 md:col-span-2">
+
+                                <label class="text-xs text-gray-400 flex items-center gap-2">
+
+                                    <span class="inline-flex w-5 h-5 items-center justify-center text-gray-300"
+                                        id="icon-fantasy"></span> Fantasias (bloqueia opções individuais)
+
+                                </label>
+
+                                <div class="relative">
+
+                                    <select id="fantasy-select"
+                                        class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 focus:border-[#E600DF] focus:outline-none transition-colors appearance-none cursor-pointer"
+                                        onchange="selectClothing('fantasy', this.value)">
+
+                                    </select>
+
+                                    <div
+                                        class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+
+                                        <i class="fa-solid fa-chevron-down text-xs"></i>
+
+                                    </div>
+
+                                </div>
 
                             </div>
 
@@ -984,75 +1144,25 @@
 
                     </div>
 
-                    <div class="space-y-2">
 
-                        <label class="text-xs text-gray-400 flex items-center gap-2">
 
-                            <span class="inline-flex w-5 h-5 items-center justify-center text-gray-300" id="icon-shoes"></span> Calçados
+                    <!-- Acessórios -->
 
-                        </label>
+                    <div class="dark-panel p-5 rounded-lg">
 
-                        <div class="relative">
+                        <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
 
-                            <select id="shoes-select" class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 focus:border-[#E600DF] focus:outline-none transition-colors appearance-none cursor-pointer" onchange="selectClothing('shoes', this.value)">
+                            <span class="inline-flex w-5 h-5 items-center justify-center text-gray-300"
+                                id="icon-accessory"></span> Acessórios
 
-                            </select>
+                            <button type="button" data-lock-btn="accessories" onclick="toggleLock('accessories')"
+                                class="ml-auto text-[10px] text-gray-400 hover:text-white border border-[#262626] px-2 py-1 rounded">LOCK</button>
 
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                        </h3>
 
-                                <i class="fa-solid fa-chevron-down text-xs"></i>
-
-                            </div>
-
-                        </div>
+                        <div id="accessory-list" class="grid grid-cols-4 gap-3"></div>
 
                     </div>
-
-                    <div class="space-y-2 md:col-span-2">
-
-                        <label class="text-xs text-gray-400 flex items-center gap-2">
-
-                            <span class="inline-flex w-5 h-5 items-center justify-center text-gray-300" id="icon-fantasy"></span> Fantasias (bloqueia opções individuais)
-
-                        </label>
-
-                        <div class="relative">
-
-                            <select id="fantasy-select" class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 focus:border-[#E600DF] focus:outline-none transition-colors appearance-none cursor-pointer" onchange="selectClothing('fantasy', this.value)">
-
-                            </select>
-
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-
-                                <i class="fa-solid fa-chevron-down text-xs"></i>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- Acessórios -->
-
-            <div class="dark-panel p-5 rounded-lg">
-
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-
-                    <span class="inline-flex w-5 h-5 items-center justify-center text-gray-300" id="icon-accessory"></span> Acessórios
-
-                    <button type="button" data-lock-btn="accessories" onclick="toggleLock('accessories')" class="ml-auto text-[10px] text-gray-400 hover:text-white border border-[#262626] px-2 py-1 rounded">LOCK</button>
-
-                </h3>
-
-                <div id="accessory-list" class="grid grid-cols-4 gap-3"></div>
-
-            </div>
 
 
 
@@ -1064,89 +1174,99 @@
 
                 <div class="lg:col-span-5 space-y-6">
 
-            <div class="sticky top-24">
+                    <div class="sticky top-24">
 
-                <div class="bg-[#141414] border border-[#262626] rounded-lg p-5 shadow-2xl">
+                        <div class="bg-[#141414] border border-[#262626] rounded-lg p-5 shadow-2xl">
 
-                    <div class="flex justify-between items-center mb-4">
+                            <div class="flex justify-between items-center mb-4">
 
-                        <h2 class="text-xs font-bold text-[#E600DF] uppercase tracking-wider bg-black/50 px-2 py-1 rounded inline-block border border-purple-900/30">
+                                <h2
+                                    class="text-xs font-bold text-[#E600DF] uppercase tracking-wider bg-black/50 px-2 py-1 rounded inline-block border border-purple-900/30">
 
-                            Prompt Final
+                                    Prompt Final
 
-                        </h2>
+                                </h2>
 
-                        <button onclick="randomize()" class="text-gray-500 hover:text-white text-[10px] uppercase tracking-wider bg-[#262626] hover:bg-[#333] px-3 py-1.5 rounded transition-colors flex items-center gap-2">
+                                <button onclick="randomize()"
+                                    class="text-gray-500 hover:text-white text-[10px] uppercase tracking-wider bg-[#262626] hover:bg-[#333] px-3 py-1.5 rounded transition-colors flex items-center gap-2">
 
-                            <i class="fa-solid fa-dice"></i> Random
+                                    <i class="fa-solid fa-dice"></i> Random
 
-                        </button>
+                                </button>
 
-                    </div>
-
-
-
-                    <div class="relative group">
-
-                        <textarea id="prompt-output" class="w-full h-96 bg-black border border-[#262626] rounded-lg p-4 text-sm text-gray-300 focus:outline-none focus:border-[#E600DF] focus:text-white transition-colors font-mono resize-none leading-relaxed" readonly></textarea>
-
-                    </div>
+                            </div>
 
 
 
-                    <div class="mt-4 pt-4 text-[#555] text-[10px]">
+                            <div class="relative group">
 
-                        
+                                <textarea id="prompt-output"
+                                    class="w-full h-96 bg-black border border-[#262626] rounded-lg p-4 text-sm text-gray-300 focus:outline-none focus:border-[#E600DF] focus:text-white transition-colors font-mono resize-none leading-relaxed"
+                                    readonly></textarea>
 
-                        <textarea id="negativePrompt" class="w-full bg-black border border-[#262626] rounded-lg p-2 text-[11px] text-gray-400 focus:outline-none focus:border-[#E600DF] focus:text-white transition-colors font-mono resize-none" rows="4">Negative Prompt:
+                            </div>
+
+
+
+                            <div class="mt-4 pt-4 text-[#555] text-[10px]">
+
+
+
+                                <textarea id="negativePrompt"
+                                    class="w-full bg-black border border-[#262626] rounded-lg p-2 text-[11px] text-gray-400 focus:outline-none focus:border-[#E600DF] focus:text-white transition-colors font-mono resize-none"
+                                    rows="4">Negative Prompt:
 
 detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
+                            </div>
+
+
+
+                            <button onclick="copyToClipboard()"
+                                class="w-full mt-4 bg-white hover:bg-gray-200 text-black font-bold py-3 px-6 rounded transition-all uppercase text-xs tracking-widest shadow-lg flex justify-center items-center gap-2">
+
+                                <i class="fa-regular fa-copy"></i> Copy Prompt
+
+                            </button>
+
+
+
+                            <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+                                <button onclick="exportCharacter()"
+                                    class="w-full bg-[#262626] hover:bg-[#333] text-gray-200 font-semibold py-2.5 px-4 rounded border border-[#333] transition-all text-[11px] uppercase tracking-wider flex items-center justify-center gap-2">
+
+                                    <i class="fa-solid fa-file-export text-[#E600DF]"></i> Exportar Personagem (JSON)
+
+                                </button>
+
+                                <button onclick="promptImport()"
+                                    class="w-full bg-[#262626] hover:bg-[#333] text-gray-200 font-semibold py-2.5 px-4 rounded border border-[#333] transition-all text-[11px] uppercase tracking-wider flex items-center justify-center gap-2">
+
+                                    <i class="fa-solid fa-file-import text-[#E600DF]"></i> Importar Personagem (JSON)
+
+                                </button>
+
+                            </div>
+
+                            <input type="file" id="import-file" accept="application/json" class="hidden"
+                                onchange="handleImportFile(this)">
+
+                        </div>
+
+
+
+
+
+
+
+                        <!-- Test Runner removed as requested -->
+
                     </div>
-
-
-
-                    <button onclick="copyToClipboard()" class="w-full mt-4 bg-white hover:bg-gray-200 text-black font-bold py-3 px-6 rounded transition-all uppercase text-xs tracking-widest shadow-lg flex justify-center items-center gap-2">
-
-                        <i class="fa-regular fa-copy"></i> Copy Prompt
-
-                    </button>
-
-
-
-                    <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
-
-                        <button onclick="exportCharacter()" class="w-full bg-[#262626] hover:bg-[#333] text-gray-200 font-semibold py-2.5 px-4 rounded border border-[#333] transition-all text-[11px] uppercase tracking-wider flex items-center justify-center gap-2">
-
-                            <i class="fa-solid fa-file-export text-[#E600DF]"></i> Exportar Personagem (JSON)
-
-                        </button>
-
-                        <button onclick="promptImport()" class="w-full bg-[#262626] hover:bg-[#333] text-gray-200 font-semibold py-2.5 px-4 rounded border border-[#333] transition-all text-[11px] uppercase tracking-wider flex items-center justify-center gap-2">
-
-                            <i class="fa-solid fa-file-import text-[#E600DF]"></i> Importar Personagem (JSON)
-
-                        </button>
-
-                    </div>
-
-                    <input type="file" id="import-file" accept="application/json" class="hidden" onchange="handleImportFile(this)">
 
                 </div>
 
-
-
-
-
-
-
-                <!-- Test Runner removed as requested -->
-
             </div>
-
-            </div>
-
-        </div>
 
     </main>
 
@@ -1185,27 +1305,13 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
         const bodyShapes = [
 
             { id: 'average', label: 'Médio', value: 'average body build, balanced proportions' },
-
             { id: 'slender', label: 'Magro/Alto', value: 'tall and slender body, lanky, thin limbs' },
-
             { id: 'muscular', label: 'Musculoso', value: 'muscular body build, broad shoulders, athletic' },
-
             { id: 'chubby', label: 'Gordinho', value: 'chubby body shape, round soft belly, stout' },
-
             { id: 'curvy', label: 'Curvilíneo', value: 'curvy hourglass body shape, wide hips' },
-
-            { id: 'pear', label: 'Pera', value: 'pear shaped body, narrow shoulders wide hips' },
-
             { id: 'petite', label: 'Pequeno', value: 'short petite body stature, compact' },
-
-            { id: 'blocky', label: 'Robusto', value: 'blocky square body shape, heavy build' },
-
             { id: 'chibi', label: 'Chibi', value: 'chibi proportions, big head small body' },
-
-            { id: 'bean', label: 'Feijão', value: 'bean shaped body, pill shaped torso, no distinct neck, cartoonish' }, // Novo
-
             { id: 'heavy_top', label: 'Torso Largo', value: 'top heavy body build, huge chest small legs, gorilla proportions' }, // Novo
-
             { id: 'headshot', label: 'Apenas Cabeça', value: 'headshot focus' }
 
         ];
@@ -1239,57 +1345,31 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
         ];
 
         const animalSpecies = [
-
-            { id: 'cat', label: 'Gato', value: 'anthropomorphic cat hero with sleek fur, whiskered muzzle, expressive eyes', description: 'Feline, playful, curious' },
-
-            { id: 'dog', label: 'Cão', value: 'anthropomorphic dog sidekick with floppy ears, warm smile, wagging tail', description: 'Loyal, joyful, friendly' },
-
-            { id: 'rabbit', label: 'Coelho', value: 'anthropomorphic rabbit with long ears, energetic hop, twitching nose', description: 'Energetic, animated, spry' },
-
-            { id: 'fox', label: 'Raposa', value: 'anthropomorphic fox trickster with sly grin, bushy tail, elegant pose', description: 'Sly, sleek, mischievous' },
-
-            { id: 'bear', label: 'Urso', value: 'anthropomorphic bear with round cheeks, cuddly strength, plush coat', description: 'Beefy, gentle, warm' },
-
-            { id: 'mouse', label: 'Rato', value: 'anthropomorphic mouse with big ears, tiny nose, wide-eyed grin', description: 'Timid, clever, small' },
-
-            { id: 'bird', label: 'Pássaro', value: 'anthropomorphic bird with feathered crest, expressive wings, slender beak', description: 'Aerial, elegant, bright' },
-
-            { id: 'wolf', label: 'Lobo', value: 'anthropomorphic wolf guardian with intense stare, layered fur, heroic stance', description: 'Determinado, protetor, selvagem' },
-
-            { id: 'tiger', label: 'Tigre', value: 'anthropomorphic tiger warrior with bold stripes, muscular frame, blazing eyes', description: 'Feroz, elegante, dominante' },
-
-            { id: 'deer', label: 'Veado', value: 'anthropomorphic deer with elegant antlers, slender legs, serene demeanor', description: 'Gracioso, gentil, atento' },
-
-            { id: 'otter', label: 'Lontra', value: 'anthropomorphic otter with slick fur, playful grin, aquatic accessories', description: 'Brincalhão, esperto, fluido' },
-
-            { id: 'panda', label: 'Panda', value: 'anthropomorphic panda with soft fur patches, relaxed pose, bamboo props', description: 'Calmo, acolhedor, adorável' },
-
-            { id: 'raccoon', label: 'Guaxinim', value: 'anthropomorphic raccoon with masked eyes, curious posture, nimble fingers', description: 'Espertalhão, curioso, urbano' },
-
-            { id: 'elephant', label: 'Elefante', value: 'anthropomorphic elephant with tusks, broad ears, ceremonial drapery', description: 'Majestoso, sábio, sólido' },
-
-            { id: 'penguin', label: 'Pinguim', value: 'anthropomorphic penguin with tuxedo plumage, waddling gait, icy shine', description: 'Elegante, gentil, frio' }
-
+            { id: 'cat', label: 'Gato', value: 'anthropomorphic cat hero with sleek fur, whiskered muzzle, expressive eyes', description: 'Feline, playful, curious', texture: 'soft fur' },
+            { id: 'dog', label: 'Cão', value: 'anthropomorphic dog sidekick with floppy ears, warm smile, wagging tail', description: 'Loyal, joyful, friendly', texture: 'fur' },
+            { id: 'rabbit', label: 'Coelho', value: 'anthropomorphic rabbit with long ears, energetic hop, twitching nose', description: 'Energetic, animated, spry', texture: 'soft fluff' },
+            { id: 'fox', label: 'Raposa', value: 'anthropomorphic fox trickster with sly grin, bushy tail, elegant pose', description: 'Sly, sleek, mischievous', texture: 'orange and white fur' },
+            { id: 'bear', label: 'Urso', value: 'anthropomorphic bear with round cheeks, cuddly strength, plush coat', description: 'Beefy, gentle, warm', texture: 'thick fur' },
+            { id: 'mouse', label: 'Rato', value: 'anthropomorphic mouse with big ears, tiny nose, wide-eyed grin', description: 'Timid, clever, small', texture: 'fine fur' },
+            { id: 'bird', label: 'Pássaro', value: 'anthropomorphic bird with feathered crest, expressive wings, slender beak', description: 'Aerial, elegant, bright', texture: 'colorful feathers' },
+            { id: 'wolf', label: 'Lobo', value: 'anthropomorphic wolf guardian with intense stare, layered fur, heroic stance', description: 'Determinado, protetor, selvagem', texture: 'grey fur layers' },
+            { id: 'tiger', label: 'Tigre', value: 'anthropomorphic tiger warrior with bold stripes, muscular frame, blazing eyes', description: 'Feroz, elegante, dominante', texture: 'striped fur' },
+            { id: 'deer', label: 'Veado', value: 'anthropomorphic deer with elegant antlers, slender legs, serene demeanor', description: 'Gracioso, gentil, atento', texture: 'short fur' },
+            { id: 'otter', label: 'Lontra', value: 'anthropomorphic otter with slick fur, playful grin, aquatic accessories', description: 'Brincalhão, esperto, fluido', texture: 'slick wet fur' },
+            { id: 'panda', label: 'Panda', value: 'anthropomorphic panda with soft fur patches, relaxed pose, bamboo props', description: 'Calmo, acolhedor, adorável', texture: 'black and white fur' },
+            { id: 'raccoon', label: 'Guaxinim', value: 'anthropomorphic raccoon with masked eyes, curious posture, nimble fingers', description: 'Espertalhão, curioso, urbano', texture: 'grey and black fur' },
+            { id: 'elephant', label: 'Elefante', value: 'anthropomorphic elephant with tusks, broad ears, ceremonial drapery', description: 'Majestoso, sábio, sólido', texture: 'grey wrinkled skin' },
+            { id: 'penguin', label: 'Pinguim', value: 'anthropomorphic penguin with tuxedo plumage, waddling gait, icy shine', description: 'Elegante, gentil, frio', description: 'Elegante, gentil, frio', texture: 'smooth feathers' }
         ];
 
-
-
         const furPatterns = [
-
-            { id: 'solid', label: 'Monocromático', value: 'solid colored fur with subtle highlights, clean cel shading' },
-
-            { id: 'striped', label: 'Listrado', value: 'striped fur pattern with contrasting bands, playful rhythm' },
-
-            { id: 'spotted', label: 'Pontos', value: 'spotted fur with gentle gradients, whimsical freckles' },
-
-            { id: 'feathered', label: 'Penado', value: 'feathered texture with layered plumage and soft edges' },
-
-            { id: 'fluffy', label: 'Fofinho', value: 'fluffy fur clumps, exaggerated volume, plush texture' },
-
-            { id: 'sleek', label: 'Liso', value: 'sleek glossy coat with reflected light and smooth shading' },
-
-            { id: 'tufted', label: 'Pontudo', value: 'tufted fur along ears and tail, painterly strokes and dynamic flow' }
-
+            { id: 'solid', label: 'Monocromático', value: 'solid colored' },
+            { id: 'striped', label: 'Listrado', value: 'striped pattern' },
+            { id: 'spotted', label: 'Pontos', value: 'spotted pattern' },
+            // Removed Feathered as requested - handled by animal type
+            { id: 'fluffy', label: 'Fofinho', value: 'fluffy texture' },
+            { id: 'sleek', label: 'Liso', value: 'sleek texture' },
+            { id: 'tufted', label: 'Pontudo', value: 'tufted texture' }
         ];
 
 
@@ -1452,42 +1532,25 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
         // Skin Tones
 
+        // Skin/Coat Colors (Renamed from Skin Tones)
         const skinTones = [
-
-            { id: 'albino', color: '#fff5eb', value: 'albino skin, porcelain complexion, very pale' }, 
-
-            { id: 'pale', color: '#f8d9d5', value: 'pale skin, fair complexion' },
-
-            { id: 'light', color: '#eac0ad', value: 'light skin, caucasian' },
-
-            { id: 'beige', color: '#e0ac69', value: 'warm beige skin, golden undertone' }, 
-
-            { id: 'tan', color: '#d1a58a', value: 'tan skin, sun kissed skin' },
-
-            { id: 'olive', color: '#b38b6d', value: 'olive skin, mediterranean complexion' },
-
-            { id: 'medium', color: '#8d5524', value: 'medium brown skin, latino' },
-
-            { id: 'bronze', color: '#6d4c41', value: 'bronze skin, rich brown complexion' }, 
-
-            { id: 'brown', color: '#5e3c23', value: 'brown skin, indian complexion' },
-
-            { id: 'dark', color: '#3b2219', value: 'dark skin, african american' },
-
-            { id: 'darkest', color: '#211613', value: 'very dark skin, deep ebony skin' },
-
-            { id: 'midnight', color: '#0f0b0a', value: 'obsidian skin, extremely dark complexion' }, 
-
+            { id: 'albino', color: '#fff5eb', value: 'white' },
+            { id: 'pale', color: '#f8d9d5', value: 'pale' },
+            { id: 'light', color: '#eac0ad', value: 'cream' },
+            { id: 'beige', color: '#e0ac69', value: 'beige' },
+            { id: 'tan', color: '#d1a58a', value: 'tan' },
+            { id: 'olive', color: '#b38b6d', value: 'brownish' },
+            { id: 'medium', color: '#8d5524', value: 'brown' },
+            { id: 'bronze', color: '#6d4c41', value: 'bronze' },
+            { id: 'brown', color: '#5e3c23', value: 'dark brown' },
+            { id: 'dark', color: '#3b2219', value: 'dark' },
+            { id: 'darkest', color: '#211613', value: 'black' },
+            { id: 'midnight', color: '#0f0b0a', value: 'midnight black' },
             // Fantasy Colors
-
-            { id: 'green', color: '#8bc34a', value: 'green skin, alien, zombie', skipRandom: true },
-
-            { id: 'blue', color: '#2196f3', value: 'blue skin, avatar style', skipRandom: true },
-
-            { id: 'grey', color: '#9e9e9e', value: 'grey skin, undead', skipRandom: true },
-
-            { id: 'red', color: '#f44336', value: 'red skin, demon', skipRandom: true }
-
+            { id: 'green', color: '#8bc34a', value: 'green', skipRandom: true },
+            { id: 'blue', color: '#2196f3', value: 'blue', skipRandom: true },
+            { id: 'grey', color: '#9e9e9e', value: 'grey', skipRandom: true },
+            { id: 'red', color: '#f44336', value: 'red', skipRandom: true }
         ];
 
 
@@ -1508,9 +1571,9 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
             { id: 'wide', label: 'Afastados', value: 'eyes wide apart' },
 
-            { id: 'almond', label: 'Amendoados', value: 'almond shaped eyes, exotic cat-eyes' }, 
+            { id: 'almond', label: 'Amendoados', value: 'almond shaped eyes, exotic cat-eyes' },
 
-            { id: 'square_eye', label: 'Quadrados', value: 'square shaped eyes, robotic eyes' } 
+            { id: 'square_eye', label: 'Quadrados', value: 'square shaped eyes, robotic eyes' }
 
         ];
 
@@ -1572,7 +1635,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
             { id: 'roman', label: 'Romano', value: 'roman nose, hooked nose' },
 
-            { id: 'hook', label: 'Gancho', value: 'hooked nose, witch nose, sharp curve' }, 
+            { id: 'hook', label: 'Gancho', value: 'hooked nose, witch nose, sharp curve' },
 
             { id: 'wide', label: 'Largo', value: 'wide flat nose, broad nose' },
 
@@ -1598,7 +1661,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
             { id: 'lips', label: 'Lábios', value: 'prominent lips, lipstick' },
 
-            { id: 'thin', label: 'Fina', value: 'thin lips, straight mouth line, serious' }, 
+            { id: 'thin', label: 'Fina', value: 'thin lips, straight mouth line, serious' },
 
             { id: 'tongue', label: 'Língua', value: 'sticking tongue out, cheeky expression' }
 
@@ -1960,7 +2023,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
             },
 
-             {
+            {
 
                 id: 'lego',
 
@@ -2094,7 +2157,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
             },
 
-             {
+            {
 
                 id: 'vector',
 
@@ -2160,7 +2223,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
             },
 
-             {
+            {
 
                 id: 'minimalist',
 
@@ -2631,7 +2694,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
         let selectedSkinTone = skinTones[2].value; // Default Light
 
-        let selectedEyeShape = eyeShapes[2].value; 
+        let selectedEyeShape = eyeShapes[2].value;
 
         let selectedEyeShapeId = eyeShapes[2].id;
 
@@ -2639,7 +2702,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
         let selectedEyeExpressionId = eyeExpressions[0].id;
 
-        let selectedNose = noses[1].value; 
+        let selectedNose = noses[1].value;
 
         let selectedMouth = mouths[1].value; // Default: Smile
 
@@ -2725,7 +2788,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
                 }
 
-            } catch (e) {}
+            } catch (e) { }
 
         }
 
@@ -2737,7 +2800,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
                 localStorage.setItem('cps_lockState', JSON.stringify(lockState));
 
-            } catch (e) {}
+            } catch (e) { }
 
         }
 
@@ -2771,7 +2834,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
             const preset = getPresetById(styleId) || {};
 
-            
+
 
             const negativePrompt = getNegativePromptBase();
 
@@ -3540,15 +3603,15 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
             document.querySelectorAll('#hair-color-grid .color-swatch')[0].classList.add('selected'); // Black default
 
-            document.querySelectorAll('#skin-grid .color-swatch')[2].classList.add('selected'); 
+            document.querySelectorAll('#skin-grid .color-swatch')[2].classList.add('selected');
 
             document.querySelectorAll('#eye-shape-grid .option-card')[2].classList.add('selected');
 
             document.querySelectorAll('#eye-expression-grid .option-card')[0].classList.add('selected');
 
-            document.querySelectorAll('#nose-grid .option-card')[1].classList.add('selected'); 
+            document.querySelectorAll('#nose-grid .option-card')[1].classList.add('selected');
 
-            document.querySelectorAll('#mouth-grid .option-card')[1].classList.add('selected'); 
+            document.querySelectorAll('#mouth-grid .option-card')[1].classList.add('selected');
 
 
 
@@ -3764,7 +3827,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
             const styles = hairStyles[lengthId] || [];
 
-            
+
 
             styles.forEach((item, index) => {
 
@@ -3782,7 +3845,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
 
 
-            if(styles.length > 0 && !isImporting) {
+            if (styles.length > 0 && !isImporting) {
 
                 selectedHairStyle = styles[0].value;
 
@@ -4064,7 +4127,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
         function hydrateClothingIcons() {
 
-            const ids = ['shirt','jacket','pants','shoes','accessory','fantasy'];
+            const ids = ['shirt', 'jacket', 'pants', 'shoes', 'accessory', 'fantasy'];
 
             ids.forEach(k => {
 
@@ -4250,7 +4313,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
             selectedPresetId = preset.id;
 
-            
+
 
             const currentDimension = document.querySelector('input[name="dimension"]:checked').value;
 
@@ -4268,13 +4331,13 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
                     updateStyleOptions();
 
-                    return; 
+                    return;
 
                 }
 
             }
 
-            
+
 
             const styleSelect = document.getElementById('art-style');
 
@@ -4308,7 +4371,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
         }
 
-        
+
 
         // --- CORE LOGIC ---
 
@@ -4340,7 +4403,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
             });
 
-            
+
 
             const newSelectionExists = list.some(p => p.id === currentVal);
 
@@ -4354,7 +4417,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
             }
 
-            
+
 
             if (select.value) {
 
@@ -4362,7 +4425,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
             } else {
 
-                 updatePrompt();
+                updatePrompt();
 
             }
 
@@ -4376,7 +4439,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
         });
 
-        
+
 
         function exportCharacter() {
 
@@ -4402,7 +4465,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
                 navigator.clipboard?.writeText(json);
 
-            } catch (e) {}
+            } catch (e) { }
 
             const blob = new Blob([json], { type: 'application/json' });
 
@@ -4458,7 +4521,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
 
 
-                function copyToClipboard() {
+        function copyToClipboard() {
 
             const output = document.getElementById('prompt-output');
 
@@ -4498,11 +4561,11 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
             const toast = document.getElementById('toast');
 
-            if(message) toast.textContent = message;
+            if (message) toast.textContent = message;
 
             toast.className = "show";
 
-            setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
+            setTimeout(function () { toast.className = toast.className.replace("show", ""); }, 3000);
 
         }
 
@@ -4552,7 +4615,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
             const presetToApply = getPresetById(presetIdToApply);
 
-            
+
 
             if (presetToApply) {
 
@@ -4568,11 +4631,11 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
                 const styleSelect = document.getElementById('art-style');
 
-                if(styleSelect) styleSelect.value = presetIdToApply;
+                if (styleSelect) styleSelect.value = presetIdToApply;
 
             }
 
-            
+
 
             // Locks
 
@@ -4680,7 +4743,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
             // Hair length & style
 
-            if(stateData.hairLengthId || stateData.hairLength) {
+            if (stateData.hairLengthId || stateData.hairLength) {
 
                 const hairEntry = hairLengths.find(h => h.id === stateData.hairLengthId) || hairLengths.find(h => h.value === stateData.hairLength) || hairLengths[1];
 
@@ -4690,11 +4753,11 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
                 if (lengthTarget) selectHairLength(lengthTarget, hairEntry.value, hairEntry.id);
 
-                
+
 
                 renderHairStyles(hairEntry.id); // Re-render styles for the new length
 
-                
+
 
                 if (stateData.hairStyle) {
 
@@ -4856,7 +4919,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
                     const choice = (clothingOptions[kind] || []).find(o => o.id === value || o.value === value);
 
-                    if(choice) {
+                    if (choice) {
 
                         sel.value = choice.id;
 
@@ -4892,7 +4955,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
             if (beardSel && stateData.beard) {
 
-                 const match = Array.from(beardSel.options).find(o => o.value === stateData.beard);
+                const match = Array.from(beardSel.options).find(o => o.value === stateData.beard);
 
                 if (match) {
 
@@ -5252,7 +5315,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
         function toggleClothingDisabled(disabled) {
 
-            const ids = ['shirt-select','jacket-select','pants-select','shoes-select','accessory-select'];
+            const ids = ['shirt-select', 'jacket-select', 'pants-select', 'shoes-select', 'accessory-select'];
 
             ids.forEach(id => {
 
@@ -5346,7 +5409,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
             const props = 'width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-gray-500 transition-colors"';
 
-            
+
 
             // Standard Icons replacement
 
@@ -5791,28 +5854,22 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
                 }
 
                 if (state.poseId === 'dancing') {
-
                     parts.anatomy.push('dynamic dancing pose', 'weight shift', 'arms in motion', 'joyful movement');
-
                 } else if (state.pose) {
-
-                     parts.anatomy.push(state.pose);
-
+                    parts.anatomy.push(state.pose);
                 }
-
                 parts.anatomy.push('anthropomorphic anatomy with expressive animal ears, tail, padded paws');
 
-                if (state.furPattern) {
+                // AUTOMATIC TEXTURE FROM ANIMAL SPECIES
+                const currentAnimal = animalSpecies.find(a => a.id === state.speciesId);
+                const animalTexture = currentAnimal?.texture || 'fur';
+                const textureColor = state.skinTone || ''; // Value from skinTones (now just color)
 
-                    parts.anatomy.push(state.furPattern);
-
-                }
+                parts.anatomy.push(`${textureColor} ${animalTexture}`.trim());
 
 
-
-                // SKIN
-
-                parts.skin.push(state.skinTone);
+                // SKIN (Already handled above as texture color, but keeping generic if needed)
+                // parts.skin.push(state.skinTone); -> REMOVED because integrated into anatomy/texture
 
 
 
@@ -5890,7 +5947,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
                     const accessoriesList = state.accessories || [];
 
-                const pieces = [
+                    const pieces = [
 
                         state.shirt,
 
@@ -5958,7 +6015,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
 
 
-                 // RENDER
+                // RENDER
 
                 if (preset?.qualityTokens?.length) {
 
@@ -5982,7 +6039,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
                 if (state.blueprintMode) {
 
-                     parts.constraints.push('character design sheet, blueprint, white background, grid lines, annotations');
+                    parts.constraints.push('character design sheet, blueprint, white background, grid lines, annotations');
 
                     if (state.blueprintView === 'turnaround') {
 
@@ -6044,7 +6101,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
             joinParts(parts) {
 
-                 const order = {
+                const order = {
 
                     quality: 'Quality',
 
@@ -6098,7 +6155,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
                     if (key === 'quality' && parts.qualityTokens) sourceArray = [...sourceArray, ...parts.qualityTokens];
 
-                    
+
 
                     const content = PromptBuilder.normalizeTokens(sourceArray).join(', ');
 
@@ -6223,4 +6280,3 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 </body>
 
 </html>
-
