@@ -5,6 +5,6 @@ backup/
 *.zip
 *.pdf
 *.py
-*backup*
+
 old.html
-*.bat
+
