@@ -1285,17 +1285,9 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
         // Gender
 
         const genders = [
-
-            { id: 'male', label: 'Homem', value: 'male' },
-
-            { id: 'female', label: 'Mulher', value: 'female' },
-
-            { id: 'boy', label: 'Menino', value: 'young boy' },
-
-            { id: 'girl', label: 'Menina', value: 'young girl' },
-
+            { id: 'male', label: 'Masculino', value: 'male' },
+            { id: 'female', label: 'Feminino', value: 'female' },
             { id: 'neutral', label: 'Neutro', value: 'androgynous gender neutral' }
-
         ];
 
 
@@ -1366,15 +1358,6 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
             { id: 'shark', label: 'Tubarão', value: 'anthropomorphic shark with smooth skin, dorsal fin, sharp teeth grin', description: 'Predador, forte, aquatico', texture: 'smooth shark skin' }
         ];
 
-        const furPatterns = [
-            { id: 'solid', label: 'Monocromático', value: 'solid colored' },
-            { id: 'striped', label: 'Listrado', value: 'striped pattern' },
-            { id: 'spotted', label: 'Pontos', value: 'spotted pattern' },
-            // Removed Feathered as requested - handled by animal type
-            { id: 'fluffy', label: 'Fofinho', value: 'fluffy texture' },
-            { id: 'sleek', label: 'Liso', value: 'sleek texture' },
-            { id: 'tufted', label: 'Pontudo', value: 'tufted texture' }
-        ];
 
 
 
@@ -1384,128 +1367,54 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
 
 
-        // Shapes (Cabeça)
 
+        // Shapes (Cabeça) - REDUZIDO
         const shapes = [
-
-            { id: 'oval', label: 'Oval Clássico', value: 'classic oval head shape, balanced proportions, natural look' },
-
-            { id: 'round', label: 'Redondo', value: 'spherical round head shape, circle geometry, innocent, cute' },
-
-            { id: 'square', label: 'Quadrado', value: 'square head shape, strong jawline, boxy, firm look' },
-
-            { id: 'rectangle', label: 'Retângulo', value: 'long rectangular head shape, oblong face, mature look' },
-
-            { id: 'triangle_up', label: 'Triângulo (Base)', value: 'triangular head shape, wide jawline, narrow forehead, powerful look' },
-
-            { id: 'triangle_down', label: 'Triângulo Inv.', value: 'inverted triangle head shape, wide forehead, narrow chin, intelligent look' },
-
-            { id: 'teardrop', label: 'Gota', value: 'teardrop head shape, wide cranium, narrow pointed chin, delicate look' },
-
-            { id: 'hexagon', label: 'Hexagonal', value: 'hexagonal face shape, angular cheekbones, graphic look' },
-
-            { id: 'trapezoid', label: 'Trapézio', value: 'trapezoid head shape, wide heavy jaw, stable look' },
-
-            { id: 'heart', label: 'Coração', value: 'heart shaped face, widow\'s peak, pointed chin, charismatic look' },
-
-            { id: 'block', label: 'Bloco/Cubo', value: 'cube head shape, blocky, sharp edges, strong identity' },
-
-            { id: 'asymmetric', label: 'Assimétrico', value: 'asymmetrical head shape, quirky features, irregular, unique personality' }
-
+            { id: 'oval', label: 'Oval', value: 'classic oval head shape' },
+            { id: 'round', label: 'Redondo', value: 'spherical round head shape' },
+            { id: 'square', label: 'Quadrado', value: 'square head shape, strong jawline' },
+            { id: 'heart', label: 'Coração', value: 'heart shaped face' },
+            { id: 'rectangle', label: 'Retângulo', value: 'rectangular head shape' }
         ];
 
 
 
-        // Cabelo: Comprimentos
-
+        // Cabelo: Comprimentos - SE MANTÉM (útil)
         const hairLengths = [
-
-            { id: 'bald', label: 'Careca', value: 'bald head, smooth scalp' },
-
+            { id: 'bald', label: 'Natural/Careca', value: 'no hair, natural fur head' }, // Renamed for clarity
             { id: 'short', label: 'Curto', value: 'short hair' },
-
             { id: 'medium', label: 'Médio', value: 'medium length hair' },
-
             { id: 'long', label: 'Longo', value: 'long hair' }
-
         ];
 
-
-
-        // Cabelo: Estilos
-
+        // Cabelo: Estilos - SIMPLIFICADO
         const hairStyles = {
-
             'bald': [
-
-                { id: 'none', label: 'Liso', value: 'smooth skin, no hair' },
-
-                { id: 'stubble', label: 'Ralo', value: 'hair stubble, shaved head texture' },
-
-                { id: 'pattern', label: 'Padrão', value: 'shaved hair pattern on side' }
-
+                { id: 'none', label: 'Pêlo Natural', value: 'smooth head, no hairstyle' }
             ],
-
             'short': [
-
                 { id: 'buzz', label: 'Militar', value: 'buzz cut' },
-
-                { id: 'mohawk', label: 'Moicano', value: 'mohawk hairstyle, punk style' },
-
-                { id: 'afro_short', label: 'Afro Curto', value: 'short afro hairstyle, natural texture' },
-
-                { id: 'spiky', label: 'Espetado', value: 'spiky hair, messy short hair' },
-
-                { id: 'pompadour', label: 'Topete', value: 'pompadour hairstyle, rockabilly' },
-
+                { id: 'mohawk', label: 'Moicano', value: 'mohawk hairstyle' },
+                { id: 'afro_short', label: 'Afro Curto', value: 'short afro' },
+                { id: 'spiky', label: 'Espetado', value: 'spiky messy hair' },
+                { id: 'pompadour', label: 'Topete', value: 'pompadour hairstyle' },
                 { id: 'curly_short', label: 'Encaracolado', value: 'short curly hair' },
-
-                { id: 'undercut', label: 'Undercut', value: 'undercut hairstyle, shaved sides long top' },
-
-                { id: 'pixie', label: 'Pixie', value: 'pixie cut, short textured hair, chic' }
-
+                { id: 'side_part', label: 'De Lado', value: 'side part hairstyle' }
             ],
-
             'medium': [
-
-                { id: 'bob', label: 'Chanel', value: 'bob cut hairstyle' },
-
-                { id: 'shaggy', label: 'Desgrenhado', value: 'shaggy medium hair, messy layers' },
-
-                { id: 'mullet', label: 'Mullet', value: 'mullet hairstyle, short front long back' },
-
-                { id: 'curly_med', label: 'Encaracolado', value: 'medium curly hair, volume' },
-
-                { id: 'dreads_med', label: 'Dreads', value: 'medium length dreadlocks' },
-
-                { id: 'bun', label: 'Coque', value: 'man bun, hair bun' },
-
-                { id: 'layered', label: 'Em Camadas', value: 'layered medium hair, textured' },
-
-                { id: 'side_swept', label: 'Jogado Lado', value: 'side swept medium hair, asymmetrical' }
-
+                { id: 'bob', label: 'Chanel', value: 'bob cut' },
+                { id: 'shaggy', label: 'Desgrenhado', value: 'shaggy layered hair' },
+                { id: 'mullet', label: 'Mullet', value: 'mullet hairstyle' },
+                { id: 'curly_med', label: 'Encaracolado', value: 'medium curly hair' },
+                { id: 'bun', label: 'Coque', value: 'man bun' }
             ],
-
             'long': [
-
-                { id: 'straight', label: 'Liso', value: 'straight flowing long hair' },
-
-                { id: 'wavy', label: 'Ondulado', value: 'wavy long hair, beach waves' },
-
-                { id: 'braids', label: 'Tranças', value: 'long braided hair, cornrows' },
-
-                { id: 'ponytail', label: 'Rabo Cavalo', value: 'high ponytail hairstyle' },
-
-                { id: 'dreads_long', label: 'Dreads', value: 'long dreadlocks' },
-
-                { id: 'afro_long', label: 'Afro Grande', value: 'large afro hairstyle, big volume' },
-
-                { id: 'twin_tails', label: 'Maria Chiquinha', value: 'twin tails, pigtails, two ponytails' },
-
-                { id: 'straight_bangs', label: 'Franja Reta', value: 'long hair with straight bangs, hime cut' }
-
+                { id: 'straight', label: 'Liso', value: 'straight long hair' },
+                { id: 'wavy', label: 'Ondulado', value: 'wavy long hair' },
+                { id: 'braids', label: 'Tranças', value: 'braided hair' },
+                { id: 'ponytail', label: 'Rabo de Cavalo', value: 'high ponytail' },
+                { id: 'dreads', label: 'Dreads', value: 'long dreadlocks' }
             ]
-
         };
 
 
@@ -1559,116 +1468,48 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
 
 
-        // Eye Shapes
-
+        // Eye Shapes - SIMPLIFICADO
         const eyeShapes = [
-
-            { id: 'none', label: 'Sem Olhos', value: 'no facial features, blank face' },
-
-            { id: 'dot', label: 'Pontinhos', value: 'simple black dot eyes, small eyes' },
-
             { id: 'round', label: 'Redondos', value: 'large round cartoon eyes' },
-
-            { id: 'vertical', label: 'Verticais', value: 'vertical oval eyes' },
-
-            { id: 'angular', label: 'Angulares', value: 'angular stylized eyes, sharp corners' },
-
-            { id: 'wide', label: 'Afastados', value: 'eyes wide apart' },
-
-            { id: 'almond', label: 'Amendoados', value: 'almond shaped eyes, exotic cat-eyes' },
-
-            { id: 'square_eye', label: 'Quadrados', value: 'square shaped eyes, robotic eyes' }
-
+            { id: 'oval', label: 'Ovais', value: 'oval eyes' },
+            { id: 'almond', label: 'Amendoados', value: 'almond shaped eyes' },
+            { id: 'dot', label: 'Pontinhos', value: 'simple black dot eyes' },
+            { id: 'wide', label: 'Afastados', value: 'wide set eyes' },
+            { id: 'half', label: 'Semicerrados', value: 'half-lidded relaxed eyes' }
         ];
 
-
-
-        // Eye Expressions (UPDATED with 8 new items)
-
+        // Eye Expressions - LIMPEZA
         const eyeExpressions = [
-
-            { id: 'neutral', label: 'Neutro', value: 'neutral expression, open eyes' },
-
-            { id: 'happy', label: 'Feliz', value: 'happy expression, arched eyebrows, smiling eyes' },
-
-            { id: 'angry', label: 'Zangado', value: 'angry expression, furrowed brows, sharp angles' },
-
-            { id: 'tired', label: 'Cansado', value: 'tired expression, heavy bags under eyes, half-lidded' },
-
-            { id: 'surprised', label: 'Surpreso', value: 'surprised expression, popping eyes, dilated pupils' },
-
-            { id: 'suspicious', label: 'Desconfiado', value: 'suspicious expression, squinting eyes, narrowed' },
-
-            { id: 'hypnotized', label: 'Hipnose', value: 'hypnotized expression, spiral pattern in eyes' },
-
-            { id: 'dead', label: 'Morto (X)', value: 'knocked out expression, X shaped pupils' },
-
-            // NOVAS EXPRESSÕES
-
-            { id: 'sad', label: 'Triste', value: 'sad expression, crying, teary eyes, downturned eyebrows' },
-
-            { id: 'love', label: 'Apaixonado', value: 'in love expression, heart shaped eyes, romantic' },
-
-            { id: 'wink', label: 'Piscar', value: 'winking expression, one eye closed, playful' },
-
-            { id: 'bored', label: 'Entediado', value: 'bored expression, deadpan, half-closed eyes' },
-
-            { id: 'scared', label: 'Assustado', value: 'scared expression, tiny pupils, wide open eyes, fear' },
-
-            { id: 'crazy', label: 'Louco', value: 'crazy expression, mismatched pupil sizes, dilated pupils, insane' },
-
-            { id: 'money', label: 'Dinheiro', value: 'greedy expression, dollar sign eyes, seeing money' },
-
-            { id: 'stars', label: 'Fascinado', value: 'starry eyed, star shaped pupils, excited, amazed' }
-
+            { id: 'neutral', label: 'Neutro', value: 'neutral expression' },
+            { id: 'happy', label: 'Feliz', value: 'happy smiling eyes' },
+            { id: 'angry', label: 'Zangado', value: 'angry furrowed brows' },
+            { id: 'sad', label: 'Triste', value: 'sad teary eyes' },
+            { id: 'surprised', label: 'Surpreso', value: 'wide open surprised eyes' },
+            { id: 'tired', label: 'Cansado', value: 'tired heavy bags' },
+            { id: 'suspicious', label: 'Desconfiado', value: 'suspicious narrow eyes' },
+            { id: 'love', label: 'Apaixonado', value: 'heart shaped eyes' },
+            { id: 'crazy', label: 'Louco', value: 'crazy unequal pupils' },
+            { id: 'money', label: 'Dinheiro', value: 'dollar sign eyes' }
         ];
 
-
-
-        // Noses
-
+        // Noses - SIMPLIFICADO
         const noses = [
-
-            { id: 'none', label: 'Sem Nariz', value: 'no nose, flat face' },
-
-            { id: 'button', label: 'Botão', value: 'cute button nose, small snub nose' },
-
-            { id: 'pointed', label: 'Pontudo', value: 'long pointed nose, sharp nose' },
-
-            { id: 'bulbous', label: 'Batata', value: 'bulbous nose, big round nose' },
-
-            { id: 'roman', label: 'Romano', value: 'roman nose, hooked nose' },
-
-            { id: 'hook', label: 'Gancho', value: 'hooked nose, witch nose, sharp curve' },
-
-            { id: 'wide', label: 'Largo', value: 'wide flat nose, broad nose' },
-
-            { id: 'pig', label: 'Porquinho', value: 'pig snout nose, upturned nose' }
-
+            { id: 'button', label: 'Botão (Padrão)', value: 'cute small button nose' },
+            { id: 'pointed', label: 'Pontudo', value: 'pointed nose' },
+            { id: 'bulbous', label: 'Batata', value: 'large bulbous nose' },
+            { id: 'wide', label: 'Largo', value: 'wide animal nose' },
+            { id: 'dog', label: 'Canino/Úmido', value: 'wet dog nose' },
+            { id: 'none', label: 'Sem Nariz (Vold)', value: 'no nose, flat face' }
         ];
 
-
-
-        // Mouths
-
+        // Mouths - SIMPLIFICADO
         const mouths = [
-
-            { id: 'none', label: 'Sem Boca', value: 'no mouth, blank face' },
-
-            { id: 'smile', label: 'Sorriso', value: 'smiling mouth, simple curve' },
-
-            { id: 'frown', label: 'Triste', value: 'frowning mouth, inverted curve' },
-
-            { id: 'open', label: 'Aberta', value: 'open mouth, O shape mouth, surprised' },
-
-            { id: 'grin', label: 'Dentes', value: 'grinning mouth, showing teeth, clenched teeth' },
-
-            { id: 'lips', label: 'Lábios', value: 'prominent lips, lipstick' },
-
-            { id: 'thin', label: 'Fina', value: 'thin lips, straight mouth line, serious' },
-
-            { id: 'tongue', label: 'Língua', value: 'sticking tongue out, cheeky expression' }
-
+            { id: 'smile', label: 'Sorriso', value: 'smiling mouth' },
+            { id: 'frown', label: 'Triste', value: 'frowning mouth' },
+            { id: 'open', label: 'Aberta', value: 'open mouth surprised' },
+            { id: 'grin', label: 'Dentes', value: 'grinning showing teeth' },
+            { id: 'tongue', label: 'Língua', value: 'sticking tongue out' },
+            { id: 'none', label: 'Sem Boca', value: 'no mouth' }
         ];
 
 
@@ -2677,9 +2518,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
         let selectedSpecies = animalSpecies[0].value;
 
-        let selectedFurPatternId = furPatterns[0].id;
-
-        let selectedFurPattern = furPatterns[0].value;
+        // Fur Pattern Removed due to automation
 
         const DEFAULT_BODY_SHAPE_ID = 'average';
         const DEFAULT_BODY_SHAPE = bodyShapes.find(entry => entry.id === DEFAULT_BODY_SHAPE_ID) || DEFAULT_BODY_SHAPE;
@@ -2916,9 +2755,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
                 skinTone: selectedSkinTone,
 
-                furPatternId: selectedFurPatternId,
-
-                furPattern: selectedFurPattern,
+                // furPattern removed
 
                 eyeShape: selectedEyeShape,
 
@@ -3509,7 +3346,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
             renderBodyShapes();
 
-            renderFurPatterns();
+            // renderFurPatterns(); - REMOVED
 
             renderPoses();
 
@@ -3596,8 +3433,6 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
             document.querySelectorAll('#species-grid .option-card')[0].classList.add('selected');
 
             markDefaultOption('#body-shape-grid .option-card', DEFAULT_BODY_SHAPE_ID);
-
-            document.querySelectorAll('#fur-grid .option-card')[0].classList.add('selected');
 
             document.querySelectorAll('#shape-grid .option-card')[0].classList.add('selected');
 
@@ -3695,31 +3530,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
 
 
-        function renderFurPatterns() {
 
-            const container = document.getElementById('fur-grid');
-
-            if (!container) return;
-
-            container.innerHTML = '';
-
-            furPatterns.forEach(item => {
-
-                const div = document.createElement('div');
-
-                div.className = 'option-card p-3 rounded-lg text-center text-xs group';
-
-                div.dataset.id = item.id;
-
-                div.innerHTML = `<span class="block font-medium text-gray-400 group-hover:text-white transition-colors">${item.label}</span><span class="block text-[10px] text-gray-500 mt-1">${item.value}</span>`;
-
-                div.onclick = () => selectFurPattern(div, item.value, item.id);
-
-                container.appendChild(div);
-
-            });
-
-        }
 
 
 
@@ -4179,19 +3990,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
 
 
-        function selectFurPattern(element, value, id) {
 
-            document.querySelectorAll('#fur-grid .option-card').forEach(el => el.classList.remove('selected'));
-
-            element.classList.add('selected');
-
-            selectedFurPattern = value;
-
-            selectedFurPatternId = id;
-
-            updatePrompt();
-
-        }
 
 
 
