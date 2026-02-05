@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anime Battle Studio v7 - Complete Scripts</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #050505;
+            --card-bg: #0f0f0f;
+            --panel-border: #1f1f1f;
+            --accent: #ff4757;
+            --accent-dim: rgba(255, 71, 87, 0.12);
+            --text-main: #e5e5e5;
+            --text-muted: #737373;
+            --upload-bg: #1a1a1a;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+        .dark-panel {
+            background-color: var(--card-bg);
+            border: 1px solid var(--panel-border);
+            transition: border-color 0.2s ease;
+        }
+        .dark-panel:hover { border-color: #333; }
+
+        .option-card {
+            background-color: #0a0a0a;
+            border: 1px solid var(--panel-border);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .option-card:hover {
+            transform: translateY(-2px);
+            border-color: #444;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+        .option-card.selected {
+            border-color: var(--accent);
+            background-color: var(--accent-dim);
+            box-shadow: 0 0 0 1px var(--accent);
+        }
+        .option-card.selected i { color: var(--accent); }
+        .option-card i { color: #555; font-size: 0.8em; }
+
+        .upload-zone {
+            border: 1px dashed #444;
+            background-color: var(--upload-bg);
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .upload-zone:hover { border-color: var(--accent); background-color: var(--accent-dim); }
+        .upload-zone.active {
+            border-style: solid; border-color: var(--accent); background-color: rgba(255, 71, 87, 0.05);
+        }
+        .upload-text { font-size: 0.75rem; color: #888; font-weight: 500; }
+        .upload-zone.active .upload-text { color: var(--accent); }
+
+        .section-title {
+            font-size: 0.7rem; font-weight: 700; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+        .section-title i { color: var(--accent); }
+
+        /* TAB SYSTEM STYLES - FIXED LAYOUT */
+        .tabs-header {
+            display: flex;
+            gap: 4px;
+            background: #151515;
+            padding: 4px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            width: 100%;
+            overflow: hidden;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 8px 0;
+            text-align: center;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            color: #666;
+            border-radius: 4px;
+            transition: all 0.2s;
+            white-space: nowrap;
+            border: 1px solid transparent;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+        }
+        .tab-btn:hover { background: rgba(255,255,255,0.05); color: #999; border-color: #333; }
+        .tab-btn.active {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 2px 10px rgba(255, 71, 87, 0.3);
+            border-color: var(--accent);
+        }
+        
+        .tab-btn i.text-lg { font-size: 1rem; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .prompt-textarea {
+            width: 100%;
+            height: 250px;
+            background-color: #080808;
+            color: #a3a3a3;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #222;
+            resize: none;
+            line-height: 1.6;
+            margin-top: 10px;
+        }
+        .prompt-textarea:focus { outline: none; border-color: var(--accent); }
+
+        .toast {
+            visibility: hidden; min-width: 250px; background-color: var(--accent); color: #fff;
+            text-align: center; border-radius: 4px; padding: 12px 16px; position: fixed; z-index: 50;
+            left: 50%; bottom: 30px; transform: translateX(-50%); opacity: 0; font-weight: 600;
+            font-size: 0.875rem; transition: opacity 0.3s, bottom 0.3s; box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+        .toast.show { visibility: visible; opacity: 1; bottom: 50px; }
+
+        button.primary-btn {
+            background: linear-gradient(135deg, rgba(255, 71, 87, 0.25), rgba(255, 71, 87, 0.5));
+            border: 1px solid var(--accent); color: #fff; transition: all 0.2s;
+        }
+        button.primary-btn:hover { box-shadow: 0 0 15px rgba(255, 71, 87, 0.4); }
+        
+        button.secondary-btn {
+            background: #222;
+            border: 1px solid #333;
+            color: #888;
+            transition: all 0.2s;
+        }
+        button.secondary-btn:hover { background: #333; color: white; border-color: #555; }
+
+        /* CROPPER STYLES */
+        .cropper-area {
+            border: 2px dashed #333;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            background: #080808;
+            transition: all 0.3s;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .cropper-area:hover { border-color: var(--accent); background: rgba(255, 71, 87, 0.05); }
+        .crop-preview-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+            width: 100%;
+        }
+        .crop-item {
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 4px;
+            overflow: hidden;
+            aspect-ratio: 16/9;
+            position: relative;
+            group: true;
+        }
+        .crop-item:hover .dl-btn { opacity: 1; }
+        
+        .crop-item img { width: 100%; height: 100%; object-fit: cover; }
+        .crop-badge {
+            position: absolute; top: 5px; left: 5px;
+            background: rgba(0,0,0,0.7); color: white;
+            font-size: 0.6rem; padding: 2px 6px; border-radius: 3px;
+            pointer-events: none; z-index: 10;
+        }
+        
+        .dl-btn {
+            position: absolute; bottom: 5px; right: 5px; background: var(--accent);
+            color: white; border: none; width: 24px; height: 24px; border-radius: 4px;
+            display: flex; align-items: center; justify-content: center; font-size: 0.7rem;
+            cursor: pointer; z-index: 20; opacity: 0.8; transition: opacity 0.2s;
+        }
+        .dl-btn:hover { opacity: 1; transform: scale(1.1); }
+
+        .ref-image-container {
+            width: 100%; height: 150px; background: #000; border: 1px solid #333;
+            border-radius: 6px; margin-bottom: 10px; display: flex; align-items: center;
+            justify-content: center; overflow: hidden; position: relative;
+        }
+        .ref-image-container img { width: 100%; height: 100%; object-fit: contain; opacity: 0.5; transition: opacity 0.3s; }
+        .ref-image-container:hover img { opacity: 1; }
+        .ref-placeholder { color: #444; font-size: 0.7rem; text-transform: uppercase; }
+
+        /* Highlight for Tab E (Now using Accent Color instead of Yellow) */
+        .tab-btn.tab-fullgrid {
+            border-color: rgba(255, 71, 87, 0.3); /* Red accent dim */
+            color: #ff4757;
+        }
+        .tab-btn.tab-fullgrid.active {
+            background: #ff4757;
+            color: white;
+            box-shadow: 0 0 10px rgba(255, 71, 87, 0.4);
+        }
+
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center pb-20">
+
+    <header class="w-full border-b border-[#1f1f1f] bg-black/80 backdrop-blur-md z-20 sticky top-0">
+        <div class="w-full max-w-7xl mx-auto px-6 py-4 flex items-center gap-4 justify-start">
+            <div class="w-3 h-8 bg-[#ff4757] rounded-sm shadow-[0_0_15px_rgba(255,71,87,0.5)]"></div>
+            <div>
+                <h1 class="text-xl font-bold tracking-tight text-white">ANIME BATTLE <span class="text-[#ff4757] font-light">STUDIO</span></h1>
+                <p class="text-[10px] text-[#555] uppercase tracking-[0.2em]">Kit de Produção (Full Script v7.0)</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="w-full mt-8">
+        <div class="w-full max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Left Column: Controls -->
+            <div class="lg:col-span-7 space-y-6" id="controls-container">
+                <!-- Sections injected by JS -->
+            </div>
+
+            <!-- Right Column: Output (Tabbed Interface) -->
+            <div class="lg:col-span-5 space-y-6 lg:sticky lg:top-24 lg:self-start">
+                <div class="dark-panel p-5 rounded-lg flex flex-col gap-4 shadow-2xl">
+                    <div class="flex items-center justify-between">
+                        <div class="section-title mb-0">
+                            <i class="fa-solid fa-layer-group icon-highlight"></i> Estação de Trabalho
+                        </div>
+                        <button type="button" class="text-[10px] tracking-widest uppercase flex items-center gap-1 rounded border border-transparent px-2 py-1 text-white/50 hover:text-white hover:border-[#ff4757] transition-colors" onclick="randomize()">
+                            <i class="fa-solid fa-dice"></i> Random
+                        </button>
+                    </div>
+
+                    <!-- TABS NAVIGATION (ICONS ONLY FOR FIRST TWO) -->
+                    <div class="tabs-header">
+                        <button class="tab-btn active" onclick="openTab('tab-grid')" title="Geração do Prompt"><i class="fa-solid fa-pen-nib text-lg"></i></button>
+                        <button class="tab-btn" onclick="openTab('tab-crop')" title="Corte e Fatiar"><i class="fa-solid fa-scissors text-lg"></i></button>
+                        <button class="tab-btn" onclick="openTab('tab-v1')"><span>A</span></button>
+                        <button class="tab-btn" onclick="openTab('tab-v2')"><span>B</span></button>
+                        <button class="tab-btn" onclick="openTab('tab-v3')"><span>C</span></button>
+                        <button class="tab-btn" onclick="openTab('tab-v4')"><span>D</span></button>
+                        <button class="tab-btn tab-fullgrid" onclick="openTab('tab-v5')" title="Vídeo Único (Grade Completa)"><span>E. GRID</span></button>
+                    </div>
+                    
+                    <!-- TAB 1: Grid Storyboard -->
+                    <div id="tab-grid" class="tab-content active">
+                        <div class="text-[10px] uppercase text-[#ff4757] mb-2 font-bold tracking-widest">
+                            Passo 1: Gere o Grid no ChatGPT
+                        </div>
+                        <p class="text-[11px] text-gray-500 mb-2">Este prompt gera um storyboard consistente (sem bordas).</p>
+                        <textarea id="out-grid" class="prompt-textarea !h-[300px]" readonly></textarea>
+                    </div>
+
+                    <!-- TAB 2: AUTO SLICER -->
+                    <div id="tab-crop" class="tab-content">
+                         <div class="text-[10px] uppercase text-[#ff4757] mb-2 font-bold tracking-widest">
+                            Passo 2: Upload e Corte
+                        </div>
+                        <p class="text-[11px] text-gray-500 mb-3" id="crop-instructions">Arraste a imagem 2x2 gerada aqui. O corte é automático.</p>
+                        
+                        <!-- Upload Container -->
+                        <div id="upload-container">
+                            <div class="cropper-area" id="drop-zone">
+                                <input type="file" id="grid-upload" hidden accept="image/*">
+                                <div class="pointer-events-none flex flex-col items-center">
+                                    <i class="fa-solid fa-cloud-arrow-up text-3xl text-gray-600 mb-2"></i>
+                                    <span class="text-xs text-gray-400">Clique ou Arraste o Grid 2x2</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Preview das fatias -->
+                        <div id="slices-preview" class="hidden">
+                            <div class="flex justify-between items-center mt-2 mb-2">
+                                <span class="text-[10px] font-bold text-green-500"><i class="fa-solid fa-check"></i> IMAGEM PROCESSADA</span>
+                            </div>
+                            
+                            <div class="crop-preview-grid">
+                                <div class="crop-item">
+                                    <span class="crop-badge">Intro (A)</span>
+                                    <img id="slice-1">
+                                    <button class="dl-btn" onclick="downloadSlice(1)" title="Baixar"><i class="fa-solid fa-download"></i></button>
+                                </div>
+                                <div class="crop-item">
+                                    <span class="crop-badge">Ação (B)</span>
+                                    <img id="slice-2">
+                                    <button class="dl-btn" onclick="downloadSlice(2)" title="Baixar"><i class="fa-solid fa-download"></i></button>
+                                </div>
+                                <div class="crop-item">
+                                    <span class="crop-badge">Clímax (C)</span>
+                                    <img id="slice-3">
+                                    <button class="dl-btn" onclick="downloadSlice(3)" title="Baixar"><i class="fa-solid fa-download"></i></button>
+                                </div>
+                                <div class="crop-item">
+                                    <span class="crop-badge">Final (D)</span>
+                                    <img id="slice-4">
+                                    <button class="dl-btn" onclick="downloadSlice(4)" title="Baixar"><i class="fa-solid fa-download"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- VIDEO TABS -->
+                    <div id="tab-v1" class="tab-content">
+                        <div class="text-[10px] uppercase text-blue-400 mb-2 font-bold tracking-widest">Passo 3.A: Vídeo de Introdução</div>
+                        <div class="ref-image-container"><img id="ref-v1" class="hidden"><span class="ref-placeholder" id="ph-v1">Sem Imagem</span></div>
+                        <textarea id="out-v1" class="prompt-textarea" readonly></textarea>
+                    </div>
+
+                    <div id="tab-v2" class="tab-content">
+                        <div class="text-[10px] uppercase text-blue-400 mb-2 font-bold tracking-widest">Passo 3.B: Vídeo de Ação</div>
+                        <div class="ref-image-container"><img id="ref-v2" class="hidden"><span class="ref-placeholder" id="ph-v2">Sem Imagem</span></div>
+                        <textarea id="out-v2" class="prompt-textarea" readonly></textarea>
+                    </div>
+
+                    <div id="tab-v3" class="tab-content">
+                        <div class="text-[10px] uppercase text-blue-400 mb-2 font-bold tracking-widest">Passo 3.C: Vídeo de Clímax</div>
+                        <div class="ref-image-container"><img id="ref-v3" class="hidden"><span class="ref-placeholder" id="ph-v3">Sem Imagem</span></div>
+                        <textarea id="out-v3" class="prompt-textarea" readonly></textarea>
+                    </div>
+
+                    <div id="tab-v4" class="tab-content">
+                        <div class="text-[10px] uppercase text-blue-400 mb-2 font-bold tracking-widest">Passo 3.D: Vídeo Final</div>
+                        <div class="ref-image-container"><img id="ref-v4" class="hidden"><span class="ref-placeholder" id="ph-v4">Sem Imagem</span></div>
+                        <textarea id="out-v4" class="prompt-textarea" readonly></textarea>
+                    </div>
+
+                    <!-- V6 NEW TAB: FULL GRID INTERPOLATION -->
+                    <div id="tab-v5" class="tab-content">
+                        <!-- Updated color class to red (accent) -->
+                        <div class="text-[10px] uppercase text-[#ff4757] mb-2 font-bold tracking-widest">
+                            Passo 3.E: Vídeo Único (Temporal Coherence)
+                        </div>
+                        
+                        <!-- Full Grid Reference -->
+                        <div class="ref-image-container">
+                            <img id="ref-v5" class="hidden">
+                            <span class="ref-placeholder" id="ph-v5">Sem Imagem (Faça Upload na aba Corte)</span>
+                        </div>
+
+                        <p class="text-[10px] text-gray-400 mb-2 italic">
+                            <i class="fa-solid fa-triangle-exclamation text-[#ff4757]"></i> 
+                            Use a <strong>IMAGEM COMPLETA</strong> (Grid 2x2) como input no Kling/Luma.
+                        </p>
+                        <!-- Updated border color to red (accent) -->
+                        <textarea id="out-v5" class="prompt-textarea !h-[300px] border-[#ff4757]/30" readonly></textarea>
+                    </div>
+                    
+                    <!-- DYNAMIC BOTTOM ACTIONS -->
+                    <div class="flex gap-2 mt-2">
+                        <!-- Reset Button -->
+                        <button id="reset-btn" class="hidden px-4 py-3 rounded-md text-[12px] font-semibold secondary-btn" type="button" onclick="resetCropper()" title="Limpar">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                        <!-- Main Action -->
+                        <button id="main-action-btn" class="flex-1 px-6 py-3 rounded-md text-[12px] font-semibold primary-btn" type="button" onclick="handleMainAction()">
+                            <i class="fa-regular fa-copy mr-2"></i> COPIAR TEXTO DA ABA
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="toast" class="toast">Conteúdo copiado!</div>
+
+    <script>
+        // --- DATA STRUCTURE ---
+        const data = {
+            visual_style: [ "Dark Seinen Style (Mature & Gritty)", "Ufotable Style (High Budget)", "Retro 90s Cel Shaded", "MAPPA Style (Gritty & Dark)", "Studio Ghibli (Detailed)", "Cyberpunk Edgerunners Style (Neon)" ],
+            location: [ "Ruined Neo-Tokyo City", "Ancient Bamboo Forest", "Floating Celestial Arena", "Volcanic Crater", "Infinite Mirror Dimension", "Rainy Cyberpunk Rooftop" ],
+            fighter_1: [ "Cyber Samurai (Laser Katana)", "Fire Mage (Pyromancy)", "Speedster Ninja (Daggers)", "Heavy Mecha (Missiles)", "Holy Paladin (Greatsword)", "Martial Artist (Glowing Fists)" ],
+            fighter_2: [ "Shadow Demon (Dark Claws)", "Ice Sorcerer (Frost Spikes)", "Giant Kaiju (Brute Force)", "Corrupted Android (Red Energy)", "Swarm of Drones (Lasers)", "Wind Master (Tornadoes)" ],
+            opening_move: [ "The Speed Blitz (Shunpo)", "The Beam Struggle (Clash)", "Weapon Lock (Tsubazeria)", "Smoke Ambush", "Aerial Dogfight", "The 'Stare Down'", "Projectile Rain (Danmaku)", "Heavy Impact Entry", "Transformation Start", "Elemental Hazard" ],
+            finishing_move: [ "Meteor Smash", "The Silent Slice", "Point-Blank Erasure", "Omni-Directional Assault", "Planetary Devastation", "The 'One-Punch'", "Sacrificial Overload", "Counter-Breaker", "Dimensional Slash", "Exhaustion Collapse" ],
+            outcome: [ "Fighter 1 Wins", "Fighter 2 Wins" ]
+        };
+
+        const state = { custom_f1: null, custom_f2: null };
+
+        // --- CORE LOGIC ENGINE ---
+        function generatePrompt() {
+            let f1Name, f1Look; 
+            let f2Name, f2Look;
+            
+            if (state.custom_f1) {
+                const c = state.custom_f1;
+                f1Name = c.archetype;
+                f1Look = `${c.gender || 'Warrior'}, ${c.physique || 'fit'}, ${c.hair ? c.hair + ' hair' : ''}, ${c.eyes || ''}, wearing ${c.outfit || 'armor'}`;
+            } else {
+                const parsed = parseFighterString(state.fighter_1);
+                f1Name = parsed.name;
+                f1Look = "standard anime battle gear, detailed character design";
+            }
+
+            if (state.custom_f2) {
+                const c = state.custom_f2;
+                f2Name = c.archetype;
+                f2Look = `${c.gender || 'Warrior'}, ${c.physique || 'fit'}, ${c.hair ? c.hair + ' hair' : ''}, ${c.eyes || ''}, wearing ${c.outfit || 'armor'}`;
+            } else {
+                const parsed = parseFighterString(state.fighter_2);
+                f2Name = parsed.name;
+                f2Look = "villainous battle armor, dark aura, detailed character design";
+            }
+
+            const style = state.visual_style || "Dark Seinen Style";
+            const loc = state.location || "Arena";
+            const opening = state.opening_move || "The Speed Blitz";
+            const finisher = state.finishing_move || "Meteor Smash";
+            const outcome = state.outcome || "Fighter 1 Wins";
+            const winnerName = outcome.includes("Fighter 1") ? f1Name : f2Name;
+            const loserName = outcome.includes("Fighter 1") ? f2Name : f1Name;
+
+            let p1_desc, p2_desc, p3_desc, p4_desc;
+            let vid1_prompt, vid2_prompt, vid3_prompt, vid4_prompt;
+
+            // --- CINEMATIC OPENINGS (FULL 10 OPTIONS) ---
+            if (opening.includes("Speed Blitz")) {
+                p1_desc = `Extreme Close-up of ${f1Name}'s eyes narrowing, feet muscles tensing on the ground, cracking the floor.`;
+                p2_desc = `Wide Action Shot: ${f1Name} is a motion blur streak crossing the screen, ${f2Name} looks surprised looking over shoulder.`;
+                vid1_prompt = "Extreme close-up on eyes, rack focus to feet, camera shake as energy builds up, intense atmosphere. (Macro Lens)";
+                vid2_prompt = "Fast tracking camera moving sideways, background speed lines, motion blur, dutch angle, dynamic velocity. (Tracking Shot)";
+            } else if (opening.includes("Beam Struggle")) {
+                p1_desc = `Split screen effect: Left side ${f1Name} screaming charging energy, Right side ${f2Name} doing the same.`;
+                p2_desc = `Ultra Wide Shot: The center of the arena exploding with light where two beams collide, creating a massive sphere.`;
+                vid1_prompt = "Quick cuts between faces, aggressive zoom in on energy balls, screen vibration, lens flares. (Handheld Camera)";
+                vid2_prompt = "Camera orbiting 360 degrees around the clash point, massive particle effects, volumetric lighting, unstable camera. (Orbit Shot)";
+            } else if (opening.includes("Weapon Lock")) {
+                p1_desc = `Low angle shot looking up at ${f1Name} and ${f2Name} mid-air, about to collide weapons.`;
+                p2_desc = `Extreme Close-up of the sparks flying exactly where the weapons touch, faces gritting teeth in background.`;
+                vid1_prompt = "Low angle tracking shot, following characters running/flying towards each other, anticipation. (Low Angle)";
+                vid2_prompt = "Macro shot of impact point, sparks hitting the camera lens, violent camera shake, depth of field focus on weapons. (Impact Cam)";
+            } else if (opening.includes("Smoke Ambush")) {
+                p1_desc = `Thick fog covering the arena, ${f2Name} looks around tensely, only silhouette visible.`;
+                p2_desc = `Sudden close-up from inside the smoke: ${f1Name}'s glowing eyes appearing right behind ${f2Name}.`;
+                vid1_prompt = "Slow camera pan through thick volumetric fog, suspenseful atmosphere, minimal movement. (Steadicam)";
+                vid2_prompt = "Jump scare zoom, sudden fast movement from darkness, glowing trails, horror-style impact. (Snap Zoom)";
+            } else if (opening.includes("Aerial Dogfight")) {
+                p1_desc = `High altitude shot above clouds: Two tiny dots leaving massive contrails (vapor trails) across the blue sky.`;
+                p2_desc = `Mid-air action: ${f1Name} and ${f2Name} exchanging blows while falling freely, spinning camera.`;
+                vid1_prompt = "Wide aerial shot, clouds passing rapidly, camera shaking from sonic booms, sense of massive scale. (Aerial Cam)";
+                vid2_prompt = "Camera falling with the characters, spinning horizon, wind distortion effects, chaotic orientation. (Freefall Cam)";
+            } else if (opening.includes("Stare Down")) {
+                p1_desc = `Extreme close-up of ${f1Name}'s hand hovering over weapon hilt/fist, sweat drop falling.`;
+                p2_desc = `Single frame flash: Both fighters drawing weapons/attacking in a blur, background disappears.`;
+                vid1_prompt = "Static camera with rack focus on hand/weapon, wind blowing clothes, heavy breathing, extreme tension. (Static Focus)";
+                vid2_prompt = "Sudden explosion of movement from stillness, speed lines, monochrome flash frame, impact distortion. (Sakuga Burst)";
+            } else if (opening.includes("Projectile Rain")) {
+                p1_desc = `Worm's eye view looking up at ${f1Name} floating, thousands of energy glowing weapons/orbs behind them.`;
+                p2_desc = `Wide shot of ${f2Name} running zig-zag on the ground while explosions chase them.`;
+                vid1_prompt = "Low angle looking up, majestic pose, glowing particles filling the sky, intimidating scale. (Hero Low Angle)";
+                vid2_prompt = "Tracking shot from side, debris flying at camera, chaotic explosions, character dodging frantically. (Action Tracking)";
+            } else if (opening.includes("Heavy Impact Entry")) {
+                p1_desc = `High angle looking down at ${f2Name} shielding eyes, a burning meteor (${f1Name}) incoming.`;
+                p2_desc = `Impact frame: A massive crater forming, shockwave lifting the ground, debris flying everywhere.`;
+                vid1_prompt = "Camera zooming in rapidly on incoming object, heat distortion, target locking view. (Zoom In)";
+                vid2_prompt = "Camera shaking violently, ground lifting up, dust explosion covering the lens, physics destruction. (Physics Sim)";
+            } else if (opening.includes("Transformation Start")) {
+                p1_desc = `Close-up on ${f1Name}'s chest/core glowing brightly, skin cracking with energy, hair floating up.`;
+                p2_desc = `Wide shot: A pillar of light engulfing ${f1Name}, changing the color palette of the entire environment.`;
+                vid1_prompt = "Intense light bloom, anti-gravity floating debris, veins/armor glowing, power build up. (Power Up)";
+                vid2_prompt = "Blinding light explosion, color shift, wind pressure pushing camera back, epic reveal. (Cinematic Reveal)";
+            } else { // Elemental Hazard default
+                p1_desc = `The arena floor crumbling into lava/ice, ${f1Name} surfing/sliding on the elemental surface.`;
+                p2_desc = `Dynamic shot of ${f1Name} launching a massive elemental wave (fire/water) at ${f2Name}.`;
+                vid1_prompt = "Camera gliding low over the surface, heat/cold distortion, environmental destruction. (Glide Cam)";
+                vid2_prompt = "Wave crashing towards camera, fluid simulation, massive scale elemental attack. (Fluid Sim)";
+            }
+
+            // --- CINEMATIC FINISHERS (FULL 10 OPTIONS) ---
+            if (finisher.includes("Meteor Smash")) {
+                p3_desc = `Bird's Eye View (Top-down): ${winnerName} diving from the sky like a meteor towards ${loserName}.`;
+                p4_desc = `Worm's Eye View (Bottom-up): Looking up from inside a crater, ${winnerName} silhouette against the sun.`;
+                vid3_prompt = "Top-down aerial view falling with the character, speed lines vertical, clouds parting, high velocity. (Aerial Shot)";
+                vid4_prompt = "Ground level view looking up, dust settling, massive impact crater, hero standing tall, sun rays / god rays. (Worm's Eye View)";
+            } else if (finisher.includes("Silent Slice")) {
+                p3_desc = `Side profile silhouette: The moment of the slash, monochromatic background, time frozen.`;
+                p4_desc = `Rack focus shot: ${winnerName} sheathing sword in foreground (blurry), ${loserName} falling in background (sharp).`;
+                vid3_prompt = "High contrast silhouette, time freeze effect (bullet time), sudden flash of light, monochromatic style. (Stylized)";
+                vid4_prompt = "Rack focus from background to foreground weapon, slow motion sheathing, delayed impact wind, cinematic depth. (Rack Focus)";
+            } else if (finisher.includes("Point-Blank")) {
+                p3_desc = `Fisheye lens effect: ${winnerName}'s hand glowing right in front of the camera (simulating ${loserName}'s face).`;
+                p4_desc = `Wide shot: A vertical pillar of light visible from space, destroying the clouds.`;
+                vid3_prompt = "Fisheye lens distortion, hand reaching towards camera, blinding light building up, extreme intensity. (Fisheye)";
+                vid4_prompt = "Ultra wide landscape shot, massive vertical energy beam eruption, shockwave clearing clouds, epic scale. (Wide Angle)";
+            } else if (finisher.includes("Omni-Directional")) {
+                p3_desc = `Kaleidoscope effect: Multiple afterimages of ${winnerName} attacking ${loserName} from every angle simultaneously.`;
+                p4_desc = `Wide shot: ${loserName} collapsing in the center while ${winnerName} lands calmly.`;
+                vid3_prompt = "Rapid editing, strobe effect, multiple motion trails attacking center, chaotic speed. (Frenzied Edit)";
+                vid4_prompt = "Sudden stillness, smoke clearing from center, dramatic pose, high contrast lighting. (Calm After Storm)";
+            } else if (finisher.includes("Planetary Devastation")) {
+                p3_desc = `Extreme Wide Shot: Large chunks of the ground floating up to form a sphere around ${loserName}.`;
+                p4_desc = `Distant shot: A moon-sized sphere floating in the sky, ${winnerName} looking at it from the ground.`;
+                vid3_prompt = "Camera pulling back rapidly to show massive scale, floating rocks, gravity distortion. (Reverse Zoom)";
+                vid4_prompt = "Static majestic shot, huge object in sky, atmospheric perspective, ominous silence. (Epic Scale)";
+            } else if (finisher.includes("One-Punch")) {
+                p3_desc = `Impact Frame: High contrast black and white sketch style of the final punch connecting with ${loserName}'s gut.`;
+                p4_desc = `Split clouds: Camera looking at the sky where the punch air pressure cleared a path through the clouds.`;
+                vid3_prompt = "Impact frame aesthetic, sudden color inversion, heavy screen shake, debris flying towards camera. (Impact Frame)";
+                vid4_prompt = "Camera panning up to sky, clouds parting physically, god rays, atmospheric aftermath. (Atmospheric Pan)";
+            } else if (finisher.includes("Sacrificial Overload")) {
+                p3_desc = `Close-up on ${winnerName}: Cracks of light appearing on skin, crying blood, blinding light emanating.`;
+                p4_desc = `White-out: The entire screen is white with faint outlines of the blast radius.`;
+                vid3_prompt = "Intense overexposure, bloom effects, character disintegrating into light, emotional intensity. (Overexposure)";
+                vid4_prompt = "Fading into white, ear ringing sound implication, slow fade to absolute brightness. (Fade to White)";
+            } else if (finisher.includes("Counter-Breaker")) {
+                p3_desc = `X-Ray shot: ${winnerName} catching ${loserName}'s attack and we see the bones breaking in ${loserName}'s arm.`;
+                p4_desc = `Dutch angle low shot: ${winnerName} throwing the broken ${loserName} aside like trash.`;
+                vid3_prompt = "Slow motion impact, x-ray skeleton effect overlay, shockwave ripple, brutal physics. (X-Ray Cam)";
+                vid4_prompt = "Ragdoll physics, heavy weight impact on ground, dust puff, dismissive gesture. (Physics Heavy)";
+            } else if (finisher.includes("Dimensional Slash")) {
+                p3_desc = `The screen/reality shattering like glass, with galaxy/void visible through the cracks of the slash.`;
+                p4_desc = `Standard view returning but ${loserName} is bisected or defeated, reality glitching.`;
+                vid3_prompt = "Screen glass shattering effect, glitch artifacts, void background reveal, surreal visuals. (Glitch Art)";
+                vid4_prompt = "Reality stitching back together, digital artifacting, enemy dissolving into pixels/void. (Data Moshing)";
+            } else { // Exhaustion default
+                p3_desc = `Both fighters punching each other in the face simultaneously, slow motion, sweat and blood flying.`;
+                p4_desc = `Wide shot: Both standing, then ${loserName} falls forward face first, ${winnerName} barely standing.`;
+                vid3_prompt = "Super slow motion cross-counter, facial deformation from punch, sweat particles suspended in air. (Phantom Cam)";
+                vid4_prompt = "Long take, no cuts, slow collapse of one fighter, heavy atmospheric breathing motion. (Long Take)";
+            }
+
+            // PROMPT ASSEMBLY
+            const gridPrompt = `Create a cinematic anime storyboard layout split into 4 panels (2x2 Grid). Aspect Ratio 16:9.
+Visual Style: ${style}, High Fidelity, 8k.
+Setting: ${loc}.
+
+CRITICAL LAYOUT INSTRUCTION:
+Render strictly as a single 2x2 grid image.
+Seamless composition: NO borders, NO black lines between panels, NO gutters. 
+The panels must touch each other edge-to-edge for perfect slicing.
+
+CHARACTERS (Consistency Required):
+- Character A (${f1Name}): ${f1Look}.
+- Character B (${f2Name}): ${f2Look}.
+
+PANEL DESCRIPTIONS (Focus on Camera Angles):
+- Panel 1 (Top-Left): ${p1_desc}
+- Panel 2 (Top-Right): ${p2_desc}
+- Panel 3 (Bottom-Left): ${p3_desc}
+- Panel 4 (Bottom-Right): ${p4_desc}
+
+Render strictly as a single 2x2 grid image. High contrast, cel-shaded. --ar 16:9`;
+
+            const v1 = `${vid1_prompt} Cinematic lighting, high fidelity, 8k, ${style}. --ar 16:9`;
+            const v2 = `${vid2_prompt} Motion blur, dynamic camera angle, fluid animation, ${style}. --ar 16:9`;
+            const v3 = `${vid3_prompt} High impact, particle effects, physics simulation, ${style}. --ar 16:9`;
+            const v4 = `${vid4_prompt} Atmospheric depth, volumetric lighting, detailed texture, ${style}. --ar 16:9`;
+
+            // 3. V6 - TEMPORAL COHERENCE PROMPT (Full Grid)
+            const v5 = `The provided images are **four consecutive frames of the SAME continuous scene**.
+They represent **one single uninterrupted cinematic shot**, from the **same camera**, with **continuous time and motion**.
+
+**SEQUENCE FLOW:**
+1. Start with: ${p1_desc}
+2. Transition smoothly into: ${p2_desc}
+3. Escalate to: ${p3_desc}
+4. Conclude with: ${p4_desc}
+
+**INSTRUCTIONS:**
+Do NOT treat them as separate shots or variations. Morph and interpolate the motion between these keyframes to create a fluid video.
+Maintain perfect consistency of ${f1Name} and ${f2Name} throughout the motion.
+Visual Style: ${style}, 8k, Cinematic.`;
+
+            document.getElementById("out-grid").value = gridPrompt;
+            document.getElementById("out-v1").value = v1;
+            document.getElementById("out-v2").value = v2;
+            document.getElementById("out-v3").value = v3;
+            document.getElementById("out-v4").value = v4;
+            document.getElementById("out-v5").value = v5;
+        }
+
+        // --- UTILITIES ---
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('grid-upload');
+        let slicedImagesData = [];
+        let originalGridData = null; // V6: Store full image data
+
+        dropZone.addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = '#ff4757'; });
+        dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.style.borderColor = '#333'; });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault(); dropZone.style.borderColor = '#333';
+            const file = e.dataTransfer.files[0];
+            if(file && file.type.startsWith('image/')) processImage(file);
+        });
+        fileInput.addEventListener('change', (e) => { const file = e.target.files[0]; if(file) processImage(file); });
+
+        function processImage(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => { 
+                originalGridData = e.target.result; // Save for Tab E
+                const img = new Image(); 
+                img.onload = () => sliceGrid(img); 
+                img.src = e.target.result; 
+                
+                // Update Tab E Reference immediately
+                const refV5 = document.getElementById('ref-v5');
+                const phV5 = document.getElementById('ph-v5');
+                refV5.src = originalGridData;
+                refV5.classList.remove('hidden');
+                phV5.classList.add('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function sliceGrid(img) {
+            const w = img.width / 2; const h = img.height / 2;
+            const coords = [{ x: 0, y: 0 }, { x: w, y: 0 }, { x: 0, y: h }, { x: w, y: h }];
+            const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            slicedImagesData = [];
+            coords.forEach((pos, index) => {
+                ctx.clearRect(0, 0, w, h); ctx.drawImage(img, pos.x, pos.y, w, h, 0, 0, w, h);
+                const dataUrl = canvas.toDataURL('image/png'); slicedImagesData.push(dataUrl);
+                document.getElementById(`slice-${index+1}`).src = dataUrl;
+                document.getElementById(`ref-v${index+1}`).src = dataUrl;
+                document.getElementById(`ref-v${index+1}`).classList.remove('hidden');
+                document.getElementById(`ph-v${index+1}`).classList.add('hidden');
+            });
+            document.getElementById('upload-container').classList.add('hidden');
+            document.getElementById('slices-preview').classList.remove('hidden');
+            document.getElementById('crop-instructions').classList.add('hidden');
+            updateBottomButtons();
+            showToast("Imagem processada!");
+        }
+
+        function resetCropper() {
+            slicedImagesData = []; 
+            originalGridData = null;
+            document.getElementById('grid-upload').value = "";
+            
+            document.getElementById('upload-container').classList.remove('hidden');
+            document.getElementById('slices-preview').classList.add('hidden');
+            document.getElementById('crop-instructions').classList.remove('hidden');
+            
+            // Reset Refs V1-V4
+            for(let i=1; i<=4; i++) {
+                const ref = document.getElementById(`ref-v${i}`); ref.src = ""; ref.classList.add('hidden');
+                document.getElementById(`ph-v${i}`).classList.remove('hidden');
+            }
+            // Reset Ref V5
+            const refV5 = document.getElementById('ref-v5'); refV5.src = ""; refV5.classList.add('hidden');
+            document.getElementById('ph-v5').classList.remove('hidden');
+
+            updateBottomButtons();
+        }
+
+        function downloadSlice(index) {
+            if (!slicedImagesData[index-1]) return;
+            const link = document.createElement('a'); link.href = slicedImagesData[index-1];
+            link.download = `scene_${index}_cut.png`; document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        }
+
+        function downloadAllSlices() {
+            if (slicedImagesData.length === 0) { showToast("Nada para baixar."); return; }
+            slicedImagesData.forEach((data, i) => { setTimeout(() => { const link = document.createElement('a'); link.href = data; link.download = `scene_${i+1}_cut.png`; document.body.appendChild(link); link.click(); document.body.removeChild(link); }, i * 200); });
+        }
+
+        let activeTabId = 'tab-grid';
+        function openTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(btn => { if(btn.getAttribute('onclick').includes(tabId)) btn.classList.add('active'); });
+            activeTabId = tabId; updateBottomButtons();
+        }
+
+        function updateBottomButtons() {
+            const mainBtn = document.getElementById('main-action-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            if (activeTabId === 'tab-crop') {
+                mainBtn.innerHTML = `<i class="fa-solid fa-download mr-2"></i> BAIXAR TODAS AS FATIAS`;
+                mainBtn.onclick = downloadAllSlices;
+                resetBtn.classList.toggle('hidden', slicedImagesData.length === 0);
+            } else {
+                mainBtn.innerHTML = `<i class="fa-regular fa-copy mr-2"></i> COPIAR TEXTO DA ABA`;
+                mainBtn.onclick = copyActiveTab;
+                resetBtn.classList.add('hidden');
+            }
+        }
+
+        function handleMainAction() {} 
+
+        function copyActiveTab() {
+            let targetId = 'out-grid';
+            if(activeTabId === 'tab-v1') targetId = 'out-v1'; if(activeTabId === 'tab-v2') targetId = 'out-v2';
+            if(activeTabId === 'tab-v3') targetId = 'out-v3'; if(activeTabId === 'tab-v4') targetId = 'out-v4';
+            if(activeTabId === 'tab-v5') targetId = 'out-v5'; // V6 Add
+            const ta = document.getElementById(targetId);
+            if(ta) { ta.select(); document.execCommand('copy'); showToast(`Texto copiado!`); }
+        }
+
+        function parseFighterString(str) {
+            if (!str) return { name: "Fighter", power: "Attacks" };
+            const parts = str.match(/(.*)\s\((.*)\)/);
+            if (parts) return { name: parts[1], power: parts[2] };
+            return { name: str, power: "Unknown Power" };
+        }
+
+        function handleFileUpload(event, fighterKey) {
+            const file = event.target.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const json = JSON.parse(e.target.result);
+                    if (json.configuracao) {
+                        const charData = json.configuracao;
+                        if (fighterKey === 'fighter_1') state.custom_f1 = charData;
+                        if (fighterKey === 'fighter_2') state.custom_f2 = charData;
+                        const label = document.getElementById(`label_${fighterKey}`);
+                        label.innerHTML = `<i class="fa-solid fa-check text-green-500"></i> <span class="text-white">${charData.archetype} Loaded</span>`;
+                        label.classList.add('active');
+                        if (charData.anime_style) state.visual_style = charData.anime_style;
+                        generatePrompt();
+                        resetCropper(); // Trigger Clean on Upload
+                    } else { alert("JSON inválido."); }
+                } catch (err) { console.error(err); alert("Erro ao ler JSON."); }
+            };
+            reader.readAsText(file);
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast'); toast.innerText = msg || "Conteúdo copiado!";
+            toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        const icons = { visual_style: "fa-paintbrush", location: "fa-earth-americas", fighter_1: "fa-user-ninja", fighter_2: "fa-dragon", opening_move: "fa-bolt", finishing_move: "fa-skull", outcome: "fa-trophy" };
+
+        function createSection(title, key, options) {
+            const parentDiv = document.getElementById("controls-container");
+            const section = document.createElement("div"); section.className = "dark-panel p-5 rounded-lg"; section.dataset.sectionKey = key;
+            const sectionTitle = document.createElement("div"); sectionTitle.className = "section-title";
+            const iconClass = icons[key] || "fa-circle"; sectionTitle.innerHTML = `<i class="fa-solid ${iconClass} icon-highlight"></i> ${title}`;
+            section.appendChild(sectionTitle);
+
+            if (key === 'fighter_1' || key === 'fighter_2') {
+                const uploadContainer = document.createElement("div");
+                uploadContainer.innerHTML = `<input type="file" id="upload_${key}" hidden accept=".json"><label for="upload_${key}" id="label_${key}" class="upload-zone"><i class="fa-solid fa-upload text-gray-500"></i><span class="upload-text">Upload JSON Character</span></label>`;
+                section.appendChild(uploadContainer);
+                setTimeout(() => { document.getElementById(`upload_${key}`).addEventListener('change', (e) => handleFileUpload(e, key)); }, 0);
+            }
+
+            const grid = document.createElement("div"); grid.className = "grid grid-cols-2 md:grid-cols-2 gap-3";
+            options.forEach(option => {
+                const button = document.createElement("button"); button.className = "option-card p-3 text-[11px]"; button.innerHTML = `<span>${option}</span>`;
+                button.onclick = () => {
+                    if (key === 'fighter_1' || key === 'fighter_2') { 
+                        state[key === 'fighter_1' ? 'custom_f1' : 'custom_f2'] = null; 
+                        const label = document.getElementById(`label_${key}`);
+                        label.innerHTML = `<i class="fa-solid fa-upload text-gray-500"></i> <span class="upload-text">Upload JSON Character</span>`; 
+                        label.classList.remove('active'); 
+                    }
+                    state[key] = option;
+                    section.querySelectorAll('.option-card').forEach(btn => btn.classList.remove('selected'));
+                    button.classList.add('selected'); 
+                    generatePrompt();
+                    resetCropper(); // Trigger Clean on Option Change
+                };
+                grid.appendChild(button);
+            });
+            section.appendChild(grid); parentDiv.appendChild(section);
+        }
+
+        function randomize() {
+            for (const key in data) { state[key] = data[key][Math.floor(Math.random() * data[key].length)]; }
+            document.querySelectorAll('#controls-container .dark-panel').forEach(section => {
+                const key = section.dataset.sectionKey;
+                if (key && state[key]) {
+                    section.querySelectorAll('.option-card').forEach(btn => btn.classList.remove('selected'));
+                    const selected = Array.from(section.querySelectorAll('.option-card')).find(btn => btn.innerText === state[key]);
+                    if (selected) selected.classList.add('selected');
+                }
+            });
+            generatePrompt();
+            resetCropper(); // Trigger Clean on Randomize
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const orderedKeys = ["visual_style", "location", "fighter_1", "fighter_2", "opening_move", "finishing_move", "outcome"];
+            orderedKeys.forEach(key => {
+                let displayTitle = key.replace(/_/g, ' ').toUpperCase();
+                if(key === 'fighter_1') displayTitle = "LUTADOR 1"; if(key === 'fighter_2') displayTitle = "LUTADOR 2";
+                if(key === 'opening_move') displayTitle = "ABERTURA (PAINEL 1-2)"; if(key === 'finishing_move') displayTitle = "FINAL (PAINEL 3-4)";
+                if(key === 'outcome') displayTitle = "VENCEDOR";
+                createSection(displayTitle, key, data[key]);
+            });
+            randomize(); updateBottomButtons();
+        });
+    </script>
+</body>
+</html>

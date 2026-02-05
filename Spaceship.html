@@ -1,0 +1,1084 @@
+﻿<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spaceship Prompt Studio - Professional</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="shortcut icon" href="favicon.svg" type="image/svg+xml">
+    <style>
+        :root {
+            --bg-dark: #050505;
+            --card-bg: #0f0f0f;
+            --panel-border: #1f1f1f;
+            --accent: #DFE0E2;
+            --accent-dim: rgba(223, 224, 226, 0.12);
+            --text-main: #e5e5e5;
+            --text-muted: #737373;
+            --input-bg: #0a0a0a;
+            
+            /* Logic Colors (Unified to Accent) */
+            --anchor-color: #DFE0E2;
+            --subject-color: #DFE0E2;
+            --context-color: #DFE0E2;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            /* Original Noise Texture */
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+        .dark-panel {
+            background-color: var(--card-bg);
+            border: 1px solid var(--panel-border);
+            transition: border-color 0.2s ease;
+        }
+        .dark-panel:hover {
+            border-color: #333;
+        }
+
+        /* Styled Dropdowns */
+        .custom-select-wrapper {
+            position: relative;
+        }
+        
+        .custom-select-wrapper::after {
+            content: '\f107';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+            font-size: 0.8rem;
+        }
+
+        select {
+            width: 100%;
+            background-color: var(--input-bg);
+            border: 1px solid var(--panel-border);
+            color: var(--text-main);
+            padding: 0.75rem 1rem;
+            font-size: 0.85rem;
+            border-radius: 0.375rem;
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        select:hover {
+            border-color: #444;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 1px var(--accent-dim);
+        }
+
+        .section-header {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--panel-border);
+            color: var(--accent); /* Unified color */
+        }
+
+        .label-text {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        textarea {
+            background-color: var(--input-bg);
+            border: 1px solid var(--panel-border);
+            color: var(--text-main);
+            transition: border-color 0.2s;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: var(--accent);
+            color: #050505;
+            text-align: center;
+            border-radius: 4px;
+            padding: 12px 16px;
+            position: fixed;
+            z-index: 50;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            opacity: 0;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: opacity 0.3s, bottom 0.3s;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+            bottom: 50px;
+        }
+
+        button.primary-btn {
+            background: linear-gradient(135deg, rgba(223, 224, 226, 0.1), rgba(223, 224, 226, 0.2));
+            border: 1px solid var(--accent);
+            color: #fff;
+            transition: all 0.2s;
+        }
+        button.primary-btn:hover {
+            background: linear-gradient(135deg, rgba(223, 224, 226, 0.2), rgba(223, 224, 226, 0.3));
+        }
+
+        .badge {
+            font-size: 0.6rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-left: auto;
+            /* Unified Badge Style */
+            background: rgba(223, 224, 226, 0.1);
+            color: var(--accent);
+            border: 1px solid rgba(223, 224, 226, 0.2);
+        }
+
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center pb-20">
+
+    <header class="w-full border-b border-[#1f1f1f] bg-black/80 backdrop-blur-md z-20 sticky top-0">
+        <div class="w-full max-w-7xl mx-auto px-6 py-4 flex items-center gap-4 justify-start">
+            <div class="w-3 h-8 bg-[#DFE0E2] rounded-sm shadow-[0_0_15px_rgba(223,224,226,0.5)]"></div>
+            <div>
+                <h1 class="text-xl font-bold tracking-tight text-white">SPACESHIP PROMPT <span class="text-[#DFE0E2] font-light">STUDIO</span></h1>
+                <p class="text-[10px] text-[#555] uppercase tracking-[0.2em]">Protocolo de Construção de Prompt (Mapa v2)</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="w-full mt-8">
+        <div class="w-full max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- LEFT COLUMN: CONTROLS (Restored Original Position) -->
+            <div class="lg:col-span-7 space-y-8">
+                <div class="dark-panel p-6 rounded-lg border-l-2 border-l-[#DFE0E2] border-opacity-50">
+                    <div class="section-header">
+                        <i class="fa-solid fa-cubes"></i> 0. Modo & Preset
+                        <span class="badge">Configuração Inicial</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="space-y-1">
+                            <label class="label-text">Modo da Cena</label>
+                            <div class="custom-select-wrapper">
+                                <select id="mode" onchange="updateState('mode', this.value); applyModeVisibility(); generatePrompt();">
+                                    <option value="">Selecione...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="label-text">Preset de Estilo</label>
+                            <div class="custom-select-wrapper">
+                                <select id="preset" onchange="updateState('preset', this.value); applyPreset(this.value);">
+                                    <option value="">Selecione...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dark-panel p-6 rounded-lg border-l-2 border-l-[#DFE0E2] border-opacity-50">
+                    <div class="section-header">
+                        <i class="fa-solid fa-camera-retro"></i> 1. Âncora Visual
+                        <span class="badge">Referência de Composição</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="space-y-1">
+                            <label class="label-text">Tipo de Mídia / Arte</label>
+                            <div class="custom-select-wrapper">
+                                <select id="media_type" onchange="updateState('media_type', this.value)">
+                                    <option value="">Selecione...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="label-text">Composição</label>
+                            <div class="custom-select-wrapper">
+                                <select id="camera_shot" onchange="updateState('camera_shot', this.value)">
+                                    <option value="">Selecione...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="space-y-1 md:col-span-2">
+                            <label class="label-text">Qualidade / Render</label>
+                            <div class="custom-select-wrapper">
+                                <select id="render_quality" onchange="updateState('render_quality', this.value)">
+                                    <option value="">Selecione...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dark-panel p-6 rounded-lg border-l-2 border-l-[#DFE0E2] border-opacity-50">
+                    <div class="section-header">
+                        <i class="fa-solid fa-rocket"></i> 2. A Nave (Sujeito)
+                        <span class="badge">Característica Principal</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="space-y-1">
+                        <label class="label-text">Função Narrativa</label>
+                            <div class="custom-select-wrapper">
+                                <select id="ship_role" onchange="updateState('ship_role', this.value)">
+                                    <option value="">Selecione...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="space-y-1">
+                        <label class="label-text">Silhueta</label>
+                            <div class="custom-select-wrapper">
+                                <select id="silhouette" onchange="updateState('silhouette', this.value)">
+                                    <option value="">Selecione...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="space-y-1">
+                        <label class="label-text">Materiais (primário)</label>
+                            <div class="custom-select-wrapper">
+                                <select id="materials_primary" onchange="updateState('materials_primary', this.value)">
+                                    <option value="">Selecione...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="space-y-1">
+                        <label class="label-text">Materiais (secundário - opcional)</label>
+                            <div class="custom-select-wrapper">
+                                <select id="materials_secondary" onchange="updateState('materials_secondary', this.value)">
+                                    <option value="">Selecione...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="space-y-1 md:col-span-2">
+                            <label class="label-text">Detalhes & Greebles</label>
+                            <div class="custom-select-wrapper">
+                                <select id="construction_detail" onchange="updateState('construction_detail', this.value)">
+                                    <option value="">Selecione...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dark-panel p-6 rounded-lg border-l-2 border-l-[#DFE0E2] border-opacity-50">
+                    <div class="section-header">
+                        <i class="fa-solid fa-globe"></i> 3. Contexto
+                        <span class="badge">Ambiente</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div id="wrap_interior_location" class="space-y-1 mode-dependent" data-mode-target="Interior">
+                            <label class="label-text">Localização (Interior)</label>
+                            <div class="custom-select-wrapper">
+                                <select id="interior_location" onchange="updateState('interior_location', this.value)">
+                                    <option value="">Selecione...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="wrap_exterior_location" class="space-y-1 mode-dependent" data-mode-target="Exterior">
+                            <label class="label-text">Localização (Exterior)</label>
+                            <div class="custom-select-wrapper">
+                                <select id="exterior_location" onchange="updateState('exterior_location', this.value)">
+                                    <option value="">Selecione...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dark-panel p-6 rounded-lg border-l-2 border-l-[#DFE0E2] border-opacity-50">
+                    <div class="section-header">
+                        <i class="fa-solid fa-palette"></i> 4. Direção de Arte
+                        <span class="badge">Atmósfera & Cor</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="space-y-1">
+                            <label class="label-text">Atmosfera</label>
+                            <div class="custom-select-wrapper">
+                                <select id="atmosphere" onchange="updateState('atmosphere', this.value)">
+                                    <option value="">Selecione...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="label-text">Iluminação</label>
+                            <div class="custom-select-wrapper">
+                                <select id="lighting" onchange="updateState('lighting', this.value)">
+                                    <option value="">Selecione...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="label-text">Paleta de Cores</label>
+                            <div class="custom-select-wrapper">
+                                <select id="color_palette" onchange="updateState('color_palette', this.value)">
+                                    <option value="">Selecione...</option>
+                                </select>
+                            </div>
+                        </div>
+                <div class="space-y-1">
+                <label class="label-text">Enquadramento</label>
+                    <div class="custom-select-wrapper">
+                        <select id="framing" onchange="updateState('framing', this.value)">
+                            <option value="">Selecione...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <label class="label-text">Proporção da Imagem</label>
+                    <div class="custom-select-wrapper">
+                        <select id="ratio" onchange="updateState('ratio', this.value)">
+                            <option value="">Selecione...</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+            </div>
+
+            <!-- RIGHT COLUMN: OUTPUT (Sticky Panel) -->
+            <div class="lg:col-span-5 space-y-6 lg:sticky lg:top-24 lg:self-start">
+                <div class="dark-panel p-5 rounded-lg flex flex-col gap-4 shadow-xl border-[#333]">
+                    <div class="flex items-center justify-between">
+                        <div class="section-title text-[#DFE0E2]">
+                            <i class="fa-solid fa-terminal icon-highlight"></i> Prompt Final
+                        </div>
+                        <button type="button" class="text-[11px] tracking-[0.3em] uppercase flex items-center gap-1 rounded-md border border-transparent px-3 py-1 text-white/70 hover:text-white hover:border-[#DFE0E2] transition-colors" onclick="randomizeSmart()">
+                            <i class="fa-solid fa-dice"></i> Random
+                        </button>
+                    </div>
+                    <textarea id="prompt-output" rows="12" class="w-full text-xs font-mono leading-relaxed rounded p-4 resize-none focus:ring-1 focus:ring-[#DFE0E2]" readonly></textarea>
+                    <div class="flex items-center gap-3 text-[12px]">
+                        <input type="checkbox" id="include-negative-prompt" class="w-4 h-4 text-[#DFE0E2] rounded border border-[#262626]" checked onchange="toggleNegativePrompt(this.checked)">
+                        <label for="include-negative-prompt" class="text-gray-300">Incluir Negative Prompt</label>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <button class="px-4 py-2 rounded-md text-[12px] font-semibold primary-btn w-full" type="button" onclick="copyToClipboard()">
+                            <i class="fa-regular fa-copy mr-2"></i> Copiar Prompt
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="dark-panel p-5 rounded-lg space-y-3 opacity-80 hover:opacity-100 transition-opacity">
+                    <div class="section-title text-[#DFE0E2]">
+                        <i class="fa-solid fa-info-circle icon-highlight"></i> Estrutura do Mapa
+                    </div>
+                    <p class="text-[12px] text-gray-400 leading-relaxed">
+                        Este gerador segue a lógica sequencial para criar consistência narrativa.
+                    </p>
+                    <div class="flex gap-2 text-[10px] mt-2">
+                        <span class="px-2 py-1 rounded bg-[#DFE0E2]/10 text-[#DFE0E2] border border-[#DFE0E2]/20">1. Lente</span>
+                        <span class="px-2 py-1 rounded bg-[#DFE0E2]/10 text-[#DFE0E2] border border-[#DFE0E2]/20">2. Nave</span>
+                        <span class="px-2 py-1 rounded bg-[#DFE0E2]/10 text-[#DFE0E2] border border-[#DFE0E2]/20">3. Mundo</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="toast" class="toast">Prompt copiado para a área de transferência!</div>
+
+    <script>
+        // EXPANDED DATASET for Dropdowns
+const DB = {
+  // UI
+  mode: [
+    { label: "Exterior", value: "Exterior" },
+    { label: "Interior", value: "Interior" }
+  ],
+
+  // Presets (UI)
+  presets: [
+    { label: "NASA (engenharia funcional)", value: "NASA" },
+    { label: "SpaceX (futurismo minimalista)", value: "SpaceX" },
+    { label: "Blue Origin (industrial premium)", value: "Blue Origin" },
+    { label: "Star Wars (usada e vivida)", value: "Star Wars" },
+    { label: "Star Trek (exploração limpa)", value: "Star Trek" },
+    { label: "2001: A Space Odyssey (contemplativo)", value: "2001" },
+    { label: "Battlestar Galactica (militar pesado)", value: "Battlestar" },
+    { label: "Dune (monumental e arcaico)", value: "Dune" },
+    { label: "Alien (industrial claustrofóbico)", value: "Alien" },
+    { label: "Buck Rogers (retro futurista 70/80)", value: "Buck Rogers" },
+    { label: "Retro Hard Sci-Fi (anos 50–70)", value: "Retro Hard Sci-Fi" },
+    { label: "Híbrido Autor (identidade própria)", value: "Author Hybrid" }
+  ],
+
+  // 1) ÂNCORA
+  anchor: {
+    media_type: [
+      { label: "Render Unreal Engine 5", value: "Unreal Engine 5 render" },
+      { label: "Fotografia de filme 70mm", value: "70mm film photography" },
+      { label: "Concept art digital (ArtStation)", value: "digital concept art (ArtStation)" },
+      { label: "Blueprint técnico", value: "technical blueprint diagram" },
+      { label: "Ilustração sci-fi vintage (anos 70)", value: "vintage sci-fi illustration (1970s)" },
+      { label: "Render Octane (fotoreal)", value: "Octane photorealistic render" },
+      { label: "Foto P&B granulada", value: "grainy black & white photography" }
+    ],
+    camera_shot: [
+      { label: "Wide establishing shot", value: "wide establishing shot" },
+      { label: "Low-angle heroic shot", value: "low-angle heroic shot" },
+      { label: "High-angle surveillance view", value: "high-angle surveillance view" },
+      { label: "Dynamic three-quarter view", value: "dynamic three-quarter view" },
+      { label: "Centered symmetrical framing (shot)", value: "centered symmetrical shot" },
+      { label: "Close-up detail shot", value: "close-up detail shot" },
+      { label: "Long-distance scale shot", value: "long-distance scale shot" },
+      { label: "Cockpit POV", value: "cockpit POV" },
+      { label: "Dutch angle cinematic tilt", value: "dutch angle cinematic tilt" }
+    ],
+    render_quality: [
+      { label: "Cinematic photorealism", value: "cinematic photorealism" },
+      { label: "Ultra-detailed render", value: "ultra-detailed render" },
+      { label: "Realistic hard sci-fi look", value: "realistic hard sci-fi look" },
+      { label: "High-end cinematic lighting and grading", value: "high-end cinematic lighting and grading" },
+      { label: "Professional concept art quality", value: "professional concept art quality" },
+      { label: "8K clarity", value: "8K clarity" }
+    ]
+  },
+
+  // 2) A NAVE
+  ship: {
+      ship_role: [
+        { label: "Exploração de longo alcance", value: "long-range exploration vessel" },
+        { label: "Pesquisa científica", value: "scientific research spacecraft" },
+        { label: "Navio militar de combate", value: "military combat ship" },
+        { label: "Starfighter", value: "starfighter combat ship" },
+        { label: "Transporte pesado / carga", value: "heavy transport / cargo vessel" },
+        { label: "Colonização / habitação", value: "colonization / habitation ship" },
+        { label: "Busca e resgate", value: "search and rescue spacecraft" },
+      { label: "Protótipo experimental", value: "experimental prototype vessel" },
+      { label: "Autônoma (IA / sem tripulação)", value: "autonomous AI-controlled spacecraft" }
+    ],
+    silhouette: [
+      { label: "Esférica / quase esférica", value: "spherical or near-spherical body" },
+      { label: "Perfil com asas largas", value: "wide winged profile" },
+      { label: "Compacta e blocada", value: "compact blocky silhouette" },
+      { label: "Estrutura em anel / toroide", value: "ring-based or toroidal structure" },
+      { label: "Assimétrica e robusta", value: "asymmetrical rugged structure" },
+      { label: "Vertical tipo torre", value: "vertical tower-like form" },
+      { label: "Modular segmentada", value: "modular segmented body" },
+      { label: "Disco / discoide", value: "disc-like structure" },
+      { label: "Alongada simétrica", value: "elongated symmetrical hull" }
+    ],
+    construction_detail: [
+      { label: "Componentes mecânicos expostos", value: "exposed mechanical components" },
+      { label: "Painéis rebitados / parafusos visíveis", value: "riveted panels with visible bolts" },
+      { label: "Tubos e cabos externos (greebles)", value: "external pipes and cabling greebles" },
+      { label: "Placas desgastadas e remendos", value: "worn and patched surfaces" },
+      { label: "Ranhuras, respiros e venezianas", value: "vents, grilles, and heat sinks" },
+      { label: "Antenas e arrays de sensores", value: "antenna arrays and sensor rigs" },
+      { label: "Marcas de uso e reparos visíveis", value: "visible repairs and panel mismatches" }
+    ]
+  },
+
+  // Materiais (1–2) — usado por materials_primary/secondary
+  materials: [
+    { label: "Painéis metálicos lisos", value: "smooth metallic panels" },
+    { label: "Placas reforçadas blindadas", value: "reinforced armored plating" },
+    { label: "Componentes mecânicos expostos", value: "exposed mechanical components" },
+    { label: "Construção industrial modular", value: "industrial modular construction" },
+    { label: "Mantas de isolamento térmico", value: "thermal insulation blankets" },
+    { label: "Materiais compósitos de casco", value: "composite hull materials" },
+    { label: "Superfícies gastas e remendadas", value: "worn and patched surfaces" },
+    { label: "Exterior cerâmico fosco", value: "matte ceramic exterior" },
+    { label: "Elementos vítreos / translúcidos", value: "glassy or translucent elements" }
+  ],
+
+  // 3) CONTEXTO
+  context: {
+    interior_location: [
+      { label: "Ponte de Comando (Bridge)", value: "command bridge with control panels and panoramic windows" },
+      { label: "Sala de Navegação Estelar", value: "stellar navigation room with 3D route projections" },
+      { label: "Cockpit Auxiliar / Emergência", value: "auxiliary cockpit / emergency control station, cramped and tense" },
+      { label: "Sala de Engenharia Principal", value: "main engineering bay with exposed pipes, steam, pulsing lights" },
+      { label: "Núcleo de Energia / Reator", value: "power core / reactor chamber, elegant or unstable and threatening" },
+      { label: "Manutenção de Drones e Robôs", value: "drone and robotics maintenance bay with mechanical arms" },
+      { label: "Controle de Suporte de Vida", value: "life support control room with critical readouts" },
+      { label: "Laboratório Científico", value: "science lab with alien samples and strange liquids" },
+      { label: "Enfermaria / MedBay", value: "medbay with recovery pods and clinical white lighting" },
+      { label: "Câmara de Contenção", value: "containment chamber for dangerous artifacts or prisoners" },
+      { label: "Cabines da Tripulação", value: "crew quarters, minimalist and personal details" },
+      { label: "Refeitório / Área Comum", value: "mess hall / common area for character moments" },
+      { label: "Corredores Principais", value: "main corridors, long symmetrical or labyrinthine" },
+      { label: "Hangar Interno", value: "internal hangar for fighters and probes" },
+      { label: "Baía de Carga", value: "cargo bay with containers, cranes, deep shadows" },
+      { label: "Câmara de Descompressão / Airlock", value: "airlock chamber, dramatic transition space" },
+      { label: "Sala da IA Central", value: "central AI core room, ethereal or abstract" },
+      { label: "Câmara Criogênica", value: "cryogenic chamber with suspended bodies, solemn mood" },
+      { label: "Observatório Panorâmico", value: "panoramic observatory, silent and contemplative" }
+    ],
+    exterior_location: [
+      { label: "Órbita de Planeta Habitável", value: "orbit of a habitable planet, oceans and continents visible below" },
+      { label: "Órbita de Planeta Hostil", value: "orbit of a hostile planet, lava storms and violent atmosphere" },
+      { label: "Sobre Anéis Planetários", value: "above planetary rings, ice and dust creating extreme depth" },
+      { label: "Campo de Asteroides", value: "asteroid field, constant motion and imminent danger" },
+      { label: "Tempestade Espacial / Elétrica", value: "space electrical storm, cosmic lightning and energetic particles" },
+      { label: "Proximidade de Buraco Negro", value: "near a black hole, gravitational lensing and silent dread" },
+      { label: "Entrando na Atmosfera", value: "atmospheric entry, incandescent hull and plasma trails" },
+      { label: "Voo Rasante em Planeta Alienígena", value: "low flyby over an alien planet, strange mountains and bioluminescent forests" },
+      { label: "Nave Pousada em Superfície Desconhecida", value: "landed on an unknown surface, clear scale against the environment" },
+      { label: "Acoplando em Estação Espacial", value: "docking to a space station, mechanical arms and heavy traffic" },
+      { label: "Próxima a Megaconstrução Alienígena", value: "near an alien megastructure, impossible monumental geometry" },
+      { label: "Sobrevoando Cidade Espacial / Anel Orbital", value: "flying over a space city / orbital ring with vast lights and architecture" },
+      { label: "Deriva no Espaço (Danos Visíveis)", value: "drifting in space with visible damage, loose plates, smoke, failing lights" },
+      { label: "Transmitindo Sinal de Socorro", value: "broadcasting a distress signal, open antennas and intermittent light" },
+      { label: "Espaço profundo / vazio estrelado", value: "deep space environment, vast starfield with distant galaxies and drifting cosmic haze" },
+      { label: "Abandonada Próxima a um Corpo Celeste", value: "abandoned near a celestial body, absolute silence and mystery" }
+    ]
+  },
+
+  // 4) DIREÇÃO DE ARTE
+  mood: {
+    atmosphere: [
+      { label: "Limpo e controlado", value: "clean and controlled" },
+      { label: "Frio e estéril", value: "cold and sterile" },
+      { label: "Escuro e opressivo", value: "dark and oppressive" },
+      { label: "Misterioso e silencioso", value: "mysterious and silent" },
+      { label: "Tenso e perigoso", value: "tense and dangerous" },
+      { label: "Épico e monumental", value: "epic and monumental" },
+      { label: "Gasto e vivido", value: "worn and lived-in" },
+      { label: "Abandonado e inquietante", value: "abandoned and eerie" }
+    ],
+    lighting: [
+      { label: "Luz ambiente suave", value: "soft ambient lighting" },
+      { label: "Luz cinematográfica low-key", value: "low-key cinematic lighting" },
+      { label: "Direcional de alto contraste", value: "high-contrast directional light" },
+      { label: "Rim light forte", value: "strong rim lighting" },
+      { label: "Brilho interno de janelas e motores", value: "internal glow from windows and engines" },
+      { label: "Iluminação industrial dura", value: "harsh industrial lighting" },
+      { label: "Feixes volumétricos de luz", value: "volumetric light beams" }
+    ]
+  },
+
+    palette: {
+      color_palette: [
+        { label: "Paleta monocromática neutra", value: "neutral monochrome palette" },
+        { label: "Tons industriais suaves", value: "muted industrial tones" },
+        { label: "Paleta fria (azul dominante)", value: "cool blue-dominant palette" },
+        { label: "Paleta quente (terra)", value: "warm earth-toned palette" },
+        { label: "Alto contraste claro/escuro", value: "high-contrast light and dark palette" },
+        { label: "Paleta limitada em 2 cores", value: "limited two-color palette" },
+        { label: "Acentos sutis de cor", value: "subtle accent color highlights" },
+        { label: "Paleta azul e branca", value: "cool blue-dominant and white palette" }
+      ]
+    },
+
+  camera: {
+    framing: [
+      { label: "Centered symmetrical framing", value: "centered symmetrical framing" },
+      { label: "Dynamic three-quarter composition", value: "dynamic three-quarter composition" },
+      { label: "Long-distance scale composition", value: "long-distance scale composition" },
+      { label: "Close-up composition (details)", value: "close-up composition (details)" }
+    ],
+    ratio: [
+      { label: "Scope 2.39:1 (cinema widescreen)", value: "2.39:1 cinematic scope aspect ratio" },
+      { label: "Widescreen 2.20:1", value: "2.20:1 widescreen aspect ratio" },
+      { label: "Flat 1.85:1", value: "1.85:1 flat cinematic aspect ratio" },
+      { label: "Widescreen 2.00:1", value: "2.00:1 widescreen aspect ratio" }
+    ]
+  },
+
+  negative: {
+    negative_prompt:
+      "people, characters, humanoids, faces, bodies, animals, creatures, heavy industrial machinery, exposed pipes, gritty textures, rust, damage, battle wear, text, letters, numbers, symbols, logos, branding, watermark, signature, frame, UI elements, low resolution, blurry, out of focus, pixelated, artifacts, compression artifacts, noise, overpainted, oversharpened, cartoonish, anime style, chibi, toy-like, plastic look, distorted geometry, broken perspective"
+  }
+};
+
+        const PRESETS = {
+            NASA: {
+                style_inspiration:
+                    "spacecraft exterior design inspired by real-world aerospace engineering, modular structure, exposed components, thermal insulation blankets, utilitarian panels, antenna arrays, realistic proportions, functional geometry, neutral color palette, subtle wear, no decorative excess, grounded hard sci-fi realism",
+                materials_primary: "thermal insulation blankets",
+                atmosphere: "clean and controlled",
+                lighting: "soft ambient lighting",
+                color_palette: "neutral monochrome palette",
+                framing: "centered symmetrical framing"
+            },
+
+            SpaceX: {
+                style_inspiration:
+                    "futuristic spacecraft with minimalist industrial design, smooth metallic hull, clean lines, aerodynamic silhouette, polished steel surfaces, subtle panel seams, restrained color palette, modern aerospace aesthetic, realistic scale, near-future hard sci-fi tone",
+                materials_primary: "smooth metallic panels",
+                atmosphere: "clean and controlled",
+                lighting: "high-contrast directional light",
+                color_palette: "neutral monochrome palette",
+                framing: "centered symmetrical framing"
+            },
+
+            "Blue Origin": {
+                style_inspiration:
+                    "heavy-duty futuristic spacecraft, robust industrial construction, thick structural elements, reinforced hull sections, premium materials, muted metallic colors, functional elegance, realistic aerospace detailing, sense of safety and durability",
+                materials_primary: "industrial modular construction",
+                atmosphere: "epic and monumental",
+                lighting: "strong rim lighting",
+                color_palette: "muted industrial tones",
+                framing: "dynamic three-quarter composition"
+            },
+
+            "Star Wars": {
+                style_inspiration:
+                    "Industrial 'Used Future' aesthetic, heavy modular hull armor with deep, distinct panel lines, realistic grime, oil, and carbon streaks at panel joints and recesses, dense functional mechanical greebling integrated into the superstructure, worn military paint bearing micrometeorite marks and thruster burn scars, cold heavy metal textures, no improvised patches",
+                materials_primary: "worn and patched surfaces",
+                materials_secondary: "exposed mechanical components",
+                atmosphere: "worn and lived-in",
+                lighting: "harsh industrial lighting",
+                color_palette: "muted industrial tones",
+                framing: "dynamic three-quarter composition"
+            },
+
+            "Star Trek": {
+                style_inspiration:
+                    "Star Trek feeling balanced symmetrical design, Unreal Engine 5 cinematic render, optimistic exploration-focused engineering with disc-like primary hull, sleek secondary engineering section, continuous composited surfaces, flush panels and integrated sensor arrays, subtle antenna silhouettes, clean naval proportions, advanced but approachable technology, mood of scientific confidence and calm majesty",
+                media_type: "Unreal Engine 5 render",
+                camera_shot: "dynamic three-quarter view",
+                render_quality: "high-end cinematic lighting and grading",
+                materials_primary: "composite hull materials",
+                atmosphere: "clean and controlled",
+                lighting: "soft ambient lighting",
+                color_palette: "cool blue-dominant and white palette",
+                framing: "dynamic three-quarter composition"
+            },
+
+            "2001": {
+                style_inspiration:
+                    "monumental spacecraft with minimalist geometric forms, pristine surfaces, strong symmetry, slow and majestic presence, white and neutral tones, architectural sci-fi design, sense of scale and silence, timeless futuristic aesthetic",
+                materials_primary: "smooth metallic panels",
+                atmosphere: "mysterious and silent",
+                lighting: "soft ambient lighting",
+                color_palette: "neutral monochrome palette",
+                framing: "centered symmetrical framing"
+            },
+
+            Battlestar: {
+                style_inspiration:
+                    "militarized spacecraft with armored hull, exposed weapon systems, layered plating, visible damage and repairs, industrial construction, rugged hard sci-fi style, realistic combat-ready design, dark muted tones",
+                materials_primary: "reinforced armored plating",
+                materials_secondary: "exposed mechanical components",
+                atmosphere: "tense and dangerous",
+                lighting: "high-contrast directional light",
+                color_palette: "high-contrast light and dark palette",
+                framing: "low-angle heroic shot"
+            },
+
+            Dune: {
+                style_inspiration:
+                    "massive spacecraft with brutalist and monolithic design, heavy geometry, minimal surface detail, ancient futuristic aesthetic, sand-worn materials, muted earthy tones, imposing scale, solemn and mysterious sci-fi presence",
+                materials_primary: "composite hull materials",
+                atmosphere: "epic and monumental",
+                lighting: "low-key cinematic lighting",
+                color_palette: "warm earth-toned palette",
+                framing: "long-distance scale composition"
+            },
+
+            Alien: {
+                style_inspiration:
+                    "industrial spacecraft with dense mechanical exterior, exposed pipes and vents, layered metal structures, utilitarian design language, dark and gritty materials, heavy industrial sci-fi aesthetic, oppressive and realistic feel",
+                materials_primary: "exposed mechanical components",
+                materials_secondary: "industrial modular construction",
+                atmosphere: "dark and oppressive",
+                lighting: "low-key cinematic lighting",
+                color_palette: "muted industrial tones",
+                framing: "close-up composition (details)"
+            },
+
+            "Buck Rogers": {
+                style_inspiration:
+                    "retro-futuristic spacecraft with bold shapes, exaggerated fins, smooth plastic-like surfaces, bright accent colors, classic sci-fi optimism, vintage futuristic aesthetic, clean silhouettes, nostalgic space-age design",
+                materials_primary: "glassy or translucent elements",
+                atmosphere: "clean and controlled",
+                lighting: "strong rim lighting",
+                color_palette: "limited two-color palette",
+                framing: "dynamic three-quarter composition"
+            },
+
+            "Retro Hard Sci-Fi": {
+                style_inspiration:
+                    "retro hard sci-fi spacecraft inspired by mid-20th century space art, riveted metal panels, analog instrumentation style, chunky proportions, simple geometric forms, vintage futuristic aesthetic, realistic mechanical construction",
+                materials_primary: "industrial modular construction",
+                materials_secondary: "worn and patched surfaces",
+                atmosphere: "worn and lived-in",
+                lighting: "harsh industrial lighting",
+                color_palette: "muted industrial tones",
+                framing: "close-up composition (details)"
+            },
+
+            "Author Hybrid": {
+                style_inspiration:
+                    "original spacecraft design blending realistic aerospace engineering with cinematic science-fiction aesthetics, functional structure combined with bold visual identity, believable materials, unique silhouette, grounded yet expressive sci-fi design language",
+                materials_primary: "composite hull materials",
+                atmosphere: "mysterious and silent",
+                lighting: "high-contrast directional light",
+                color_palette: "subtle accent color highlights",
+                framing: "dynamic three-quarter composition"
+            }
+        };
+
+        const SELECT_OPTIONS = {
+            mode: DB.mode,
+            preset: DB.presets,
+
+            // Anchor
+            media_type: DB.anchor.media_type,
+            camera_shot: DB.anchor.camera_shot,
+            render_quality: DB.anchor.render_quality,
+
+            // Ship
+            ship_role: DB.ship.ship_role,
+            silhouette: DB.ship.silhouette,
+            construction_detail: DB.ship.construction_detail,
+            materials_primary: DB.materials,
+            materials_secondary: DB.materials,
+
+            // Context
+            interior_location: DB.context.interior_location,
+            exterior_location: DB.context.exterior_location,
+
+            // Art direction
+            atmosphere: DB.mood.atmosphere,
+            lighting: DB.mood.lighting,
+            color_palette: DB.palette.color_palette,
+            framing: DB.camera.framing,
+            ratio: DB.camera.ratio
+        };
+
+        const stateDefault = {
+            mode: "Exterior",
+            preset: "",
+
+            media_type: "",
+            camera_shot: "",
+            render_quality: "",
+
+            ship_role: "",
+            silhouette: "",
+            materials_primary: "",
+            materials_secondary: "",
+            construction_detail: "",
+
+            interior_location: "",
+            exterior_location: "",
+
+            atmosphere: "",
+            lighting: "",
+            color_palette: "",
+            framing: "",
+            ratio: "",
+
+            // texto livre (preset)
+            style_inspiration: "",
+
+            negative_prompt: DB.negative.negative_prompt
+        };
+
+        const state = { ...stateDefault };
+        let includeNegativePrompt = true;
+
+        function toggleNegativePrompt(enabled) {
+            includeNegativePrompt = enabled;
+        }
+
+        function fillSelect(id, options, placeholder = "Selecione...") {
+            const select = document.getElementById(id);
+            if (!select) return;
+            select.innerHTML = "";
+            const placeholderOption = document.createElement("option");
+            placeholderOption.value = "";
+            placeholderOption.text = placeholder;
+            select.appendChild(placeholderOption);
+
+            options.forEach(opt => {
+                const option = document.createElement("option");
+                option.value = opt.value;
+                option.text = opt.label;
+                select.appendChild(option);
+            });
+        }
+
+        function setSelectValue(id, value) {
+            const select = document.getElementById(id);
+            if (!select) return;
+            select.value = value ?? "";
+        }
+
+        function applyPreset(key, options = { skipGenerate: false, preserveExisting: false }) {
+            if (!key) return;
+            const preset = PRESETS[key];
+            if (!preset) return;
+
+            Object.entries(preset).forEach(([field, value]) => {
+                if (options.preserveExisting && state[field]) {
+                    return;
+                }
+                state[field] = value;
+                setSelectValue(field, value);
+            });
+
+            setSelectValue("preset", key);
+            state.preset = key;
+
+            applyModeVisibility();
+
+            if (!options.skipGenerate) {
+                generatePrompt();
+            }
+        }
+
+        function applyModeVisibility() {
+            const interiorWrap = document.getElementById("wrap_interior_location");
+            const exteriorWrap = document.getElementById("wrap_exterior_location");
+            if (interiorWrap) {
+                interiorWrap.classList.toggle("hidden", state.mode !== "Interior");
+            }
+            if (exteriorWrap) {
+                exteriorWrap.classList.toggle("hidden", state.mode !== "Exterior");
+            }
+        }
+
+        // Populate Selects
+        function initSelects() {
+            Object.entries(SELECT_OPTIONS).forEach(([key, options]) => {
+                fillSelect(key, options);
+            });
+        }
+
+        function updateState(key, value) {
+            state[key] = value;
+            if (key === "mode") {
+                applyModeVisibility();
+            }
+            generatePrompt();
+        }
+
+        function updateFieldValue(field, value) {
+            state[field] = value;
+            setSelectValue(field, value);
+        }
+
+        function randomFrom(array) {
+            if (!array || !array.length) return null;
+            return array[Math.floor(Math.random() * array.length)];
+        }
+
+        function randomizeSmart() {
+            Object.keys(stateDefault).forEach(key => {
+                if (key === "negative_prompt") return;
+                state[key] = stateDefault[key] || "";
+                setSelectValue(key, state[key] || "");
+            });
+
+            const modeOption = randomFrom(DB.mode);
+            if (modeOption) {
+                updateFieldValue("mode", modeOption.value);
+            }
+
+            const maybePreset = Math.random() < 0.3 ? randomFrom(Object.keys(PRESETS)) : null;
+            if (maybePreset) {
+                applyPreset(maybePreset, { skipGenerate: true, preserveExisting: true });
+            }
+
+            const fillField = (key, source) => {
+                if (!source || !source.length) return;
+                if (state[key]) return;
+                const randomOption = randomFrom(source);
+                if (randomOption) {
+                    updateFieldValue(key, randomOption.value);
+                }
+            };
+
+            fillField("media_type", DB.anchor.media_type);
+            fillField("camera_shot", DB.anchor.camera_shot);
+            fillField("render_quality", DB.anchor.render_quality);
+
+            fillField("ship_role", DB.ship.ship_role);
+            fillField("silhouette", DB.ship.silhouette);
+            fillField("materials_primary", DB.materials);
+            if (!state.materials_secondary && Math.random() < 0.5) {
+                fillField("materials_secondary", DB.materials);
+            }
+            fillField("construction_detail", DB.ship.construction_detail);
+
+            if (state.mode === "Interior") {
+                fillField("interior_location", DB.context.interior_location);
+            } else if (state.mode === "Exterior") {
+                fillField("exterior_location", DB.context.exterior_location);
+            }
+
+            fillField("atmosphere", DB.mood.atmosphere);
+            fillField("lighting", DB.mood.lighting);
+            fillField("color_palette", DB.palette.color_palette);
+            fillField("framing", DB.camera.framing);
+            fillField("ratio", DB.camera.ratio);
+
+            applyModeVisibility();
+            generatePrompt();
+        }
+
+        function applyDefaultSelections() {
+            const defaults = {
+                mode: "Exterior",
+                media_type: "Octane photorealistic render",
+                camera_shot: "wide establishing shot",
+                ratio: "2.39:1 cinematic scope aspect ratio",
+                render_quality: "high-end cinematic lighting and grading",
+                framing: "long-distance scale composition",
+                exterior_location: "deep space environment, vast starfield with distant galaxies and drifting cosmic haze"
+            };
+
+            Object.entries(defaults).forEach(([field, value]) => {
+                updateFieldValue(field, value);
+            });
+
+            applyModeVisibility();
+            generatePrompt();
+        }
+
+        function generatePrompt() {
+            const renderEntries = [];
+            if (state.media_type) renderEntries.push(state.media_type);
+            if (state.render_quality) {
+                renderEntries.push(state.render_quality);
+                renderEntries.push("8K clarity");
+            }
+
+            const framingEntries = [];
+            if (state.camera_shot) framingEntries.push(state.camera_shot);
+            if (state.framing) framingEntries.push(state.framing);
+            if (state.ratio) framingEntries.push(state.ratio);
+
+            const subjectBase = state.mode === "Interior"
+                ? "cinematic spaceship interior environment"
+                : "cinematic spacecraft exterior design";
+
+            const shipEntries = [subjectBase];
+            if (state.ship_role) shipEntries.push(state.ship_role);
+            if (state.silhouette) shipEntries.push(state.silhouette);
+            const materials = [];
+            if (state.materials_primary) materials.push(state.materials_primary);
+            if (state.materials_secondary) materials.push(state.materials_secondary);
+            if (materials.length) shipEntries.push(materials.join(" and "));
+            if (state.construction_detail) shipEntries.push(state.construction_detail);
+
+            const inspirationEntries = [];
+            if (state.style_inspiration) {
+                const trimmedStyle = state.style_inspiration.trim();
+                if (trimmedStyle) {
+                    inspirationEntries.push(`inspired by ${trimmedStyle}`);
+                    const styleSegments = trimmedStyle.split(",");
+                    styleSegments.slice(1).forEach(part => {
+                        const segment = part.trim();
+                        if (segment) {
+                            inspirationEntries.push(segment);
+                        }
+                    });
+                }
+            }
+
+            const scaleEntries = [];
+            if (state.atmosphere) scaleEntries.push(state.atmosphere);
+            if (state.lighting) scaleEntries.push(state.lighting);
+
+            const environmentEntries = [];
+            if (state.mode === "Interior" && state.interior_location) environmentEntries.push(state.interior_location);
+            if (state.mode === "Exterior" && state.exterior_location) environmentEntries.push(state.exterior_location);
+            if (state.context_extra) environmentEntries.push(state.context_extra);
+            if (!environmentEntries.length) {
+                environmentEntries.push("deep space environment with cinematic scale");
+            }
+
+            const lightingEntries = [];
+            if (state.lighting) lightingEntries.push(state.lighting);
+            if (state.color_palette) lightingEntries.push(state.color_palette);
+
+            const buildSection = (title, items) => {
+                if (!items.length) return "";
+                return `${title}\n${items.join(",\n")}`;
+            };
+
+            const sections = [];
+            sections.push("Realista spaceship scene composition");
+            const renderSection = buildSection("Render / Quality", renderEntries);
+            if (renderSection) sections.push(renderSection);
+            const framingSection = buildSection("Framing / Camera", framingEntries);
+            if (framingSection) sections.push(framingSection);
+            const shipSection = buildSection("Ship / Design", shipEntries);
+            if (shipSection) sections.push(shipSection);
+            const inspireSection = buildSection("Design Inspiration / Aesthetic", inspirationEntries);
+            if (inspireSection) sections.push(inspireSection);
+            const scaleSection = buildSection("Scale / Presence", scaleEntries);
+            if (scaleSection) sections.push(scaleSection);
+            const environmentSection = buildSection("Environment", environmentEntries);
+            if (environmentSection) sections.push(environmentSection);
+            const lightingSection = buildSection("Lighting", lightingEntries);
+            if (lightingSection) sections.push(lightingSection);
+
+            let mainPrompt = sections.filter(Boolean).join("\n\n");
+
+            const negativeEntries = state.negative_prompt
+                ? state.negative_prompt
+                      .split(",")
+                      .map(part => part.replace(/\s+/g, " ").trim())
+                      .filter(Boolean)
+                : [];
+            const negativeBlock = includeNegativePrompt && negativeEntries.length
+                ? `Negative prompt: ${negativeEntries.join(", ")}`
+                : "";
+
+            const output = negativeBlock ? `${mainPrompt}\n\n${negativeBlock}` : mainPrompt;
+            document.getElementById("prompt-output").value = output;
+        }
+
+        function copyToClipboard() {
+            const textarea = document.getElementById('prompt-output');
+            textarea.select();
+            document.execCommand('copy');
+            const toast = document.getElementById('toast');
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        // Init
+        document.addEventListener("DOMContentLoaded", () => {
+            initSelects();
+            applyModeVisibility();
+            applyDefaultSelections();
+        });
+
+    </script>
+</body>
+</html>
