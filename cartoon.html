@@ -1,17 +1,21 @@
 <!DOCTYPE html>
 <html lang="pt-PT">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cartoon Prompt Studio | Studio Mode</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --bg-dark: #0a0a0a;
             --card-bg: #141414;
-            --accent: #e50914; /* Red accent from reference */
+            --accent: #e50914;
+            /* Red accent from reference */
             --text-gray: #a3a3a3;
             --border-color: #262626;
         }
@@ -33,10 +37,22 @@
         }
 
         /* Scrollbar customizada */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0a0a0a; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #555; }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
 
         /* Dark Panel (Replaces Glass Panel) */
         .dark-panel {
@@ -44,25 +60,30 @@
             border: 1px solid var(--border-color);
             transition: border-color 0.2s ease;
         }
-        
+
         /* Option Card Styles */
         .option-card {
-            background-color: #000; /* Darker than panel */
+            background-color: #000;
+            /* Darker than panel */
             border: 1px solid var(--border-color);
             transition: all 0.2s ease;
             cursor: pointer;
             position: relative;
             overflow: hidden;
         }
+
         .option-card:hover {
             transform: translateY(-2px);
             border-color: #555;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
+
         .option-card.selected {
             border-color: var(--accent);
-            background-color: #1a1111; /* Slight red tint dark bg */
+            background-color: #1a1111;
+            /* Slight red tint dark bg */
         }
+
         .option-card.selected svg {
             color: var(--accent);
         }
@@ -71,21 +92,24 @@
         .color-swatch {
             width: 100%;
             height: 40px;
-            border-radius: 9999px; /* Pill shape */
+            border-radius: 9999px;
+            /* Pill shape */
             cursor: pointer;
             border: 2px solid transparent;
             transition: all 0.2s;
             position: relative;
         }
+
         .color-swatch:hover {
             transform: scale(1.1);
             z-index: 10;
         }
+
         .color-swatch.selected {
             border-color: white;
             box-shadow: 0 0 0 2px var(--accent);
         }
-        
+
         /* Custom Inputs */
         .feature-check:checked {
             background-color: var(--accent);
@@ -116,24 +140,26 @@
             font-weight: 600;
             font-size: 0.875rem;
             transition: opacity 0.3s, bottom 0.3s;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
         }
+
         #toast.show {
             visibility: visible;
             opacity: 1;
             bottom: 50px;
         }
-
     </style>
 </head>
+
 <body class="min-h-screen flex flex-col items-center pb-20">
 
     <!-- HEADER (Matching reference style) -->
     <header class="w-full border-b border-[#262626] bg-black/80 backdrop-blur-md z-20 sticky top-0">
         <div class="w-full max-w-7xl mx-auto px-6 py-4 flex items-center gap-4 justify-start">
-                <div class="w-3 h-8 bg-[#e50914] rounded-sm"></div> <!-- Red Logo Mark -->
-                <div>
-                <h1 class="text-xl font-bold tracking-tight text-white text-left">CARTOON PROMPT <span class="text-accent font-light">STUDIO</span></h1>
+            <div class="w-3 h-8 bg-[#e50914] rounded-sm"></div> <!-- Red Logo Mark -->
+            <div>
+                <h1 class="text-xl font-bold tracking-tight text-white text-left">CARTOON PROMPT <span
+                        class="text-accent font-light">STUDIO</span></h1>
                 <p class="text-[10px] text-[#555] uppercase tracking-[0.2em]">Character Design Director</p>
             </div>
         </div>
@@ -141,435 +167,563 @@
 
     <main class="w-full mt-8">
         <div class="w-full max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
-                <!-- Controls Section -->
-                <div class="lg:col-span-7 space-y-6">
-            
-             <!-- Dimension Switch -->
-            <div class="dark-panel p-5 rounded-lg">
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-cube text-white icon-accent"></i> Dimensão
-                </h3>
-                <div class="flex gap-4">
-                    <label class="flex-1 cursor-pointer group">
-                        <input type="radio" name="dimension" value="2D" class="peer sr-only" checked onchange="updateStyleOptions()">
-                        <div class="p-4 rounded-lg border border-[#262626] bg-black peer-checked:border-[#e50914] peer-checked:bg-[#e50914]/10 flex items-center justify-center gap-3 transition-all group-hover:border-gray-600">
-                            <i class="fa-solid fa-pen-nib text-xl text-gray-400 peer-checked:text-[#e50914] icon-accent"></i>
-                            <span class="font-semibold text-sm text-gray-300 peer-checked:text-white">2D Flat / Vetor</span>
-                        </div>
-                    </label>
-                    <label class="flex-1 cursor-pointer group">
-                        <input type="radio" name="dimension" value="3D" class="peer sr-only" onchange="updateStyleOptions()">
-                        <div class="p-4 rounded-lg border border-[#262626] bg-black peer-checked:border-[#e50914] peer-checked:bg-[#e50914]/10 flex items-center justify-center gap-3 transition-all group-hover:border-gray-600">
-                            <i class="fa-solid fa-cubes text-xl text-gray-400 peer-checked:text-[#e50914] icon-accent"></i>
-                            <span class="font-semibold text-sm text-gray-300 peer-checked:text-white">3D Render</span>
-                        </div>
-                    </label>
-                </div>
-            </div>
 
-            <!-- Style Modifiers -->
-            <div class="dark-panel p-5 rounded-lg">
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-palette text-white icon-accent"></i> Estilo Artístico
-                </h3>
-                <div class="relative">
-                    <select id="art-style" class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 focus:border-[#e50914] focus:outline-none transition-colors appearance-none cursor-pointer" onchange="applyPreset(this.value)">
+            <!-- Controls Section -->
+            <div class="lg:col-span-7 space-y-6">
+
+                <!-- Dimension Switch -->
+                <div class="dark-panel p-5 rounded-lg">
+                    <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-cube text-white icon-accent"></i> Dimensão
+                    </h3>
+                    <div class="flex gap-4">
+                        <label class="flex-1 cursor-pointer group">
+                            <input type="radio" name="dimension" value="2D" class="peer sr-only" checked
+                                onchange="updateStyleOptions()">
+                            <div
+                                class="p-4 rounded-lg border border-[#262626] bg-black peer-checked:border-[#e50914] peer-checked:bg-[#e50914]/10 flex items-center justify-center gap-3 transition-all group-hover:border-gray-600">
+                                <i
+                                    class="fa-solid fa-pen-nib text-xl text-gray-400 peer-checked:text-[#e50914] icon-accent"></i>
+                                <span class="font-semibold text-sm text-gray-300 peer-checked:text-white">2D Flat /
+                                    Vetor</span>
+                            </div>
+                        </label>
+                        <label class="flex-1 cursor-pointer group">
+                            <input type="radio" name="dimension" value="3D" class="peer sr-only"
+                                onchange="updateStyleOptions()">
+                            <div
+                                class="p-4 rounded-lg border border-[#262626] bg-black peer-checked:border-[#e50914] peer-checked:bg-[#e50914]/10 flex items-center justify-center gap-3 transition-all group-hover:border-gray-600">
+                                <i
+                                    class="fa-solid fa-cubes text-xl text-gray-400 peer-checked:text-[#e50914] icon-accent"></i>
+                                <span class="font-semibold text-sm text-gray-300 peer-checked:text-white">3D
+                                    Render</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Style Modifiers -->
+                <div class="dark-panel p-5 rounded-lg">
+                    <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-palette text-white icon-accent"></i> Estilo Artístico
+                    </h3>
+                    <div class="relative">
+                        <select id="art-style"
+                            class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 focus:border-[#e50914] focus:outline-none transition-colors appearance-none cursor-pointer"
+                            onchange="applyPreset(this.value)">
+                            <!-- Javascript will populate this -->
+                        </select>
+                        <div
+                            class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                            <i class="fa-solid fa-chevron-down text-xs icon-accent"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dark-panel p-5 rounded-lg">
+                    <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-globe text-white icon-accent"></i> Presets de Etnia
+                    </h3>
+                    <div class="relative">
+                        <select id="ethnicity-select"
+                            class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 focus:border-[#e50914] focus:outline-none transition-colors appearance-none cursor-pointer"
+                            onchange="applyEthnicityPreset(this.value)">
+                            <!-- populated via script -->
+                        </select>
+                        <div
+                            class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                            <i class="fa-solid fa-chevron-down text-xs icon-accent"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gender Selector -->
+                <div class="dark-panel p-5 rounded-lg">
+                    <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-venus-mars text-white icon-accent"></i> Género
+                    </h3>
+                    <div class="grid grid-cols-3 sm:grid-cols-5 gap-3" id="gender-grid">
                         <!-- Javascript will populate this -->
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                        <i class="fa-solid fa-chevron-down text-xs icon-accent"></i>
                     </div>
                 </div>
-            </div>
 
-            <div class="dark-panel p-5 rounded-lg">
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-globe text-white icon-accent"></i> Presets de Etnia
-                </h3>
-                <div class="relative">
-                    <select id="ethnicity-select" class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 focus:border-[#e50914] focus:outline-none transition-colors appearance-none cursor-pointer" onchange="applyEthnicityPreset(this.value)">
-                        <!-- populated via script -->
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                        <i class="fa-solid fa-chevron-down text-xs icon-accent"></i>
+                <!-- Body Shape Selector -->
+                <div class="dark-panel p-5 rounded-lg">
+                    <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-child-reaching text-white icon-accent"></i> Formato do Corpo
+                    </h3>
+                    <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="body-shape-grid">
+                        <!-- Javascript will populate this -->
                     </div>
                 </div>
-            </div>
 
-            <!-- Gender Selector -->
-            <div class="dark-panel p-5 rounded-lg">
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-venus-mars text-white icon-accent"></i> Género
-                </h3>
-                <div class="grid grid-cols-3 sm:grid-cols-5 gap-3" id="gender-grid">
-                    <!-- Javascript will populate this -->
-                </div>
-            </div>
-
-            <!-- Body Shape Selector -->
-            <div class="dark-panel p-5 rounded-lg">
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-child-reaching text-white icon-accent"></i> Formato do Corpo
-                </h3>
-                <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="body-shape-grid">
-                    <!-- Javascript will populate this -->
-                </div>
-            </div>
-
-            <!-- Pose Selector -->
-            <!-- Consistency Toggle -->
-            <div class="dark-panel p-5 rounded-lg">
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-shield-halved text-white icon-accent"></i> Consistência (mesmo personagem)
-                </h3>
-                <label class="flex items-center space-x-3 text-sm text-gray-300">
-                    <input type="checkbox" id="consistency-toggle" class="w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" onchange="toggleConsistency(this.checked)">
-                    <span>Forçar consistência de identidade</span>
-                </label>
-            </div>
-
-            <!-- Blueprint Mode -->
-            <div class="dark-panel p-5 rounded-lg">
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-drafting-compass text-white icon-accent"></i> Blueprint (estudio)
-                </h3>
-                <div class="flex flex-col gap-3">
+                <!-- Pose Selector -->
+                <!-- Consistency Toggle -->
+                <div class="dark-panel p-5 rounded-lg">
+                    <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-shield-halved text-white icon-accent"></i> Consistência (mesmo personagem)
+                    </h3>
                     <label class="flex items-center space-x-3 text-sm text-gray-300">
-                        <input type="checkbox" id="blueprint-toggle" class="w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" onchange="toggleBlueprint(this.checked)">
-                        <span>Ativar blueprint de proporcoes</span>
+                        <input type="checkbox" id="consistency-toggle"
+                            class="w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                            onchange="toggleConsistency(this.checked)">
+                        <span>Forçar consistência de identidade</span>
                     </label>
-                    <div class="flex flex-col sm:flex-row gap-3 sm:items-center">
-                        <span class="text-xs text-gray-400 uppercase tracking-wide">Formato</span>
-                        <div class="flex gap-3 text-xs text-gray-300">
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="blueprint-view" value="single" checked class="w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" onchange="selectBlueprintView(this.value)">
-                                Single view
+                </div>
+
+                <!-- Blueprint Mode -->
+                <div class="dark-panel p-5 rounded-lg">
+                    <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-drafting-compass text-white icon-accent"></i> Blueprint (estudio)
+                    </h3>
+                    <div class="flex flex-col gap-3">
+                        <label class="flex items-center space-x-3 text-sm text-gray-300">
+                            <input type="checkbox" id="blueprint-toggle"
+                                class="w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                onchange="toggleBlueprint(this.checked)">
+                            <span>Ativar blueprint de proporcoes</span>
+                        </label>
+                        <div class="flex flex-col sm:flex-row gap-3 sm:items-center">
+                            <span class="text-xs text-gray-400 uppercase tracking-wide">Formato</span>
+                            <div class="flex gap-3 text-xs text-gray-300">
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="blueprint-view" value="single" checked
+                                        class="w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                        onchange="selectBlueprintView(this.value)">
+                                    Single view
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="blueprint-view" value="turnaround"
+                                        class="w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                        onchange="selectBlueprintView(this.value)">
+                                    3-view turnaround
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="blueprint-view" value="expressions"
+                                        class="w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                        onchange="selectBlueprintView(this.value)">
+                                    Expression sheet
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="dark-panel p-5 rounded-lg">
+                    <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-person-running text-white icon-accent"></i> Acao / Pose
+                        <button type="button" data-lock-btn="action" onclick="toggleLock('action')"
+                            class="ml-auto text-[10px] text-gray-400 hover:text-white border border-[#262626] px-2 py-1 rounded">LOCK</button>
+                    </h3>
+                    <div class="space-y-3">
+                        <select id="pose-select"
+                            class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 text-sm focus:border-[#e50914] focus:outline-none"
+                            onchange="selectPose(this.value)">
+                        </select>
+                        <label id="deadpan-contrast-row"
+                            class="flex items-center space-x-2 text-xs text-gray-400 hidden">
+                            <input type="checkbox" id="deadpan-dance-toggle"
+                                class="w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                onchange="toggleDeadpanDance(this.checked)">
+                            <span>Contraste intencional (danca deadpan)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Skin Tone Selector -->
+                <div class="dark-panel p-5 rounded-lg">
+                    <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-droplet text-white icon-accent"></i> Cor da Pele
+                    </h3>
+                    <div class="grid grid-cols-6 sm:grid-cols-8 gap-3" id="skin-grid">
+                        <!-- Javascript will populate this -->
+                    </div>
+                </div>
+
+                <!-- Shape Selector -->
+                <div class="dark-panel p-5 rounded-lg">
+                    <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-draw-polygon text-white icon-accent"></i> Formato Base (Cabeça)
+                        <button type="button" data-lock-btn="face" onclick="toggleLock('face')"
+                            class="ml-auto text-[10px] text-gray-400 hover:text-white border border-[#262626] px-2 py-1 rounded">LOCK</button>
+                    </h3>
+                    <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="shape-grid">
+                        <!-- Javascript will populate this -->
+                    </div>
+                </div>
+                <!-- Features Checkbox -->
+                <div class="dark-panel p-5 rounded-lg">
+                    <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-white icon-accent"></i> Características
+                    </h3>
+                    <div class="grid grid-cols-4 gap-3">
+                        <label
+                            class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+                            <input type="checkbox"
+                                class="feature-check w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                value="strong jawline" onchange="updatePrompt()">
+                            <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Maxilar
+                                Forte</span>
+                        </label>
+                        <label
+                            class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+                            <input type="checkbox"
+                                class="feature-check w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                value="pointed chin" onchange="updatePrompt()">
+                            <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Queixo
+                                Pontudo</span>
+                        </label>
+                        <label
+                            class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+                            <input type="checkbox"
+                                class="feature-check w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                value="chubby cheeks" onchange="updatePrompt()">
+                            <span
+                                class="text-xs text-gray-400 group-hover:text-white transition-colors">Bochechas</span>
+                        </label>
+                        <label
+                            class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+                            <input type="checkbox"
+                                class="feature-check w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                value="long neck" onchange="updatePrompt()">
+                            <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Pescoço
+                                Longo</span>
+                        </label>
+                        <label
+                            class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+                            <input type="checkbox"
+                                class="feature-check w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                value="high forehead" onchange="updatePrompt()">
+                            <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Testa
+                                Alta</span>
+                        </label>
+                        <label
+                            class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+                            <input type="checkbox"
+                                class="feature-check w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                value="prominent ears" onchange="updatePrompt()">
+                            <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Orelhas
+                                Grandes</span>
+                        </label>
+                        <label
+                            class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+                            <input type="checkbox"
+                                class="feature-check w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                value="freckles" onchange="updatePrompt()">
+                            <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Sardas</span>
+                        </label>
+                        <label
+                            class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+                            <input type="checkbox"
+                                class="feature-check w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                value="facial scar" onchange="updatePrompt()">
+                            <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Cicatriz</span>
+                        </label>
+                        <label
+                            class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+                            <input type="checkbox"
+                                class="feature-check w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                value="dark circles" onchange="updatePrompt()">
+                            <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Olheiras</span>
+                        </label>
+                        <label
+                            class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+                            <input type="checkbox"
+                                class="feature-check w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                value="dimples" onchange="updatePrompt()">
+                            <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Covinhas</span>
+                        </label>
+                        <label
+                            class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+                            <input type="checkbox"
+                                class="feature-check w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                value="wrinkles, aged skin" onchange="updatePrompt()">
+                            <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Rugas</span>
+                        </label>
+                        <label
+                            class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+                            <input type="checkbox"
+                                class="feature-check w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                value="beauty mark, mole" onchange="updatePrompt()">
+                            <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Sinal</span>
+                        </label>
+                        <label
+                            class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+                            <input type="checkbox"
+                                class="feature-check w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                value="gap teeth" onchange="updatePrompt()">
+                            <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Dentes
+                                Separados</span>
+                        </label>
+                        <label
+                            class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+                            <input type="checkbox"
+                                class="feature-check w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                value="bushy eyebrows" onchange="updatePrompt()">
+                            <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Sobrancelhas
+                                Grossas</span>
+                        </label>
+                        <label
+                            class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+                            <input type="checkbox"
+                                class="feature-check w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                value="cleft chin" onchange="updatePrompt()">
+                            <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Queixo
+                                Furado</span>
+                        </label>
+                        <label
+                            class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
+                            <input type="checkbox"
+                                class="feature-check w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0"
+                                value="face tattoo" onchange="updatePrompt()">
+                            <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Tatuagem</span>
+                        </label>
+                        <select id="beard-select"
+                            class="p-2 rounded border border-[#262626] bg-black text-gray-200 text-xs focus:border-[#e50914] focus:outline-none"
+                            onchange="selectBeard(this.value)">
+                            <option value="">Sem barba</option>
+                            <option value="light stubble beard">Barba Rala</option>
+                            <option value="full beard">Barba Completa</option>
+                            <option value="goatee beard">Cavanhaque</option>
+                            <option value="mustache only">Apenas Bigode</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Hair Length Selector -->
+                <div class="dark-panel p-5 rounded-lg">
+                    <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-ruler-vertical text-white icon-accent"></i> Cabelo: Comprimento
+                        <button type="button" data-lock-btn="hair" onclick="toggleLock('hair')"
+                            class="ml-auto text-[10px] text-gray-400 hover:text-white border border-[#262626] px-2 py-1 rounded">LOCK</button>
+                    </h3>
+                    <div class="grid grid-cols-4 gap-3" id="hair-length-grid">
+                        <!-- Javascript will populate this -->
+                    </div>
+                </div>
+
+                <!-- Hair Style Selector -->
+                <div class="dark-panel p-5 rounded-lg" id="hair-style-panel">
+                    <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-scissors text-white icon-accent"></i> Cabelo: Estilo
+                    </h3>
+                    <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="hair-style-grid">
+                        <!-- Javascript will populate this -->
+                    </div>
+                </div>
+
+                <!-- Hair Color Selector (NEW) -->
+                <div class="dark-panel p-5 rounded-lg">
+                    <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-palette text-white icon-accent"></i> Cabelo: Cor
+                    </h3>
+                    <div class="grid grid-cols-4 sm:grid-cols-8 gap-3" id="hair-color-grid">
+                        <!-- Javascript will populate this -->
+                    </div>
+                </div>
+                <!-- Eye Shape Selector -->
+                <div class="dark-panel p-5 rounded-lg">
+                    <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <i class="fa-regular fa-eye text-white icon-accent"></i> Olhos: Formato
+                    </h3>
+                    <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="eye-shape-grid">
+                        <!-- Javascript will populate this -->
+                    </div>
+                </div>
+
+                <!-- Eye Expression Selector -->
+                <div class="dark-panel p-5 rounded-lg" id="expression-panel">
+                    <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-face-smile text-white icon-accent"></i> Olhos: Expressão
+                        <button type="button" data-lock-btn="expression" onclick="toggleLock('expression')"
+                            class="ml-auto text-[10px] text-gray-400 hover:text-white border border-[#262626] px-2 py-1 rounded">LOCK</button>
+                    </h3>
+                    <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="eye-expression-grid">
+                        <!-- Javascript will populate this -->
+                    </div>
+                </div>
+
+                <!-- Nose Selector -->
+                <div class="dark-panel p-5 rounded-lg" id="nose-panel">
+                    <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-play text-white fa-rotate-270 icon-accent" style="font-size: 0.8em;"></i>
+                        Nariz
+                    </h3>
+                    <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="nose-grid">
+                        <!-- Javascript will populate this -->
+                    </div>
+                </div>
+
+                <!-- Mouth Selector -->
+                <div class="dark-panel p-5 rounded-lg" id="mouth-panel">
+                    <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-lips text-white icon-accent"></i> Boca
+                    </h3>
+                    <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="mouth-grid">
+                        <!-- Javascript will populate this -->
+                    </div>
+                </div>
+
+                <!-- Vestuário -->
+                <div class="dark-panel p-5 rounded-lg">
+                    <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-shirt text-white icon-accent"></i> Vestuário
+                        <button type="button" data-lock-btn="outfit" onclick="toggleLock('outfit')"
+                            class="ml-auto text-[10px] text-gray-400 hover:text-white border border-[#262626] px-2 py-1 rounded">LOCK</button>
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-xs text-gray-400 flex items-center gap-2">
+                                <span class="inline-flex w-5 h-5 items-center justify-center text-gray-300"
+                                    id="icon-shirt"></span> Camisas
                             </label>
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="blueprint-view" value="turnaround" class="w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" onchange="selectBlueprintView(this.value)">
-                                3-view turnaround
+                            <div class="relative">
+                                <select id="shirt-select"
+                                    class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 focus:border-[#e50914] focus:outline-none transition-colors appearance-none cursor-pointer"
+                                    onchange="selectClothing('shirt', this.value)">
+                                </select>
+                                <div
+                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                                    <i class="fa-solid fa-chevron-down text-xs icon-accent"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs text-gray-400 flex items-center gap-2">
+                                <span class="inline-flex w-5 h-5 items-center justify-center text-gray-300"
+                                    id="icon-jacket"></span> Casacos
                             </label>
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="blueprint-view" value="expressions" class="w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" onchange="selectBlueprintView(this.value)">
-                                Expression sheet
+                            <div class="relative">
+                                <select id="jacket-select"
+                                    class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 focus:border-[#e50914] focus:outline-none transition-colors appearance-none cursor-pointer"
+                                    onchange="selectClothing('jacket', this.value)">
+                                </select>
+                                <div
+                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                                    <i class="fa-solid fa-chevron-down text-xs icon-accent"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs text-gray-400 flex items-center gap-2">
+                                <span class="inline-flex w-5 h-5 items-center justify-center text-gray-300"
+                                    id="icon-pants"></span> Calças
                             </label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-            <div class="dark-panel p-5 rounded-lg">
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-person-running text-white icon-accent"></i> Acao / Pose
-                    <button type="button" data-lock-btn="action" onclick="toggleLock('action')" class="ml-auto text-[10px] text-gray-400 hover:text-white border border-[#262626] px-2 py-1 rounded">LOCK</button>
-                </h3>
-                <div class="space-y-3">
-                    <select id="pose-select" class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 text-sm focus:border-[#e50914] focus:outline-none" onchange="selectPose(this.value)">
-                    </select>
-                    <label id="deadpan-contrast-row" class="flex items-center space-x-2 text-xs text-gray-400 hidden">
-                        <input type="checkbox" id="deadpan-dance-toggle" class="w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" onchange="toggleDeadpanDance(this.checked)">
-                        <span>Contraste intencional (danca deadpan)</span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Skin Tone Selector -->
-            <div class="dark-panel p-5 rounded-lg">
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-droplet text-white icon-accent"></i> Cor da Pele
-                </h3>
-                <div class="grid grid-cols-6 sm:grid-cols-8 gap-3" id="skin-grid">
-                    <!-- Javascript will populate this -->
-                </div>
-            </div>
-
-            <!-- Shape Selector -->
-            <div class="dark-panel p-5 rounded-lg">
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-draw-polygon text-white icon-accent"></i> Formato Base (Cabeça)
-                    <button type="button" data-lock-btn="face" onclick="toggleLock('face')" class="ml-auto text-[10px] text-gray-400 hover:text-white border border-[#262626] px-2 py-1 rounded">LOCK</button>
-                </h3>
-                <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="shape-grid">
-                    <!-- Javascript will populate this -->
-                </div>
-            </div>
-            <!-- Features Checkbox -->
-            <div class="dark-panel p-5 rounded-lg">
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-sliders text-white icon-accent"></i> Características
-                </h3>
-                <div class="grid grid-cols-4 gap-3">
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
-                        <input type="checkbox" class="feature-check w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="strong jawline" onchange="updatePrompt()">
-                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Maxilar Forte</span>
-                    </label>
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
-                        <input type="checkbox" class="feature-check w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="pointed chin" onchange="updatePrompt()">
-                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Queixo Pontudo</span>
-                    </label>
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
-                        <input type="checkbox" class="feature-check w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="chubby cheeks" onchange="updatePrompt()">
-                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Bochechas</span>
-                    </label>
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
-                        <input type="checkbox" class="feature-check w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="long neck" onchange="updatePrompt()">
-                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Pescoço Longo</span>
-                    </label>
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
-                        <input type="checkbox" class="feature-check w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="high forehead" onchange="updatePrompt()">
-                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Testa Alta</span>
-                    </label>
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
-                        <input type="checkbox" class="feature-check w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="prominent ears" onchange="updatePrompt()">
-                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Orelhas Grandes</span>
-                    </label>
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
-                        <input type="checkbox" class="feature-check w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="freckles" onchange="updatePrompt()">
-                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Sardas</span>
-                    </label>
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
-                        <input type="checkbox" class="feature-check w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="facial scar" onchange="updatePrompt()">
-                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Cicatriz</span>
-                    </label>
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
-                        <input type="checkbox" class="feature-check w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="dark circles" onchange="updatePrompt()">
-                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Olheiras</span>
-                    </label>
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
-                        <input type="checkbox" class="feature-check w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="dimples" onchange="updatePrompt()">
-                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Covinhas</span>
-                    </label>
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
-                        <input type="checkbox" class="feature-check w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="wrinkles, aged skin" onchange="updatePrompt()">
-                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Rugas</span>
-                    </label>
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
-                        <input type="checkbox" class="feature-check w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="beauty mark, mole" onchange="updatePrompt()">
-                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Sinal</span>
-                    </label>
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
-                        <input type="checkbox" class="feature-check w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="gap teeth" onchange="updatePrompt()">
-                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Dentes Separados</span>
-                    </label>
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
-                        <input type="checkbox" class="feature-check w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="bushy eyebrows" onchange="updatePrompt()">
-                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Sobrancelhas Grossas</span>
-                    </label>
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
-                        <input type="checkbox" class="feature-check w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="cleft chin" onchange="updatePrompt()">
-                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Queixo Furado</span>
-                    </label>
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-[#1a1a1a] rounded transition-colors group">
-                        <input type="checkbox" class="feature-check w-4 h-4 text-[#e50914] rounded bg-black border-gray-600 focus:ring-0 focus:ring-offset-0" value="face tattoo" onchange="updatePrompt()">
-                        <span class="text-xs text-gray-400 group-hover:text-white transition-colors">Tatuagem</span>
-                    </label>
-                    <select id="beard-select" class="p-2 rounded border border-[#262626] bg-black text-gray-200 text-xs focus:border-[#e50914] focus:outline-none" onchange="selectBeard(this.value)">
-                        <option value="">Sem barba</option>
-                        <option value="light stubble beard">Barba Rala</option>
-                        <option value="full beard">Barba Completa</option>
-                        <option value="goatee beard">Cavanhaque</option>
-                        <option value="mustache only">Apenas Bigode</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Hair Length Selector -->
-            <div class="dark-panel p-5 rounded-lg">
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-ruler-vertical text-white icon-accent"></i> Cabelo: Comprimento
-                    <button type="button" data-lock-btn="hair" onclick="toggleLock('hair')" class="ml-auto text-[10px] text-gray-400 hover:text-white border border-[#262626] px-2 py-1 rounded">LOCK</button>
-                </h3>
-                <div class="grid grid-cols-4 gap-3" id="hair-length-grid">
-                    <!-- Javascript will populate this -->
-                </div>
-            </div>
-
-            <!-- Hair Style Selector -->
-            <div class="dark-panel p-5 rounded-lg" id="hair-style-panel">
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-scissors text-white icon-accent"></i> Cabelo: Estilo
-                </h3>
-                <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="hair-style-grid">
-                    <!-- Javascript will populate this -->
-                </div>
-            </div>
-
-            <!-- Hair Color Selector (NEW) -->
-            <div class="dark-panel p-5 rounded-lg">
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-palette text-white icon-accent"></i> Cabelo: Cor
-                </h3>
-                <div class="grid grid-cols-4 sm:grid-cols-8 gap-3" id="hair-color-grid">
-                    <!-- Javascript will populate this -->
-                </div>
-            </div>
-            <!-- Eye Shape Selector -->
-            <div class="dark-panel p-5 rounded-lg">
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <i class="fa-regular fa-eye text-white icon-accent"></i> Olhos: Formato
-                </h3>
-                <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="eye-shape-grid">
-                    <!-- Javascript will populate this -->
-                </div>
-            </div>
-
-            <!-- Eye Expression Selector -->
-            <div class="dark-panel p-5 rounded-lg" id="expression-panel">
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-face-smile text-white icon-accent"></i> Olhos: Expressão
-                    <button type="button" data-lock-btn="expression" onclick="toggleLock('expression')" class="ml-auto text-[10px] text-gray-400 hover:text-white border border-[#262626] px-2 py-1 rounded">LOCK</button>
-                </h3>
-                <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="eye-expression-grid">
-                    <!-- Javascript will populate this -->
-                </div>
-            </div>
-
-            <!-- Nose Selector -->
-            <div class="dark-panel p-5 rounded-lg" id="nose-panel">
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-play text-white fa-rotate-270 icon-accent" style="font-size: 0.8em;"></i> Nariz
-                </h3>
-                <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="nose-grid">
-                    <!-- Javascript will populate this -->
-                </div>
-            </div>
-
-            <!-- Mouth Selector -->
-            <div class="dark-panel p-5 rounded-lg" id="mouth-panel">
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-lips text-white icon-accent"></i> Boca
-                </h3>
-                <div class="grid grid-cols-3 sm:grid-cols-4 gap-3" id="mouth-grid">
-                    <!-- Javascript will populate this -->
-                </div>
-            </div>
-
-            <!-- Vestuário -->
-            <div class="dark-panel p-5 rounded-lg">
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-shirt text-white icon-accent"></i> Vestuário
-                    <button type="button" data-lock-btn="outfit" onclick="toggleLock('outfit')" class="ml-auto text-[10px] text-gray-400 hover:text-white border border-[#262626] px-2 py-1 rounded">LOCK</button>
-                </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="space-y-2">
-                        <label class="text-xs text-gray-400 flex items-center gap-2">
-                            <span class="inline-flex w-5 h-5 items-center justify-center text-gray-300" id="icon-shirt"></span> Camisas
-                        </label>
-                        <div class="relative">
-                            <select id="shirt-select" class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 focus:border-[#e50914] focus:outline-none transition-colors appearance-none cursor-pointer" onchange="selectClothing('shirt', this.value)">
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                                <i class="fa-solid fa-chevron-down text-xs icon-accent"></i>
+                            <div class="relative">
+                                <select id="pants-select"
+                                    class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 focus:border-[#e50914] focus:outline-none transition-colors appearance-none cursor-pointer"
+                                    onchange="selectClothing('pants', this.value)">
+                                </select>
+                                <div
+                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                                    <i class="fa-solid fa-chevron-down text-xs icon-accent"></i>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-xs text-gray-400 flex items-center gap-2">
-                            <span class="inline-flex w-5 h-5 items-center justify-center text-gray-300" id="icon-jacket"></span> Casacos
-                        </label>
-                        <div class="relative">
-                            <select id="jacket-select" class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 focus:border-[#e50914] focus:outline-none transition-colors appearance-none cursor-pointer" onchange="selectClothing('jacket', this.value)">
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                                <i class="fa-solid fa-chevron-down text-xs icon-accent"></i>
+                        <div class="space-y-2">
+                            <label class="text-xs text-gray-400 flex items-center gap-2">
+                                <span class="inline-flex w-5 h-5 items-center justify-center text-gray-300"
+                                    id="icon-shoes"></span> Calçados
+                            </label>
+                            <div class="relative">
+                                <select id="shoes-select"
+                                    class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 focus:border-[#e50914] focus:outline-none transition-colors appearance-none cursor-pointer"
+                                    onchange="selectClothing('shoes', this.value)">
+                                </select>
+                                <div
+                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                                    <i class="fa-solid fa-chevron-down text-xs icon-accent"></i>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-xs text-gray-400 flex items-center gap-2">
-                            <span class="inline-flex w-5 h-5 items-center justify-center text-gray-300" id="icon-pants"></span> Calças
-                        </label>
-                        <div class="relative">
-                            <select id="pants-select" class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 focus:border-[#e50914] focus:outline-none transition-colors appearance-none cursor-pointer" onchange="selectClothing('pants', this.value)">
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                                <i class="fa-solid fa-chevron-down text-xs icon-accent"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-xs text-gray-400 flex items-center gap-2">
-                            <span class="inline-flex w-5 h-5 items-center justify-center text-gray-300" id="icon-shoes"></span> Calçados
-                        </label>
-                        <div class="relative">
-                            <select id="shoes-select" class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 focus:border-[#e50914] focus:outline-none transition-colors appearance-none cursor-pointer" onchange="selectClothing('shoes', this.value)">
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                                <i class="fa-solid fa-chevron-down text-xs icon-accent"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="space-y-2 md:col-span-2">
-                        <label class="text-xs text-gray-400 flex items-center gap-2">
-                            <span class="inline-flex w-5 h-5 items-center justify-center text-gray-300" id="icon-fantasy"></span> Fantasias (bloqueia opções individuais)
-                        </label>
-                        <div class="relative">
-                            <select id="fantasy-select" class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 focus:border-[#e50914] focus:outline-none transition-colors appearance-none cursor-pointer" onchange="selectClothing('fantasy', this.value)">
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                                <i class="fa-solid fa-chevron-down text-xs icon-accent"></i>
+                        <div class="space-y-2 md:col-span-2">
+                            <label class="text-xs text-gray-400 flex items-center gap-2">
+                                <span class="inline-flex w-5 h-5 items-center justify-center text-gray-300"
+                                    id="icon-fantasy"></span> Fantasias (bloqueia opções individuais)
+                            </label>
+                            <div class="relative">
+                                <select id="fantasy-select"
+                                    class="w-full p-3 rounded-lg border border-[#262626] bg-black text-gray-200 focus:border-[#e50914] focus:outline-none transition-colors appearance-none cursor-pointer"
+                                    onchange="selectClothing('fantasy', this.value)">
+                                </select>
+                                <div
+                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                                    <i class="fa-solid fa-chevron-down text-xs icon-accent"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Acessórios -->
+                <div class="dark-panel p-5 rounded-lg">
+                    <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <span class="inline-flex w-5 h-5 items-center justify-center text-gray-300"
+                            id="icon-accessory"></span> Acessórios
+                        <button type="button" data-lock-btn="accessories" onclick="toggleLock('accessories')"
+                            class="ml-auto text-[10px] text-gray-400 hover:text-white border border-[#262626] px-2 py-1 rounded">LOCK</button>
+                    </h3>
+                    <div id="accessory-list" class="grid grid-cols-4 gap-3"></div>
+                </div>
+
             </div>
 
-            <!-- Acessórios -->
-            <div class="dark-panel p-5 rounded-lg">
-                <h3 class="text-xs font-bold text-[#555] uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <span class="inline-flex w-5 h-5 items-center justify-center text-gray-300" id="icon-accessory"></span> Acessórios
-                    <button type="button" data-lock-btn="accessories" onclick="toggleLock('accessories')" class="ml-auto text-[10px] text-gray-400 hover:text-white border border-[#262626] px-2 py-1 rounded">LOCK</button>
-                </h3>
-                <div id="accessory-list" class="grid grid-cols-4 gap-3"></div>
-            </div>
+            <!-- Output Section -->
+            <div class="lg:col-span-5 space-y-6">
+                <div class="sticky top-24">
+                    <div class="bg-[#141414] border border-[#262626] rounded-lg p-5 shadow-2xl">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2
+                                class="text-xs font-bold text-[#e50914] uppercase tracking-wider bg-black/50 px-2 py-1 rounded inline-block border border-red-900/30">
+                                Prompt Final
+                            </h2>
+                            <button onclick="randomize()"
+                                class="text-gray-500 hover:text-white text-[10px] uppercase tracking-wider bg-[#262626] hover:bg-[#333] px-3 py-1.5 rounded transition-colors flex items-center gap-2">
+                                <i class="fa-solid fa-dice icon-accent"></i> Random
+                            </button>
+                        </div>
 
-        </div>
+                        <div class="relative group">
+                            <textarea id="prompt-output"
+                                class="w-full h-96 bg-black border border-[#262626] rounded-lg p-4 text-sm text-gray-300 focus:outline-none focus:border-[#e50914] focus:text-white transition-colors font-mono resize-none leading-relaxed"
+                                readonly></textarea>
+                        </div>
 
-                <!-- Output Section -->
-                <div class="lg:col-span-5 space-y-6">
-            <div class="sticky top-24">
-                <div class="bg-[#141414] border border-[#262626] rounded-lg p-5 shadow-2xl">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-xs font-bold text-[#e50914] uppercase tracking-wider bg-black/50 px-2 py-1 rounded inline-block border border-red-900/30">
-                            Prompt Final
-                        </h2>
-                        <button onclick="randomize()" class="text-gray-500 hover:text-white text-[10px] uppercase tracking-wider bg-[#262626] hover:bg-[#333] px-3 py-1.5 rounded transition-colors flex items-center gap-2">
-                            <i class="fa-solid fa-dice icon-accent"></i> Random
-                        </button>
-                    </div>
+                        <div class="mt-4 pt-4 text-[#555] text-[10px]">
 
-                    <div class="relative group">
-                        <textarea id="prompt-output" class="w-full h-96 bg-black border border-[#262626] rounded-lg p-4 text-sm text-gray-300 focus:outline-none focus:border-[#e50914] focus:text-white transition-colors font-mono resize-none leading-relaxed" readonly></textarea>
-                    </div>
-
-                    <div class="mt-4 pt-4 text-[#555] text-[10px]">
-                        
-                        <textarea id="negativePrompt" class="w-full bg-black border border-[#262626] rounded-lg p-2 text-[11px] text-gray-400 focus:outline-none focus:border-[#e50914] focus:text-white transition-colors font-mono resize-none" rows="4">Negative Prompt:
+                            <textarea id="negativePrompt"
+                                class="w-full bg-black border border-[#262626] rounded-lg p-2 text-[11px] text-gray-400 focus:outline-none focus:border-[#e50914] focus:text-white transition-colors font-mono resize-none"
+                                rows="4">Negative Prompt:
 detailled eyes, realistic texture, photography, noise, watermark</textarea>
+                        </div>
+
+                        <button onclick="copyToClipboard()"
+                            class="w-full mt-4 bg-white hover:bg-gray-200 text-black font-bold py-3 px-6 rounded transition-all uppercase text-xs tracking-widest shadow-lg flex justify-center items-center gap-2">
+                            <i class="fa-regular fa-copy icon-accent"></i> Copy Prompt
+                        </button>
+
+                        <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <button onclick="exportCharacter()"
+                                class="w-full bg-[#262626] hover:bg-[#333] text-gray-200 font-semibold py-2.5 px-4 rounded border border-[#333] transition-all text-[11px] uppercase tracking-wider flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-file-export text-[#e50914] icon-accent"></i> Exportar Personagem
+                                (JSON)
+                            </button>
+                            <button onclick="promptImport()"
+                                class="w-full bg-[#262626] hover:bg-[#333] text-gray-200 font-semibold py-2.5 px-4 rounded border border-[#333] transition-all text-[11px] uppercase tracking-wider flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-file-import text-[#e50914] icon-accent"></i> Importar Personagem
+                                (JSON)
+                            </button>
+                        </div>
+                        <input type="file" id="import-file" accept="application/json" class="hidden"
+                            onchange="handleImportFile(this)">
                     </div>
 
-                    <button onclick="copyToClipboard()" class="w-full mt-4 bg-white hover:bg-gray-200 text-black font-bold py-3 px-6 rounded transition-all uppercase text-xs tracking-widest shadow-lg flex justify-center items-center gap-2">
-                        <i class="fa-regular fa-copy icon-accent"></i> Copy Prompt
-                    </button>
 
-                    <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <button onclick="exportCharacter()" class="w-full bg-[#262626] hover:bg-[#333] text-gray-200 font-semibold py-2.5 px-4 rounded border border-[#333] transition-all text-[11px] uppercase tracking-wider flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-file-export text-[#e50914] icon-accent"></i> Exportar Personagem (JSON)
-                        </button>
-                        <button onclick="promptImport()" class="w-full bg-[#262626] hover:bg-[#333] text-gray-200 font-semibold py-2.5 px-4 rounded border border-[#333] transition-all text-[11px] uppercase tracking-wider flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-file-import text-[#e50914] icon-accent"></i> Importar Personagem (JSON)
-                        </button>
-                    </div>
-                    <input type="file" id="import-file" accept="application/json" class="hidden" onchange="handleImportFile(this)">
+
+                    <!-- Test Runner removed as requested -->
                 </div>
-
-
-
-                <!-- Test Runner removed as requested -->
             </div>
-        </div>
     </main>
 
     <!-- Toast -->
@@ -695,18 +849,18 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
         // Skin Tones
         const skinTones = [
-            { id: 'albino', color: '#fff5eb', value: 'albino skin, porcelain complexion, very pale' }, 
+            { id: 'albino', color: '#fff5eb', value: 'albino skin, porcelain complexion, very pale' },
             { id: 'pale', color: '#f8d9d5', value: 'pale skin, fair complexion' },
             { id: 'light', color: '#eac0ad', value: 'light skin, caucasian' },
-            { id: 'beige', color: '#e0ac69', value: 'warm beige skin, golden undertone' }, 
+            { id: 'beige', color: '#e0ac69', value: 'warm beige skin, golden undertone' },
             { id: 'tan', color: '#d1a58a', value: 'tan skin, sun kissed skin' },
             { id: 'olive', color: '#b38b6d', value: 'olive skin, mediterranean complexion' },
             { id: 'medium', color: '#8d5524', value: 'medium brown skin, latino' },
-            { id: 'bronze', color: '#6d4c41', value: 'bronze skin, rich brown complexion' }, 
+            { id: 'bronze', color: '#6d4c41', value: 'bronze skin, rich brown complexion' },
             { id: 'brown', color: '#5e3c23', value: 'brown skin, indian complexion' },
             { id: 'dark', color: '#3b2219', value: 'dark skin, african american' },
             { id: 'darkest', color: '#211613', value: 'very dark skin, deep ebony skin' },
-            { id: 'midnight', color: '#0f0b0a', value: 'obsidian skin, extremely dark complexion' }, 
+            { id: 'midnight', color: '#0f0b0a', value: 'obsidian skin, extremely dark complexion' },
             // Fantasy Colors
             { id: 'green', color: '#8bc34a', value: 'green skin, alien, zombie', skipRandom: true },
             { id: 'blue', color: '#2196f3', value: 'blue skin, avatar style', skipRandom: true },
@@ -722,7 +876,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
             { id: 'vertical', label: 'Verticais', value: 'vertical oval eyes' },
             { id: 'angular', label: 'Angulares', value: 'angular stylized eyes, sharp corners' },
             { id: 'wide', label: 'Afastados', value: 'eyes wide apart' },
-            { id: 'almond', label: 'Amendoados', value: 'almond shaped eyes, exotic cat-eyes' }, 
+            { id: 'almond', label: 'Amendoados', value: 'almond shaped eyes, exotic cat-eyes' },
             { id: 'square_eye', label: 'Quadrados', value: 'square shaped eyes, robotic eyes' },
             { id: 'droopy', label: 'Caídos', value: 'droopy eyelids, sleepy eyes, tired gaze' }
         ];
@@ -755,7 +909,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
             { id: 'pointed', label: 'Pontudo', value: 'long pointed nose, sharp nose' },
             { id: 'bulbous', label: 'Batata', value: 'bulbous nose, big round nose' },
             { id: 'roman', label: 'Romano', value: 'roman nose, hooked nose' },
-            { id: 'hook', label: 'Gancho', value: 'hooked nose, witch nose, sharp curve' }, 
+            { id: 'hook', label: 'Gancho', value: 'hooked nose, witch nose, sharp curve' },
             { id: 'broken', label: 'Quebrado', value: 'broken nose, crooked bridge, scarred cartilage' },
             { id: 'wide', label: 'Largo', value: 'wide flat nose, broad nose' },
             { id: 'pig', label: 'Arrebitado', value: 'upturned nose, perky tip' }
@@ -768,8 +922,8 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
             { id: 'frown', label: 'Triste', value: 'frowning mouth, inverted curve' },
             { id: 'open', label: 'Aberta', value: 'open mouth, O shape mouth, surprised' },
             { id: 'grin', label: 'Dentes', value: 'grinning mouth, showing teeth, clenched teeth' },
-            { id: 'lips', label: 'Lábios', value: 'prominent lips, lipstick' },
-            { id: 'thin', label: 'Fina', value: 'thin lips, straight mouth line, serious' }, 
+            { id: 'smirk', label: 'Sorriso de Canto', value: 'smirk, subtle corner smile, sassy expression' },
+            { id: 'thin', label: 'Fina', value: 'thin lips, straight mouth line, serious' },
             { id: 'tongue', label: 'Língua', value: 'sticking tongue out, cheeky expression' }
         ];
 
@@ -966,7 +1120,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
                 hairStyleId: 'afro_short',
                 eyeShapeId: 'round',
                 noseId: 'wide',
-                mouthId: 'lips',
+                mouthId: 'smirk',
                 features: ['bushy eyebrows'],
                 fantasy: 'king_tribal'
             },
@@ -990,7 +1144,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
                 hairStyleId: 'layered',
                 eyeShapeId: 'almond',
                 noseId: 'roman',
-                mouthId: 'lips',
+                mouthId: 'smirk',
                 features: [],
                 fantasy: 'steampunk'
             },
@@ -1112,7 +1266,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
                 qualityTokens: ['Unreal Engine render'],
                 negativePrompt: 'realistic, photorealistic, cinematic, 2d, flat'
             },
-             {
+            {
                 id: 'lego',
                 label: 'Boneco Lego',
                 dimension: '3D',
@@ -1394,7 +1548,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
                 qualityTokens: ['clean anime lines'],
                 negativePrompt: 'realistic proportions, 3d'
             },
-             {
+            {
                 id: 'minimalist',
                 label: 'Minimalista',
                 dimension: '2D',
@@ -1642,11 +1796,11 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
         let selectedHairStyle = hairStyles['short'][0].value;
         let selectedHairColor = hairColors[0].value; // Default Black
         let selectedSkinTone = skinTones[2].value; // Default Light
-        let selectedEyeShape = DEFAULT_EYE_SHAPE.value; 
+        let selectedEyeShape = DEFAULT_EYE_SHAPE.value;
         let selectedEyeShapeId = DEFAULT_EYE_SHAPE.id;
         let selectedEyeExpression = DEFAULT_EYE_EXPRESSION.value;
         let selectedEyeExpressionId = DEFAULT_EYE_EXPRESSION.id;
-        let selectedNose = DEFAULT_NOSE.value; 
+        let selectedNose = DEFAULT_NOSE.value;
         let selectedMouth = DEFAULT_MOUTH.value; // Default: Smile
         let selectedMouthId = DEFAULT_MOUTH.id;
         let selectedShirt = clothingOptions.shirt[0].value;
@@ -1699,13 +1853,13 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
                     const parsed = JSON.parse(raw);
                     lockState = { ...lockDefaults, ...parsed };
                 }
-            } catch (e) {}
+            } catch (e) { }
         }
 
         function saveLockState() {
             try {
                 localStorage.setItem('cps_lockState', JSON.stringify(lockState));
-            } catch (e) {}
+            } catch (e) { }
         }
 
         function updateLockButtons() {
@@ -1722,7 +1876,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
             const artStyleSelect = document.getElementById('art-style');
             const styleId = artStyleSelect?.value || 'disney2d';
             const preset = getPresetById(styleId) || {};
-            
+
             const negativePrompt = getNegativePromptBase();
             const styleText = preset.styleValue || '';
             const ethnicitySelect = document.getElementById('ethnicity-select');
@@ -2252,7 +2406,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
             document.querySelectorAll('#hair-length-grid .option-card')[1].classList.add('selected');
             document.querySelectorAll('#hair-style-grid .option-card')[0].classList.add('selected');
             document.querySelectorAll('#hair-color-grid .color-swatch')[0].classList.add('selected'); // Black default
-            document.querySelectorAll('#skin-grid .color-swatch')[2].classList.add('selected'); 
+            document.querySelectorAll('#skin-grid .color-swatch')[2].classList.add('selected');
             markDefaultOption('#eye-shape-grid .option-card', DEFAULT_EYE_SHAPE.id);
             markDefaultOption('#eye-expression-grid .option-card', DEFAULT_EYE_EXPRESSION.id);
             markDefaultOption('#nose-grid .option-card', DEFAULT_NOSE.id);
@@ -2344,7 +2498,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
             const container = document.getElementById('hair-style-grid');
             container.innerHTML = '';
             const styles = hairStyles[lengthId] || [];
-            
+
             styles.forEach((item, index) => {
                 const div = document.createElement('div');
                 div.className = `option-card p-3 rounded-lg text-center text-xs group ${index === 0 ? 'selected' : ''}`;
@@ -2354,7 +2508,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
                 container.appendChild(div);
             });
 
-            if(styles.length > 0 && !isImporting) {
+            if (styles.length > 0 && !isImporting) {
                 selectedHairStyle = styles[0].value;
                 updatePrompt();
             }
@@ -2506,7 +2660,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
         }
 
         function hydrateClothingIcons() {
-            const ids = ['shirt','jacket','pants','shoes','accessory','fantasy'];
+            const ids = ['shirt', 'jacket', 'pants', 'shoes', 'accessory', 'fantasy'];
             ids.forEach(k => {
                 const holder = document.getElementById(`icon-${k}`);
                 if (holder) holder.innerHTML = getClothingIcon(k);
@@ -2585,7 +2739,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
             if (!preset) return;
 
             selectedPresetId = preset.id;
-            
+
             const currentDimension = document.querySelector('input[name="dimension"]:checked').value;
             if (preset.dimension !== currentDimension) {
                 const dimensionInput = document.querySelector(`input[name="dimension"][value="${preset.dimension}"]`);
@@ -2594,10 +2748,10 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
                     // Changing dimension will trigger updateStyleOptions, which will call applyPreset again.
                     // So we can stop here to avoid a double update.
                     updateStyleOptions();
-                    return; 
+                    return;
                 }
             }
-            
+
             const styleSelect = document.getElementById('art-style');
             if (styleSelect) {
                 styleSelect.value = preset.id;
@@ -2669,7 +2823,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
             refreshAvailability();
             updatePrompt();
         }
-        
+
         function populateEthnicitySelect() {
             const select = document.getElementById('ethnicity-select');
             if (!select) return;
@@ -2806,7 +2960,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
             isImporting = prevImporting;
             updatePrompt();
         }
-        
+
         // --- CORE LOGIC ---
         function updateStyleOptions() {
             syncDimensionNegativeBase();
@@ -2822,25 +2976,25 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
                 option.textContent = preset.label;
                 select.appendChild(option);
             });
-            
+
             const newSelectionExists = list.some(p => p.id === currentVal);
             if (newSelectionExists) {
                 select.value = currentVal;
             } else if (list.length > 0) {
                 select.value = list[0].id;
             }
-            
+
             if (select.value) {
                 applyPreset(select.value);
             } else {
-                 updatePrompt();
+                updatePrompt();
             }
         }
 
         document.querySelectorAll('input[name="dimension"]').forEach(radio => {
             radio.addEventListener('change', updateStyleOptions);
         });
-        
+
         function exportCharacter() {
             const state = getState();
             const data = {
@@ -2853,7 +3007,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
             const json = JSON.stringify(data, null, 2);
             try {
                 navigator.clipboard?.writeText(json);
-            } catch (e) {}
+            } catch (e) { }
             const blob = new Blob([json], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -2881,7 +3035,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
             reader.readAsText(file);
         }
 
-                function copyToClipboard() {
+        function copyToClipboard() {
             const output = document.getElementById('prompt-output');
             const negative = document.getElementById('negativePrompt');
             const fullPrompt = `${output.value}\n\n${negative.value}`;
@@ -2901,9 +3055,9 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
         function showToast(message = 'COPIADO PARA O CLIPBOARD!') {
             const toast = document.getElementById('toast');
-            if(message) toast.textContent = message;
+            if (message) toast.textContent = message;
             toast.className = "show";
-            setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
+            setTimeout(function () { toast.className = toast.className.replace("show", ""); }, 3000);
         }
 
         function promptImport() {
@@ -2928,7 +3082,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
             const presetIdToApply = stateData.presetId || payload.presetId || 'disney2d';
             const presetToApply = getPresetById(presetIdToApply);
-            
+
             if (presetToApply) {
                 const dimRadio = document.querySelector(`input[name="dimension"][value="${presetToApply.dimension}"]`);
                 if (dimRadio && !dimRadio.checked) {
@@ -2936,9 +3090,9 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
                     updateStyleOptions(); // This will re-render the style dropdown
                 }
                 const styleSelect = document.getElementById('art-style');
-                if(styleSelect) styleSelect.value = presetIdToApply;
+                if (styleSelect) styleSelect.value = presetIdToApply;
             }
-            
+
             // Locks
             const incomingLocks = payload.lockState || stateData.lockState;
             if (incomingLocks) {
@@ -2992,14 +3146,14 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
             }
 
             // Hair length & style
-            if(stateData.hairLengthId || stateData.hairLength) {
+            if (stateData.hairLengthId || stateData.hairLength) {
                 const hairEntry = hairLengths.find(h => h.id === stateData.hairLengthId) || hairLengths.find(h => h.value === stateData.hairLength) || hairLengths[1];
                 const lengthCards = document.querySelectorAll('#hair-length-grid .option-card');
                 const lengthTarget = lengthCards[hairLengths.indexOf(hairEntry)] || lengthCards[0];
                 if (lengthTarget) selectHairLength(lengthTarget, hairEntry.value, hairEntry.id);
-                
+
                 renderHairStyles(hairEntry.id); // Re-render styles for the new length
-                
+
                 if (stateData.hairStyle) {
                     const styles = hairStyles[hairEntry.id] || [];
                     const styleEntry = styles.find(s => s.value === stateData.hairStyle) || styles[0];
@@ -3080,7 +3234,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
                     const sel = document.getElementById(id);
                     if (!sel) return;
                     const choice = (clothingOptions[kind] || []).find(o => o.id === value || o.value === value);
-                    if(choice) {
+                    if (choice) {
                         sel.value = choice.id;
                         selectClothing(kind, choice.id);
                     }
@@ -3098,7 +3252,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
             // Beard
             const beardSel = document.getElementById('beard-select');
             if (beardSel && stateData.beard) {
-                 const match = Array.from(beardSel.options).find(o => o.value === stateData.beard);
+                const match = Array.from(beardSel.options).find(o => o.value === stateData.beard);
                 if (match) {
                     beardSel.value = match.value;
                     selectBeard(beardSel.value);
@@ -3264,7 +3418,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
         }
 
         function toggleClothingDisabled(disabled) {
-            const ids = ['shirt-select','jacket-select','pants-select','shoes-select','accessory-select'];
+            const ids = ['shirt-select', 'jacket-select', 'pants-select', 'shoes-select', 'accessory-select'];
             ids.forEach(id => {
                 const select = document.getElementById(id);
                 const wrapper = select?.closest('.space-y-2');
@@ -3311,7 +3465,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
         // --- SVG GENERATORS ---
         function getSvgForGender(id) {
             const props = 'width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-gray-500 transition-colors"';
-            
+
             // Standard Icons replacement
             if (id === 'male') return `<svg ${props}><circle cx="10" cy="14" r="5"/><path d="M14 10l6-6"/><path d="M15 4h5v5"/></svg>`;
             if (id === 'female') return `<svg ${props}><circle cx="12" cy="9" r="5"/><path d="M12 14v8"/><path d="M8 18h8"/></svg>`;
@@ -3466,7 +3620,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
                 'frown': `<path d="M6 10c0-5 5-8 6-8s6 3 6 8"/>`,
                 'open': `<circle cx="12" cy="8" r="4"/>`,
                 'grin': `<path d="M6 6h12v4h-12z"/><path d="M12 6v4"/><path d="M9 6v4"/><path d="M15 6v4"/>`,
-                'lips': `<path d="M6 8c2-2 4-2 6 0c2-2 4-2 6 0"/><path d="M6 8c3 4 9 4 12 0"/>`,
+                'smirk': `<path d="M7 10c3 2 8 1 10-2" stroke-linecap="round"/>`,
                 'thin': `<path d="M6 8h12" stroke-width="2"/>`, // Straight line
                 'tongue': `<path d="M6 6c0 5 5 6 6 6s6-1 6-6"/><path d="M10 12c0 3 2 4 2 4s2-1 2-4"/>`
             };
@@ -3536,7 +3690,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
                 if (state.poseId === 'dancing') {
                     parts.anatomy.push('dynamic dancing pose', 'weight shift', 'arms in motion', 'joyful movement');
                 } else if (state.pose) {
-                     parts.anatomy.push(state.pose);
+                    parts.anatomy.push(state.pose);
                 }
 
                 // SKIN
@@ -3579,7 +3733,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
                     }
                 } else {
                     const accessoriesList = state.accessories || [];
-                const pieces = [
+                    const pieces = [
                         state.shirt,
                         state.jacket,
                         state.pants,
@@ -3613,7 +3767,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
                     parts.background.push(...preset.backgroundTokens);
                 }
 
-                 // RENDER
+                // RENDER
                 if (preset?.qualityTokens?.length) {
                     parts.quality.push(...preset.qualityTokens);
                 }
@@ -3625,7 +3779,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
 
                 // BLUEPRINT MODE
                 if (state.blueprintMode) {
-                     parts.constraints.push('character design sheet, blueprint, white background, grid lines, annotations');
+                    parts.constraints.push('character design sheet, blueprint, white background, grid lines, annotations');
                     if (state.blueprintView === 'turnaround') {
                         parts.camera.push('turnaround: front view, side view, back view');
                     } else if (state.blueprintView === 'expressions') {
@@ -3656,7 +3810,7 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
                 return parts;
             },
             joinParts(parts) {
-                 const order = {
+                const order = {
                     quality: 'Quality',
                     style: 'Style',
                     subject: 'Subject',
@@ -3683,13 +3837,13 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
                     // Special handling for merged sections
                     if (key === 'anatomy' && parts.pose) sourceArray = [...sourceArray, ...parts.pose];
                     if (key === 'quality' && parts.qualityTokens) sourceArray = [...sourceArray, ...parts.qualityTokens];
-                    
+
                     const content = PromptBuilder.normalizeTokens(sourceArray).join(', ');
                     if (content) {
                         all.push(`${title}:\n${content}`);
                     }
                 });
-                return all.join('\n\n');
+                return "Create an image:\n\n" + all.join('\n\n');
             },
             normalizeTokens(list) {
                 const seen = new Set();
@@ -3745,4 +3899,5 @@ detailled eyes, realistic texture, photography, noise, watermark</textarea>
         }
     </script>
 </body>
+
 </html>
