@@ -94,12 +94,14 @@
         <button class="tab-button" data-target="tab-scene" data-highlight="#4125D0" role="tab">Scene</button>
         <button class="tab-button" data-target="tab-spaceship" data-highlight="#C6BEB5" role="tab">Spaceship</button>
         <button class="tab-button" data-target="tab-storygrid" data-highlight="#0f9d58" role="tab">Story Grid</button>
+        <button class="tab-button" data-target="tab-vault" data-highlight="#DFE0E2" role="tab">Prompt Vault</button>
         <button class="tab-button" data-target="tab-chatgpt" data-external="https://chatgpt.com/"
             data-highlight="#14b8a6" role="tab">ChatGPT</button>
         <button class="tab-button" data-external="https://grok.com/imagine" data-highlight="#ec4899" role="tab">Grok
             Imagine</button>
         <button class="tab-button" data-external="https://gemini.google.com/app" data-highlight="#0ea5e9"
             role="tab">Gemini</button>
+
     </div>
     <div class="tab-content">
         <iframe id="tab-cartoon" class="tab-panel active" src="cartoon.html" title="Cartoon Generator"
@@ -114,6 +116,8 @@
         <iframe id="tab-spaceship" class="tab-panel" src="spaceship.html" title="Spaceship Prompt Studio"
             loading="lazy"></iframe>
         <iframe id="tab-storygrid" class="tab-panel" src="StoryGrid.html" title="Story Grid" loading="lazy"></iframe>
+        <iframe id="tab-vault" class="tab-panel" src="https://image-prompt-vault.web.app/" title="Prompt Vault"
+            loading="lazy"></iframe>
     </div>
     <script>
         const buttons = document.querySelectorAll('.tab-button');
