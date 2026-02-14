@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "prompt-vault-9d30b"
+  },
+  "targets": {
+    "prompt-vault-9d30b": {
+      "hosting": {
+        "app": [
+          "image-prompt-vault"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

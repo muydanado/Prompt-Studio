@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -461,4 +462,469 @@ white neutral background, technical drawing, concept art, high detail, no text -
         });
     </script>
 </body>
+=======
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anime Character Prompt Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #050505;
+            --card-bg: #0f0f0f;
+            --panel-border: #1f1f1f;
+            --accent: #E5ADE0; 
+            --accent-dim: rgba(229, 173, 224, 0.12);
+            --text-main: #e5e5e5;
+            --text-muted: #737373;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+        .dark-panel {
+            background-color: var(--card-bg);
+            border: 1px solid var(--panel-border);
+            transition: border-color 0.2s ease;
+        }
+
+        .option-card {
+            background-color: #0a0a0a;
+            border: 1px solid var(--panel-border);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            text-align: left;
+        }
+        .option-card:hover {
+            transform: translateY(-2px);
+            border-color: #444;
+        }
+        .option-card.selected {
+            border-color: var(--accent);
+            background-color: var(--accent-dim);
+            box-shadow: 0 0 0 1px var(--accent);
+        }
+
+        .section-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .section-title i {
+            color: var(--accent);
+        }
+
+        #prompt-output {
+            background-color: #0a0a0a !important;
+            border: 1px solid #222;
+            color: #ffffff !important;
+        }
+
+        .custom-input {
+            background-color: #050505;
+            border: 1px solid #222;
+            color: var(--text-main);
+            font-size: 11px;
+            transition: border-color 0.2s;
+        }
+        .custom-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: var(--accent);
+            color: #000;
+            text-align: center;
+            border-radius: 4px;
+            padding: 12px 16px;
+            position: fixed;
+            z-index: 50;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            opacity: 0;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: opacity 0.3s, bottom 0.3s;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+            bottom: 50px;
+        }
+
+        button.primary-btn {
+            background: linear-gradient(135deg, rgba(229, 173, 224, 0.2), rgba(229, 173, 224, 0.4));
+            border: 1px solid var(--accent);
+            color: #fff;
+        }
+
+        .json-btn {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            color: #888;
+            transition: all 0.2s;
+        }
+        .json-btn:hover {
+            background: #222;
+            border-color: #555;
+            color: #fff;
+        }
+
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center pb-20">
+
+    <header class="w-full border-b border-[#1f1f1f] bg-black/80 backdrop-blur-md z-20 sticky top-0">
+        <div class="w-full max-w-7xl mx-auto px-6 py-4 flex items-center gap-4 justify-start">
+            <div class="w-3 h-8 bg-[#E5ADE0] rounded-sm shadow-[0_0_15px_rgba(229,173,224,0.5)]"></div>
+            <div>
+                <h1 class="text-xl font-bold tracking-tight text-white">ANIME CHARACTER PROMPT <span class="text-[#E5ADE0] font-light">STUDIO</span></h1>
+                <p class="text-[10px] text-[#555] uppercase tracking-[0.2em]">Anime Character Style Sheet + V5</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="w-full mt-8">
+        <div class="w-full max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div id="controls-container" class="lg:col-span-7 space-y-6">
+                <!-- Seções dinâmicas injetadas via JS -->
+            </div>
+
+            <div class="lg:col-span-5 space-y-6 lg:sticky lg:top-24 lg:self-start">
+                <div class="dark-panel p-5 rounded-lg flex flex-col gap-4">
+                    <div class="flex items-center justify-between">
+                        <div class="section-title">
+                            <i class="fa-solid fa-terminal"></i> Comando Final (Prompt em Inglês)
+                        </div>
+                        <button type="button" class="text-[11px] tracking-[0.3em] uppercase flex items-center gap-1 rounded-md border border-transparent px-3 py-1 text-white/70 hover:text-white hover:border-[#E5ADE0] transition-colors" onclick="randomizeAll()">
+                            <i class="fa-solid fa-dice"></i> Aleatório Total
+                        </button>
+                    </div>
+                    <textarea id="prompt-output" rows="18" class="w-full text-[11px] font-mono leading-relaxed rounded p-4 resize-none" readonly></textarea>
+                    
+                    <div class="flex flex-col gap-3">
+                        <div class="flex items-center justify-between gap-2">
+                            <button class="flex-1 px-4 py-2 rounded-md text-[12px] font-semibold primary-btn" type="button" onclick="copyToClipboard('prompt-output')">
+                                <i class="fa-regular fa-copy mr-2"></i> Copiar Prompt
+                            </button>
+                            <button class="px-4 py-2 rounded-md text-[12px] font-semibold json-btn" type="button" onclick="saveAsJSON()" title="Exportar Configuração">
+                                <i class="fa-solid fa-file-code mr-2"></i> JSON
+                            </button>
+                        </div>
+                        <span class="text-[10px] text-center text-gray-500 uppercase tracking-[0.2em]">Proporção de Aspecto 16:9 Ativa</span>
+                    </div>
+                </div>
+
+                <div class="dark-panel p-5 rounded-lg space-y-3">
+                    <div class="section-title">
+                        <i class="fa-solid fa-layer-group"></i> Estrutura da Folha de Referência
+                    </div>
+                    <div class="space-y-2 text-[10px] text-gray-400 uppercase tracking-widest leading-loose">
+                        <p>• L: Corpo Inteiro Frontal</p>
+                        <p>• CL: Corpo Inteiro Lateral</p>
+                        <p>• CR: Corpo Inteiro Traseiro</p>
+                        <p>• R: 4 Rostos Detalhados (Ângulos Variados)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="toast" class="toast">Sucesso!</div>
+
+    <script>
+        const data = {
+            anime_style: [
+                { name: "Dark / Seinen", prompt: "dark seinen anime style, mature character design, realistic proportions, deep shadows, muted colors, gritty atmosphere" },
+                { name: "Clássico (80s-90s)", prompt: "classic japanese anime style, hand-drawn look, visible linework, cel shading, flat colors, slight color bleed, retro 80s-90s anime aesthetic" },
+                { name: "Moderno (TV Atual)", prompt: "modern japanese anime style, clean lineart, smooth shading, vibrant colors, high clarity, TV anime production quality" },
+                { name: "Cinematográfico", prompt: "ultra-detailed cinematic anime style, highly refined lineart, complex shading, dramatic lighting, high contrast, film-quality visuals" },
+                { name: "Mangá (P&B)", prompt: "traditional japanese manga style, black and white, ink line art, screentone shading, high contrast, expressive strokes" },
+                { name: "Suave / Pastel", prompt: "soft anime style, gentle lineart, pastel color palette, smooth lighting, emotional tone, dreamy atmosphere" },
+                { name: "Estilizado", prompt: "stylized experimental anime style, unconventional proportions, bold shapes, artistic composition, abstract influences" },
+                { name: "Chibi", prompt: "chibi anime style, super deformed proportions, oversized head, tiny body, cute expression, simplified details" },
+                { name: "Semi-Realista", prompt: "semi-realistic anime style, realistic facial anatomy, detailed skin shading, natural lighting, anime-inspired features" },
+                { name: "Traço Forte", prompt: "bold line anime style, thick lineart, strong outlines, graphic look, simplified shading, high visual impact" },
+                { name: "Pintura Digital", prompt: "anime digital painting style, visible brush strokes, painterly shading, textured colors, artistic finish, concept art quality" },
+                { name: "Estilo JRPG", prompt: "anime game art style, JRPG aesthetics, clean character design, dynamic poses, polished shading, video game illustration quality" }
+            ],
+            gender: [
+                { name: "Masculino", value: "Male" },
+                { name: "Feminino", value: "Female" },
+                { name: "Neutro", value: "Neutral" }
+            ],
+            physique: [
+                { name: "Atlético e Tonificado", value: "fit and toned" },
+                { name: "Musculoso e Forte", value: "muscular and strong build" },
+                { name: "Massivo e Poderoso", value: "massive and muscular physique" },
+                { name: "Magro e Atlético", value: "lean and athletic build" },
+                { name: "Esguio e Ágil", value: "slender and agile" },
+                { name: "Extremamente Musculoso", value: "extremely muscular and corpulent" },
+                { name: "Curvilíneo", value: "curvaceous and soft figure" },
+                { name: "Cibernético Pesado", value: "heavy cybernetic body construction" },
+                { name: "Esquelético", value: "skeletal and gaunt appearance" }
+            ],
+            archetype: [
+                { name: "Ninja", value: "Ninja" },
+                { name: "Samurai", value: "Samurai" },
+                { name: "Guerreiro Bárbaro", value: "Barbarian warrior" },
+                { name: "Piloto Cyberpunk", value: "Cyberpunk pilot" },
+                { name: "Urso Boxeador", value: "Bear Boxer" },
+                { name: "Mago", value: "Mage" },
+                { name: "Soldado Cibernético", value: "Cybernetic Soldier" },
+                { name: "Oni Antigo", value: "Ancient Oni" },
+                { name: "Mercenário Espacial", value: "Space Mercenary" },
+                { name: "Estudante", value: "High School Student" },
+                { name: "Nobre Vampiro", value: "Vampire Noble" },
+                { name: "Androide de Combate", value: "Combat Android" }
+            ],
+            hair: [
+                { name: "Raspado", value: "shaved head" },
+                { name: "Careca (Liso)", value: "completely bald head" },
+                { name: "Selvagem e Longo", value: "long wild dishevelled hair" },
+                { name: "Curto Espetado", value: "short spiked messy hair" },
+                { name: "Prateado Fluido", value: "long flowing silver hair" },
+                { name: "Tranças Escuras", value: "braided dark hair" },
+                { name: "Estilo Undercut", value: "undercut hair" },
+                { name: "Maria Chiquinha", value: "twin tails hairstyle" },
+                { name: "Afro Estilizado", value: "stylized afro hair" }
+            ],
+            eyes: [
+                { name: "Âmbar Ferozes", value: "fierce amber eyes" },
+                { name: "Azuis Brilhantes", value: "glowing blue energetic eyes" },
+                { name: "Cinza Calculistas", value: "cold grey calculating eyes" },
+                { name: "Cego com Cicatriz", value: "blind eye with prominent scar" },
+                { name: "Vermelhos Demoníacos", value: "deep red demonic eyes" },
+                { name: "Heterocromia", value: "heterochromia eyes" },
+                { name: "Vazios/Sem Vida", value: "dull lifeless eyes" },
+                { name: "Pupilas Estrela", value: "star-shaped pupils" },
+                { name: "Visor Tecnológico", value: "digital visor over eyes" }
+            ],
+            outfit: [
+                { name: "Traje Escuro Tradicional", value: "traditional dark attire" },
+                { name: "Armadura Pesada e Peles", value: "heavy plate armor with fur" },
+                { name: "Couro Leve e Braçadeiras", value: "light leather armor and bracers" },
+                { name: "Traje Tecnológico", value: "futuristic tech-wear" },
+                { name: "Bandagens de Boxe", value: "boxing bandages" },
+                { name: "Roupas de Sobrevivente", value: "worn survivalist clothes" },
+                { name: "Uniforme Escolar", value: "japanese school uniform" },
+                { name: "Estilo Rua Casual", value: "modern streetwear" },
+                { name: "Manto de Mago", value: "elaborate wizard robes" }
+            ]
+        };
+
+        const state = {};
+        const customState = {};
+
+        function generatePrompt() {
+            const selectedStyleObj = data.anime_style.find(s => s.name === state.anime_style);
+            const stylePrompt = selectedStyleObj ? selectedStyleObj.prompt : "";
+
+            const getVal = (key) => {
+                if (customState[key] && customState[key].trim() !== "") return customState[key];
+                
+                const mapping = data[key];
+                if (Array.isArray(mapping)) {
+                    const found = mapping.find(item => item.name === state[key]);
+                    return found ? found.value : state[key];
+                }
+                return state[key];
+            };
+
+            const characterInfo = `${getVal('gender')} ${getVal('archetype')}, ${getVal('physique')}, ${getVal('hair')}, ${getVal('eyes')}, wearing ${getVal('outfit')}.`;
+
+            const fullPrompt = `Create an image of a ${stylePrompt}, complex character sheet, reference sheet, split composition layout. 
+
+(Left Panel) Full body front view. 
+(Center-Left Panel) Full body side view. 
+(Center-Right Panel) Full body back view. 
+(Right Panel) Column with 4 detailed headshots: top-down view of head, worm's eye view from bottom, side profile face, 3/4 angle face. 
+
+Character Design: ${characterInfo}
+
+white neutral background, technical drawing, concept art, high detail, no text --ar 16:9`;
+
+            document.getElementById("prompt-output").value = fullPrompt;
+        }
+
+        function translateText(key) {
+            const input = document.getElementById(`custom-${key}`);
+            const text = input.value;
+            if (!text) return;
+            input.select();
+            document.execCommand('copy');
+            const url = `https://translate.google.com/?sl=pt&tl=en&text=${encodeURIComponent(text)}&op=translate`;
+            window.open(url, '_blank');
+        }
+
+        function saveAsJSON() {
+            const output = {
+                data_criacao: new Date().toLocaleString('pt-BR'),
+                configuracao: state,
+                customizacao: customState,
+                prompt_final: document.getElementById("prompt-output").value
+            };
+            const blob = new Blob([JSON.stringify(output, null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `config-anime-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast("JSON Salvo!");
+        }
+
+        function createSection(title, key, options) {
+            const container = document.getElementById("controls-container");
+            const section = document.createElement("div");
+            section.className = "dark-panel p-5 rounded-lg";
+            section.dataset.sectionKey = key;
+
+            const sectionTitle = document.createElement("div");
+            sectionTitle.className = "section-title";
+            sectionTitle.innerHTML = `<i class="fa-solid fa-chevron-right"></i> ${title}`;
+            section.appendChild(sectionTitle);
+
+            const grid = document.createElement("div");
+            grid.className = "grid grid-cols-2 md:grid-cols-3 gap-2 mb-4";
+
+            options.forEach(option => {
+                const label = typeof option === 'string' ? option : option.name;
+                const button = document.createElement("button");
+                button.className = "option-card p-3 text-[10px] uppercase font-medium";
+                button.textContent = label;
+                button.onclick = () => {
+                    // Lógica de limpeza do campo customizado
+                    const customInput = document.getElementById(`custom-${key}`);
+                    if (customInput) {
+                        customInput.value = "";
+                        customState[key] = "";
+                    }
+                    
+                    state[key] = label;
+                    updateSelectionUI(key, label);
+                    generatePrompt();
+                };
+                grid.appendChild(button);
+            });
+            section.appendChild(grid);
+
+            if (key !== 'anime_style' && key !== 'gender') {
+                const customWrapper = document.createElement("div");
+                customWrapper.className = "mt-4 pt-4 border-t border-[#1a1a1a]";
+                customWrapper.innerHTML = `
+                    <div class="text-[9px] text-gray-600 uppercase mb-2">Personalizar Campo (escreva em inglês)</div>
+                    <div class="flex gap-2">
+                        <input type="text" id="custom-${key}" class="custom-input flex-1 px-3 py-2 rounded" placeholder="Ex: Mechanical wing, leather coat...">
+                        <button onclick="translateText('${key}')" class="px-3 py-2 bg-[#1a1a1a] hover:bg-[#222] text-[#E5ADE0] rounded text-[10px] transition-colors flex items-center gap-2">
+                            <i class="fa-solid fa-language"></i> Traduzir
+                        </button>
+                    </div>
+                `;
+                const input = customWrapper.querySelector('input');
+                input.oninput = (e) => {
+                    customState[key] = e.target.value;
+                    generatePrompt();
+                };
+                section.appendChild(customWrapper);
+            }
+
+            container.appendChild(section);
+        }
+
+        function updateSelectionUI(key, value) {
+            const section = document.querySelector(`[data-section-key="${key}"]`);
+            if (section) {
+                section.querySelectorAll('.option-card').forEach(btn => {
+                    btn.classList.toggle('selected', btn.textContent === value);
+                });
+            }
+        }
+
+        function randomizeAll() {
+            Object.keys(data).forEach(key => {
+                const options = data[key];
+                const randomIdx = Math.floor(Math.random() * options.length);
+                const randomVal = typeof options[randomIdx] === 'string' ? options[randomIdx] : options[randomIdx].name;
+                state[key] = randomVal;
+                
+                const customInput = document.getElementById(`custom-${key}`);
+                if (customInput) { customInput.value = ""; customState[key] = ""; }
+                updateSelectionUI(key, randomVal);
+            });
+            generatePrompt();
+        }
+
+        function initDefaults() {
+            state['anime_style'] = "Dark / Seinen";
+            state['gender'] = "Masculino";
+            state['physique'] = "Atlético e Tonificado";
+
+            const randomKeys = ['archetype', 'hair', 'eyes', 'outfit'];
+            randomKeys.forEach(key => {
+                const options = data[key];
+                const randomIdx = Math.floor(Math.random() * options.length);
+                state[key] = typeof options[randomIdx] === 'string' ? options[randomIdx] : options[randomIdx].name;
+            });
+
+            Object.keys(state).forEach(key => updateSelectionUI(key, state[key]));
+            generatePrompt();
+        }
+
+        function copyToClipboard(id) {
+            const textarea = document.getElementById(id);
+            textarea.select();
+            document.execCommand('copy');
+            showToast("Prompt Copiado!");
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const labels = {
+                anime_style: "Estilo Visual",
+                gender: "Gênero do Personagem",
+                physique: "Constituição Física",
+                archetype: "Arquétipo / Classe",
+                hair: "Cabelo e Penteado",
+                eyes: "Olhos e Expressão",
+                outfit: "Vestuário e Acessórios"
+            };
+            Object.keys(data).forEach(key => createSection(labels[key], key, data[key]));
+            initDefaults();
+        });
+    </script>
+</body>
+>>>>>>> 45c6387 (Implement Cloud Persistence and migrate to new Firebase project)
 </html>
