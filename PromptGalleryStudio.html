@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Gallery Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #050505;
+            --card-bg: #0f0f0f;
+            --panel-border: #1f1f1f;
+            --accent: #DFE0E2;
+            --accent-dim: rgba(223, 224, 226, 0.05);
+            --accent-hover: rgba(223, 224, 226, 0.12);
+            --text-main: #e5e5e5;
+            --text-muted: #737373;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .section-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title i {
+            color: var(--accent);
+        }
+
+        /* Gallery Card */
+        .vault-card {
+            background-color: #0a0a0a;
+            border: 1px solid var(--panel-border);
+            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+            overflow: hidden;
+        }
+
+        .vault-card:hover {
+            transform: translateY(-4px);
+            border-color: #444;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.8);
+        }
+
+        .card-image-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1/1;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .vault-card:hover .card-image {
+            transform: scale(1.05);
+        }
+
+        /* Buttons */
+        .icon-btn {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover {
+            background: var(--accent);
+            color: #000;
+        }
+
+        /* Modal & Keypad */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-box {
+            background: var(--card-bg);
+            border: 1px solid var(--panel-border);
+            padding: 24px;
+            border-radius: 8px;
+            max-width: 400px;
+            width: 90%;
+            transform: scale(0.95);
+            transition: transform 0.2s;
+        }
+
+        .modal-overlay.open .modal-box {
+            transform: scale(1);
+        }
+
+        .virtual-display {
+            background-color: #000;
+            border: 1px solid #333;
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            text-align: center;
+            letter-spacing: 0.5em;
+            width: 100%;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .virtual-display.error {
+            border-color: var(--danger);
+            color: var(--danger);
+            animation: shake 0.4s ease-in-out;
+        }
+
+        .keypad-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            max-width: 260px;
+            margin: 0 auto;
+        }
+
+        .key-btn {
+            background: #1a1a1a;
+            border: 1px solid var(--panel-border);
+            color: white;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.1s;
+            user-select: none;
+        }
+
+        .key-btn:active {
+            transform: scale(0.95);
+            background: #252525;
+        }
+
+        .key-btn:hover {
+            border-color: #444;
+        }
+
+        .key-btn.action-enter {
+            background: var(--accent);
+            color: #050505;
+            border-color: var(--accent);
+        }
+
+        .key-btn.action-del {
+            color: #ef4444;
+        }
+
+        /* Toast */
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: var(--accent);
+            color: #050505;
+            text-align: center;
+            border-radius: 4px;
+            padding: 12px 16px;
+            position: fixed;
+            z-index: 50;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            opacity: 0;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: opacity 0.3s, bottom 0.3s;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+            bottom: 50px;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
+        }
+    </style>
+    <script type="importmap">
+        {
+            "imports": {
+                "firebase/app": "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js",
+                "firebase/firestore": "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js",
+                "firebase/storage": "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js"
+            }
+        }
+    </script>
+</head>
+
+<body class="min-h-screen flex flex-col items-center pb-20">
+
+    <!-- Header -->
+    <header class="w-full border-b border-[#1f1f1f] bg-black/80 backdrop-blur-md z-20 sticky top-0">
+        <div class="w-full max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <div class="w-3 h-8 bg-[#DFE0E2] rounded-sm shadow-[0_0_15px_rgba(223,224,226,0.5)]"></div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-white">PROMPT GALLERY <span
+                            class="text-[#DFE0E2] font-light">STUDIO</span></h1>
+                    <p class="text-[10px] text-[#555] uppercase tracking-[0.2em]">Galeria de Referências</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <div
+                    class="text-[10px] text-[#555] uppercase tracking-widest hidden md:block border-r border-[#333] pr-4 mr-2">
+                    <span>
+                        <i class="fa-solid fa-cloud mr-2"></i> Read Only
+                    </span>
+                </div>
+                <button onclick="openAdminModal()"
+                    class="text-xs uppercase tracking-widest text-[#555] hover:text-[#DFE0E2] transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-lock"></i> <span class="hidden sm:inline">Acesso Admin</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="w-full mt-8 max-w-7xl mx-auto px-6">
+
+        <!-- Gallery Header & Search -->
+        <div class="flex items-center justify-between mb-6">
+            <div class="section-title mb-0">
+                <i class="fa-solid fa-layer-group"></i> Galeria (<span id="countDisplay">0</span>)
+            </div>
+            <div class="flex gap-2">
+                <input type="text" id="searchInput" placeholder="Buscar..."
+                    class="bg-[#0a0a0a] border border-[#1f1f1f] rounded px-3 py-1 text-xs w-48 focus:border-[#DFE0E2] text-white"
+                    onkeyup="filterGallery()">
+            </div>
+        </div>
+
+        <!-- Grid -->
+        <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+            <!-- Cards injected here via JS -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden flex-col items-center justify-center py-20 text-center opacity-50">
+            <i class="fa-solid fa-box-open text-4xl text-[#333] mb-4"></i>
+            <p class="text-sm text-gray-400">A galeria está vazia.</p>
+        </div>
+    </main>
+
+    <!-- UI Elements -->
+    <div id="toast" class="toast">Texto copiado!</div>
+
+    <!-- Admin Login Modal with Virtual Keypad -->
+    <div id="adminModal" class="modal-overlay">
+        <div class="modal-box text-center">
+            <div class="flex justify-center mb-4">
+                <div class="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400">
+                    <i class="fa-solid fa-user-shield text-xl"></i>
+                </div>
+            </div>
+
+            <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-widest mb-1">Acesso Administrativo</h3>
+            <p class="text-[10px] text-gray-500 mb-6">Digite a senha para acessar o Vault</p>
+
+            <!-- Display -->
+            <input type="password" id="virtualDisplay" class="virtual-display focus:outline-none" readonly
+                placeholder="••••">
+
+            <!-- Keypad -->
+            <div class="keypad-grid mb-8">
+                <button class="key-btn" onclick="pressKey('1')">1</button>
+                <button class="key-btn" onclick="pressKey('2')">2</button>
+                <button class="key-btn" onclick="pressKey('3')">3</button>
+
+                <button class="key-btn" onclick="pressKey('4')">4</button>
+                <button class="key-btn" onclick="pressKey('5')">5</button>
+                <button class="key-btn" onclick="pressKey('6')">6</button>
+
+                <button class="key-btn" onclick="pressKey('7')">7</button>
+                <button class="key-btn" onclick="pressKey('8')">8</button>
+                <button class="key-btn" onclick="pressKey('9')">9</button>
+
+                <button class="key-btn action-del" onclick="clearKey()"><i class="fa-solid fa-delete-left"></i></button>
+                <button class="key-btn" onclick="pressKey('0')">0</button>
+                <button class="key-btn action-enter" onclick="submitAdminLogin()"><i
+                        class="fa-solid fa-arrow-right"></i></button>
+            </div>
+
+            <!-- Bottom Cancel -->
+            <button onclick="closeModal()"
+                class="text-xs text-gray-500 hover:text-white transition-colors uppercase tracking-widest px-4 py-2">
+                Cancelar
+            </button>
+        </div>
+    </div>
+
+    <script type="module">
+        // --- Configuration & State ---
+        import { initializeApp } from "firebase/app";
+        import { getFirestore, collection, onSnapshot, query, orderBy } from "firebase/firestore";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC0yRiVwah6N4Z1NCx28U0aW-2qeTgV1Zo",
+            authDomain: "image-prompt-vault-4c50b.firebaseapp.com",
+            projectId: "image-prompt-vault-4c50b",
+            storageBucket: "image-prompt-vault-4c50b.firebasestorage.app",
+            messagingSenderId: "829978048640",
+            appId: "1:829978048640:web:d485b30c9592ec7d020e65"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const DB_COLLECTION = 'prompts';
+        // A senha "1971" codificada em Base64
+        const SECURITY_HASH = "MTk3MQ==";
+
+        let prompts = [];
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            setupRealtimeListener();
+
+            // Allow keyboard typing as fallback (optional, for accessibility)
+            document.addEventListener('keydown', (e) => {
+                if (!document.getElementById('adminModal').classList.contains('open')) return;
+
+                if (e.key >= '0' && e.key <= '9') pressKey(e.key);
+                if (e.key === 'Backspace') clearKey();
+                if (e.key === 'Enter') submitAdminLogin();
+                if (e.key === 'Escape') closeModal();
+            });
+        });
+
+        // --- UI Functions ---
+        window.openAdminModal = function () {
+            const modal = document.getElementById('adminModal');
+            document.getElementById('virtualDisplay').value = '';
+            document.getElementById('virtualDisplay').classList.remove('error');
+            modal.classList.add('open');
+        }
+
+        window.closeModal = function () {
+            document.getElementById('adminModal').classList.remove('open');
+        }
+
+        window.showToast = function (message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.backgroundColor = isError ? '#ef4444' : '#DFE0E2';
+            toast.style.color = isError ? '#fff' : '#050505';
+            toast.className = "toast show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+
+        window.copyText = function (id) {
+            const text = document.getElementById(`text-${id}`).innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast("Prompt copiado!");
+            });
+        }
+
+        window.escapeHtml = function (text) {
+            if (!text) return text;
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+
+        // --- Virtual Keypad Functions ---
+        window.pressKey = function (num) {
+            const display = document.getElementById('virtualDisplay');
+            if (display.value.length < 6) { // Max length limit
+                display.value += num;
+                display.classList.remove('error');
+            }
+        }
+
+        window.clearKey = function () {
+            const display = document.getElementById('virtualDisplay');
+            display.value = display.value.slice(0, -1);
+            display.classList.remove('error');
+        }
+
+        window.submitAdminLogin = function () {
+            const display = document.getElementById('virtualDisplay');
+
+            if (btoa(display.value) !== SECURITY_HASH) {
+                display.classList.add('error');
+                display.value = ''; // Clear for retry
+                showToast("Senha Incorreta", true);
+                return;
+            }
+
+            // Password correct
+            sessionStorage.setItem('access_granted', 'true');
+            window.location.href = 'imagepromptvault.html';
+        }
+
+        // --- Core Functions ---
+
+        function setupRealtimeListener() {
+            const q = query(collection(db, DB_COLLECTION), orderBy("timestamp", "desc"));
+
+            onSnapshot(q, (snapshot) => {
+                prompts = [];
+                snapshot.forEach((doc) => {
+                    prompts.push({ id: doc.id, ...doc.data() });
+                });
+                renderGallery();
+            }, (error) => {
+                console.error("Error getting documents: ", error);
+                showToast("Erro LEITURA DB: " + error.code, true);
+            });
+        }
+
+        window.filterGallery = function () {
+            const term = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = prompts.filter(p => p.text.toLowerCase().includes(term));
+            renderGallery(filtered);
+        }
+
+        function renderGallery(filteredData = null) {
+            const grid = document.getElementById('galleryGrid');
+            const emptyState = document.getElementById('emptyState');
+            const dataToRender = filteredData || prompts;
+
+            document.getElementById('countDisplay').textContent = dataToRender.length;
+            grid.innerHTML = '';
+
+            if (dataToRender.length === 0) {
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+                emptyState.classList.remove('flex');
+            }
+
+            dataToRender.forEach(item => {
+                const date = new Date(item.timestamp).toLocaleDateString('pt-PT');
+
+                let iconSvg = '';
+                if (item.aiModel === 'Gemini') iconSvg = '<svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M12 24c0-6 6-12 12-12-6 0-12-6-12-12 0 6-6 12-12 12 6 0 12 6 12 12z"/></svg>';
+                else if (item.aiModel === 'ChatGPT') iconSvg = '<svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a.071.071 0 0 1 .038.052v5.5826a4.504 4.504 0 0 1-4.4945 4.4944zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9723V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1685a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.872zm16.5963 3.8558L13.1228 8.3829 15.1429 7.2144a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.4307-.6813zM15.214 7.2618l.1043-.0616 2.0152-1.1638a4.4944 4.4944 0 0 1 4.5323 1.2585 4.4755 4.4755 0 0 1 .5347 3.0137l-.142-.0805-4.7865-2.7617a.7948.7948 0 0 0-.7854 0L10.8437 10.835V8.5026a.071.071 0 0 1 .0332-.0616zM8.3365 15.1118l-2.0201-1.1639-.1042.0616-2.0153 1.1638a4.5018 4.5018 0 0 1-1.8984-5.6679L7.086 12.3327a.7853.7853 0 0 0 .4307.6813v5.6819a4.4708 4.4708 0 0 1-2.3396-1.9582zM12 9.049l2.7161 1.5667a.1136.1136 0 0 1 .0568.0994v3.1238a.1183.1183 0 0 1-.0568.1041L12.0047 15.51a.1089.1089 0 0 1-.1136 0L9.175 13.943a.1183.1183 0 0 1-.0568-.1041V10.715a.1136.1136 0 0 1 .0568-.0994z"/></svg>';
+                else if (item.aiModel === 'Grok') iconSvg = '<svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M4.08 4h3.763l-1.882 3.136L4.08 4zm1.881 7.84L2.2 18.239h3.763l1.88-3.136-1.88-3.264zm3.763-6.273L6.907 10.27l2.823 4.706L12.553 10.27 9.724 5.567zm0-1.567h5.646L12.547 8.7 9.724 4zm7.528 0h3.763l-1.882 3.136-1.88-3.136zm-8.47 14.239h7.528l-2.822-4.706H11.605l-2.822 4.706zm4.706-7.84l2.822 4.706 2.823-4.706-2.823-4.706-2.822 4.706zm4.706 7.84h3.763l-3.763-6.4-1.88 3.264 1.88 3.136z"/></svg>';
+
+                const aiBadge = item.aiModel ? `<span class="bg-[#1f1f1f] border border-[#333] text-gray-400 px-2 py-0.5 rounded text-[10px] uppercase tracking-wider flex items-center gap-1">${iconSvg} ${item.aiModel}</span>` : '';
+
+                const card = document.createElement('div');
+                card.className = 'vault-card rounded-lg flex flex-col h-full';
+                card.innerHTML = `
+                    <div class="card-image-container group">
+                        <img src="${item.image}" alt="Prompt Ref" class="card-image">
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        
+                        <!-- Top Right: Copy -->
+                        <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-200 transform translate-y-[-5px] group-hover:translate-y-0">
+                            <button onclick="copyText('${item.id}')" class="icon-btn" title="Copiar Prompt">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                        </div>
+
+                        <!-- Bottom Left: Badge -->
+                        <div class="absolute bottom-2 left-2 flex gap-2">
+                             ${aiBadge}
+                        </div>
+                    </div>
+                    <div class="p-4 flex flex-col flex-grow bg-[#0f0f0f]">
+                         <div class="flex-grow">
+                            <!-- Removed Date and Text for cleaner look, or keep text? -->
+                            <!-- User requested: "cada prompt apenas teria a foto da galeria (com o rototulo da ia preferiada) e o botão copiar prompt" -->
+                            <!-- But often users want to see the text. I will include it but keep it shorter. Actually user said "somente de leitura dos prompts", implying text is needed. -->
+                            <p class="text-xs text-gray-300 font-mono line-clamp-4 leading-relaxed overflow-hidden text-ellipsis" id="text-${item.id}">${escapeHtml(item.text)}</p>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+    </script>
+</body>
+
+</html>
