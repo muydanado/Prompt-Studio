@@ -999,4 +999,974 @@
     </script>
 </body>
 
+=======
+<!DOCTYPE html>
+<html lang="pt-PT">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Prompt Vault - Galeria de Arquivos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400&display=swap"
+        rel="stylesheet">
+    <script>
+        // Security Check: Must have come from Prompt Gallery Studio with password
+        if (!sessionStorage.getItem('access_granted')) {
+            window.location.href = 'PromptGalleryStudio.html';
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #050505;
+            --card-bg: #0f0f0f;
+            --panel-border: #1f1f1f;
+            --accent: #DFE0E2;
+            --accent-dim: rgba(223, 224, 226, 0.05);
+            --accent-hover: rgba(223, 224, 226, 0.12);
+            --text-main: #e5e5e5;
+            --text-muted: #737373;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .dark-panel {
+            background-color: var(--card-bg);
+            border: 1px solid var(--panel-border);
+            transition: all 0.2s ease;
+        }
+
+        .dark-panel:hover {
+            border-color: #333;
+        }
+
+        /* Inputs & Textareas */
+        input[type="text"],
+        textarea {
+            background-color: #0a0a0a;
+            border: 1px solid var(--panel-border);
+            color: var(--text-main);
+            transition: border-color 0.2s;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        /* Typography */
+        .section-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title i {
+            color: var(--accent);
+        }
+
+        /* Upload Zone */
+        .upload-zone {
+            border: 1px dashed var(--panel-border);
+            background-color: rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-zone:hover,
+        .upload-zone.dragover {
+            border-color: var(--accent);
+            background-color: var(--accent-dim);
+        }
+
+        /* Gallery Card */
+        .vault-card {
+            background-color: #0a0a0a;
+            border: 1px solid var(--panel-border);
+            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+            overflow: hidden;
+        }
+
+        .vault-card:hover {
+            transform: translateY(-4px);
+            border-color: #444;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.8);
+        }
+
+        .card-image-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1/1;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .vault-card:hover .card-image {
+            transform: scale(1.05);
+        }
+
+        .card-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 8px;
+            opacity: 0;
+            transform: translateY(-5px);
+            transition: all 0.2s ease;
+        }
+
+        .vault-card:hover .card-actions {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Buttons */
+        .icon-btn {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover {
+            background: var(--accent);
+            color: #000;
+        }
+
+        .icon-btn.delete:hover {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+        }
+
+        button.primary-btn {
+            background: linear-gradient(135deg, rgba(223, 224, 226, 0.1), rgba(223, 224, 226, 0.2));
+            border: 1px solid var(--panel-border);
+            color: #fff;
+            transition: all 0.2s;
+        }
+
+        button.primary-btn:hover {
+            border-color: var(--accent);
+            background: var(--accent-hover);
+        }
+
+        button.danger-btn {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+
+        button.danger-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: #ef4444;
+        }
+
+        /* Toast & Modal */
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: var(--accent);
+            color: #050505;
+            text-align: center;
+            border-radius: 4px;
+            padding: 12px 16px;
+            position: fixed;
+            z-index: 50;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            opacity: 0;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: opacity 0.3s, bottom 0.3s;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+            bottom: 50px;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-box {
+            background: var(--card-bg);
+            border: 1px solid var(--panel-border);
+            padding: 24px;
+            border-radius: 8px;
+            max-width: 400px;
+            width: 90%;
+            transform: scale(0.95);
+            transition: transform 0.2s;
+        }
+
+        .modal-overlay.open .modal-box {
+            transform: scale(1);
+        }
+
+        /* Estilos do Teclado Virtual */
+        .virtual-display {
+            background-color: #000;
+            border: 1px solid #333;
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            text-align: center;
+            letter-spacing: 0.5em;
+            width: 100%;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .virtual-display.error {
+            border-color: var(--danger);
+            color: var(--danger);
+            animation: shake 0.4s ease-in-out;
+        }
+
+        .keypad-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            max-width: 260px;
+            margin: 0 auto;
+        }
+
+        .key-btn {
+            background: #1a1a1a;
+            border: 1px solid var(--panel-border);
+            color: white;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.1s;
+            user-select: none;
+        }
+
+        .key-btn:active {
+            transform: scale(0.95);
+            background: #252525;
+        }
+
+        .key-btn:hover {
+            border-color: #444;
+        }
+
+        .key-btn.action-enter {
+            background: var(--accent);
+            color: #050505;
+            border-color: var(--accent);
+        }
+
+        .key-btn.action-del {
+            color: #ef4444;
+        }
+    </style>
+    <script type="importmap">
+        {
+            "imports": {
+                "firebase/app": "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js",
+                "firebase/firestore": "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js",
+                "firebase/storage": "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js"
+            }
+        }
+    </script>
+</head>
+
+<body class="min-h-screen flex flex-col items-center pb-20">
+
+    <!-- Header -->
+    <header class="w-full border-b border-[#1f1f1f] bg-black/80 backdrop-blur-md z-20 sticky top-0">
+        <div class="w-full max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <div class="w-3 h-8 bg-[#DFE0E2] rounded-sm shadow-[0_0_15px_rgba(223,224,226,0.5)]"></div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-white">IMAGE PROMPT <span
+                            class="text-[#DFE0E2] font-light">VAULT</span></h1>
+                    <p class="text-[10px] text-[#555] uppercase tracking-[0.2em]">Arquivo e Galeria de Referências</p>
+                </div>
+            </div>
+            <div class="text-[10px] text-[#555] uppercase tracking-widest hidden md:block">
+                <span>
+                    <i class="fa-solid fa-database mr-2"></i> Local Storage
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <main class="w-full mt-8 max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+        <!-- Left Column: Input Form -->
+        <div class="lg:col-span-4 space-y-6">
+            <div class="dark-panel p-6 rounded-lg sticky top-24">
+                <div class="section-title">
+                    <i class="fa-solid fa-plus-circle"></i> Novo Registro
+                </div>
+
+                <form id="vaultForm" class="space-y-4" onsubmit="event.preventDefault(); savePrompt();">
+                    <!-- Image Upload -->
+                    <div>
+                        <label class="block text-[11px] uppercase tracking-wider text-gray-500 mb-2">Imagem de
+                            Referência</label>
+                        <div class="upload-zone rounded-lg p-6 flex flex-col items-center justify-center text-center h-48 relative overflow-hidden"
+                            id="dropZone">
+                            <input type="file" id="imageInput" accept="image/*"
+                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+
+                            <div id="uploadPlaceholder" class="transition-opacity duration-200">
+                                <i class="fa-solid fa-cloud-arrow-up text-3xl text-[#333] mb-3"></i>
+                                <p class="text-xs text-gray-400">Arraste ou clique</p>
+                                <p class="text-[10px] text-gray-600 mt-1">Será ajustada para quadrado</p>
+                            </div>
+
+                            <!-- Preview Container -->
+                            <img id="imagePreview" src=""
+                                class="absolute inset-0 w-full h-full object-cover hidden pointer-events-none">
+                        </div>
+                    </div>
+
+                    <!-- Prompt Text -->
+                    <div>
+                        <label class="block text-[11px] uppercase tracking-wider text-gray-500 mb-2">Prompt
+                            (Texto)</label>
+                        <textarea id="promptInput" rows="8"
+                            class="w-full rounded p-3 text-xs leading-relaxed resize-none focus:ring-0"
+                            placeholder="Cole o prompt aqui..."></textarea>
+                    </div>
+
+                    <!-- AI Model Selection -->
+                    <div>
+                        <label class="block text-[11px] uppercase tracking-wider text-gray-500 mb-2">Melhor em:</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <label class="cursor-pointer">
+                                <input type="radio" name="aiModel" value="Gemini" class="peer sr-only" checked>
+                                <div
+                                    class="flex items-center justify-center gap-2 py-2 rounded border border-[#1f1f1f] bg-[#0a0a0a] text-xs text-gray-400 peer-checked:border-[#DFE0E2] peer-checked:text-[#DFE0E2] peer-checked:bg-[#DFE0E2]/10 transition-all hover:border-gray-600">
+                                    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M12 24c0-6 6-12 12-12-6 0-12-6-12-12 0 6-6 12-12 12 6 0 12 6 12 12z" />
+                                    </svg>
+                                    Gemini
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="aiModel" value="ChatGPT" class="peer sr-only">
+                                <div
+                                    class="flex items-center justify-center gap-2 py-2 rounded border border-[#1f1f1f] bg-[#0a0a0a] text-xs text-gray-400 peer-checked:border-[#DFE0E2] peer-checked:text-[#DFE0E2] peer-checked:bg-[#DFE0E2]/10 transition-all hover:border-gray-600">
+                                    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+                                        <path
+                                            d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a.071.071 0 0 1 .038.052v5.5826a4.504 4.504 0 0 1-4.4945 4.4944zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9723V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1685a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.872zm16.5963 3.8558L13.1228 8.3829 15.1429 7.2144a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.4307-.6813zM15.214 7.2618l.1043-.0616 2.0152-1.1638a4.4944 4.4944 0 0 1 4.5323 1.2585 4.4755 4.4755 0 0 1 .5347 3.0137l-.142-.0805-4.7865-2.7617a.7948.7948 0 0 0-.7854 0L10.8437 10.835V8.5026a.071.071 0 0 1 .0332-.0616zM8.3365 15.1118l-2.0201-1.1639-.1042.0616-2.0153 1.1638a4.5018 4.5018 0 0 1-1.8984-5.6679L7.086 12.3327a.7853.7853 0 0 0 .4307.6813v5.6819a4.4708 4.4708 0 0 1-2.3396-1.9582zM12 9.049l2.7161 1.5667a.1136.1136 0 0 1 .0568.0994v3.1238a.1183.1183 0 0 1-.0568.1041L12.0047 15.51a.1089.1089 0 0 1-.1136 0L9.175 13.943a.1183.1183 0 0 1-.0568-.1041V10.715a.1136.1136 0 0 1 .0568-.0994z" />
+                                    </svg>
+                                    ChatGPT
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="aiModel" value="Grok" class="peer sr-only">
+                                <div
+                                    class="flex items-center justify-center gap-2 py-2 rounded border border-[#1f1f1f] bg-[#0a0a0a] text-xs text-gray-400 peer-checked:border-[#DFE0E2] peer-checked:text-[#DFE0E2] peer-checked:bg-[#DFE0E2]/10 transition-all hover:border-gray-600">
+                                    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+                                        <path
+                                            d="M4.08 4h3.763l-1.882 3.136L4.08 4zm1.881 7.84L2.2 18.239h3.763l1.88-3.136-1.88-3.264zm3.763-6.273L6.907 10.27l2.823 4.706L12.553 10.27 9.724 5.567zm0-1.567h5.646L12.547 8.7 9.724 4zm7.528 0h3.763l-1.882 3.136-1.88-3.136zm-8.47 14.239h7.528l-2.822-4.706H11.605l-2.822 4.706zm4.706-7.84l2.822 4.706 2.823-4.706-2.823-4.706-2.822 4.706zm4.706 7.84h3.763l-3.763-6.4-1.88 3.264 1.88 3.136z" />
+                                    </svg>
+                                    Grok
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="pt-2">
+                        <button type="button" onclick="savePrompt()"
+                            class="w-full primary-btn py-3 rounded-md text-xs font-bold uppercase tracking-widest hover:shadow-[0_0_15px_rgba(223,224,226,0.1)] transition-all">
+                            <i class="fa-solid fa-save mr-2"></i> Arquivar no Vault
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right Column: Gallery -->
+        <div class="lg:col-span-8">
+            <div class="flex items-center justify-between mb-6">
+                <div class="section-title mb-0">
+                    <i class="fa-solid fa-layer-group"></i> Galeria (<span id="countDisplay">0</span>)
+                </div>
+                <div class="flex gap-2">
+                    <input type="text" id="searchInput" placeholder="Buscar..."
+                        class="bg-[#0a0a0a] border border-[#1f1f1f] rounded px-3 py-1 text-xs w-48 focus:border-[#DFE0E2]"
+                        onkeyup="filterGallery()">
+                </div>
+            </div>
+
+            <!-- Grid -->
+            <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                <!-- Cards injected here via JS -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden flex-col items-center justify-center py-20 text-center opacity-50">
+                <i class="fa-solid fa-box-open text-4xl text-[#333] mb-4"></i>
+                <p class="text-sm text-gray-400">O cofre está vazio.</p>
+                <p class="text-xs text-gray-600 mt-1">Adicione seu primeiro prompt ao lado.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- UI Elements -->
+    <div id="toast" class="toast">Texto copiado!</div>
+
+    <!-- Delete Confirmation Modal with Virtual Keypad -->
+    <div id="deleteModal" class="modal-overlay">
+        <div class="modal-box text-center">
+            <div class="flex justify-center mb-4">
+                <div class="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center text-[#ef4444]">
+                    <i class="fa-solid fa-lock text-xl"></i>
+                </div>
+            </div>
+
+            <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-widest mb-1">Acesso Restrito</h3>
+            <p class="text-[10px] text-gray-500 mb-6">Para excluir digite a senha</p>
+
+            <!-- Display -->
+            <input type="password" id="virtualDisplay" class="virtual-display focus:outline-none" readonly
+                placeholder="••••">
+
+            <!-- Keypad -->
+            <div class="keypad-grid mb-8">
+                <button class="key-btn" onclick="pressKey('1')">1</button>
+                <button class="key-btn" onclick="pressKey('2')">2</button>
+                <button class="key-btn" onclick="pressKey('3')">3</button>
+
+                <button class="key-btn" onclick="pressKey('4')">4</button>
+                <button class="key-btn" onclick="pressKey('5')">5</button>
+                <button class="key-btn" onclick="pressKey('6')">6</button>
+
+                <button class="key-btn" onclick="pressKey('7')">7</button>
+                <button class="key-btn" onclick="pressKey('8')">8</button>
+                <button class="key-btn" onclick="pressKey('9')">9</button>
+
+                <button class="key-btn action-del" onclick="clearKey()"><i class="fa-solid fa-delete-left"></i></button>
+                <button class="key-btn" onclick="pressKey('0')">0</button>
+                <button class="key-btn action-enter" onclick="submitDelete()"><i class="fa-solid fa-check"></i></button>
+            </div>
+
+            <!-- Bottom Cancel -->
+            <button onclick="closeModal()"
+                class="text-xs text-gray-500 hover:text-white transition-colors uppercase tracking-widest px-4 py-2">
+                Cancelar
+            </button>
+        </div>
+    </div>
+
+    <script type="module">
+        // --- Configuration & State ---
+        import { initializeApp } from "firebase/app";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, query, orderBy, serverTimestamp } from "firebase/firestore";
+        import { getStorage, ref, uploadString, getDownloadURL, deleteObject } from "firebase/storage";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC0yRiVwah6N4Z1NCx28U0aW-2qeTgV1Zo",
+            authDomain: "image-prompt-vault-4c50b.firebaseapp.com",
+            projectId: "image-prompt-vault-4c50b",
+            storageBucket: "image-prompt-vault-4c50b.firebasestorage.app",
+            messagingSenderId: "829978048640",
+            appId: "1:829978048640:web:d485b30c9592ec7d020e65"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+
+        const DB_COLLECTION = 'prompts';
+        // A senha "1971" codificada em Base64
+        const SECURITY_HASH = "MTk3MQ==";
+
+        let prompts = [];
+        let currentImageBase64 = null;
+        let itemToDelete = null;
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            setupRealtimeListener();
+            setupDragAndDrop();
+
+            // Allow keyboard typing as fallback (optional, for accessibility)
+            document.addEventListener('keydown', (e) => {
+                if (!document.getElementById('deleteModal').classList.contains('open')) return;
+
+                if (e.key >= '0' && e.key <= '9') pressKey(e.key);
+                if (e.key === 'Backspace') clearKey();
+                if (e.key === 'Enter') submitDelete();
+                if (e.key === 'Escape') closeModal();
+            });
+        });
+
+        // --- Virtual Keypad Functions ---
+        window.pressKey = function (num) {
+            const display = document.getElementById('virtualDisplay');
+            if (display.value.length < 6) { // Max length limit
+                display.value += num;
+                display.classList.remove('error');
+            }
+        }
+
+        window.clearKey = function () {
+            const display = document.getElementById('virtualDisplay');
+            display.value = display.value.slice(0, -1);
+            display.classList.remove('error');
+        }
+
+        window.submitDelete = async function () {
+            const display = document.getElementById('virtualDisplay');
+
+            if (btoa(display.value) !== SECURITY_HASH) {
+                display.classList.add('error');
+                display.value = ''; // Clear for retry
+                showToast("Senha Incorreta", true);
+                return;
+            }
+
+            // Password correct, proceed delete
+            if (itemToDelete) {
+                try {
+                    await deletePromptFromCloud(itemToDelete);
+                    closeModal();
+                    showToast("Item removido.", false);
+                } catch (error) {
+                    console.error("Error removing document: ", error);
+                    showToast("Erro ao excluir: " + error.message, true);
+                }
+            }
+        }
+
+        // --- Core Functions ---
+
+        function setupRealtimeListener() {
+            const q = query(collection(db, DB_COLLECTION), orderBy("timestamp", "desc"));
+
+            onSnapshot(q, (snapshot) => {
+                prompts = [];
+                snapshot.forEach((doc) => {
+                    prompts.push({ id: doc.id, ...doc.data() });
+                });
+                console.log("Loaded prompts:", prompts.length);
+                /* DEBUG: Remova depois */
+                if (prompts.length === 0) showToast("ATENÇÃO: 0 prompts carregados do Banco de Dados.", true);
+                else showToast(`${prompts.length} prompts carregados.`);
+
+                renderGallery();
+            }, (error) => {
+                console.error("Error getting documents: ", error);
+                showToast("Erro LEITURA DB: " + error.code + " - " + error.message, true);
+            });
+        }
+
+        async function deletePromptFromCloud(id) {
+            const item = prompts.find(p => p.id === id);
+            if (!item) return;
+
+            // Delete from Firestore
+            await deleteDoc(doc(db, DB_COLLECTION, id));
+
+            // Delete Image from Storage if it exists and looks like a storage URL
+            if (item.image && item.image.includes('firebasestorage')) {
+                try {
+                    const imageRef = ref(storage, item.image);
+                    await deleteObject(imageRef);
+                } catch (e) {
+                    console.warn("Could not delete image or image not found", e);
+                }
+            }
+        }
+
+        // Image Processing: Reads file, crops to square, resizes to max 500px, converts to Base64
+        function processImage(file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const img = new Image();
+                img.onload = function () {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+
+                    // Settings for uniform gallery
+                    const size = 500; // Final square size
+                    canvas.width = size;
+                    canvas.height = size;
+
+                    // Calculate center crop
+                    const minDim = Math.min(img.width, img.height);
+                    const sx = (img.width - minDim) / 2;
+                    const sy = (img.height - minDim) / 2;
+
+                    // Draw cropped image
+                    ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
+
+                    // Compress to JPG 0.8
+                    currentImageBase64 = canvas.toDataURL('image/jpeg', 0.8);
+
+                    // Update Preview
+                    const preview = document.getElementById('imagePreview');
+                    preview.src = currentImageBase64;
+                    preview.classList.remove('hidden');
+                    document.getElementById('uploadPlaceholder').classList.add('opacity-0');
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        window.savePrompt = async function () {
+            const text = document.getElementById('promptInput').value.trim();
+            const aiModel = document.querySelector('input[name="aiModel"]:checked').value; // Get selected AI
+            const saveBtn = document.querySelector('button[onclick="savePrompt()"]');
+
+            if (!text) {
+                showToast("Erro: O prompt não pode estar vazio.", true);
+                return;
+            }
+            if (!currentImageBase64) {
+                showToast("Erro: Adicione uma imagem de referência.", true);
+                return;
+            }
+
+            // Disable button
+            const originalBtnText = saveBtn.innerHTML;
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Salvando...';
+
+            try {
+                console.log("Starting save process...");
+                // 1. Upload Image to Firebase Storage
+                const storageRef = ref(storage, `images/${Date.now()}.jpg`);
+                console.log("Uploading image...");
+                await uploadString(storageRef, currentImageBase64, 'data_url');
+                console.log("Image uploaded. Getting URL...");
+                const imageUrl = await getDownloadURL(storageRef);
+                console.log("Image URL:", imageUrl);
+
+                // 2. Save Metadata to Firestore
+                console.log("Saving to Firestore...");
+                await addDoc(collection(db, DB_COLLECTION), {
+                    text: text,
+                    image: imageUrl,
+                    aiModel: aiModel, // Save the selected AI model
+                    timestamp: new Date().toISOString()
+                });
+                console.log("Document saved.");
+
+                resetForm();
+                showToast("Prompt arquivado com sucesso!");
+            } catch (error) {
+                console.error("Error adding document: ", error);
+                showToast("Erro CRÍTICO ao salvar: " + error.code + " - " + error.message, true);
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = originalBtnText;
+            }
+        }
+
+        function renderGallery(filteredData = null) {
+            const grid = document.getElementById('galleryGrid');
+            const emptyState = document.getElementById('emptyState');
+            const dataToRender = filteredData || prompts;
+
+            document.getElementById('countDisplay').textContent = dataToRender.length;
+            grid.innerHTML = '';
+
+            if (dataToRender.length === 0) {
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+                emptyState.classList.remove('flex');
+            }
+
+            dataToRender.forEach(item => {
+                const date = new Date(item.timestamp).toLocaleDateString('pt-PT');
+
+                let iconSvg = '';
+                if (item.aiModel === 'Gemini') iconSvg = '<svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M12 24c0-6 6-12 12-12-6 0-12-6-12-12 0 6-6 12-12 12 6 0 12 6 12 12z"/></svg>';
+                else if (item.aiModel === 'ChatGPT') iconSvg = '<svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a.071.071 0 0 1 .038.052v5.5826a4.504 4.504 0 0 1-4.4945 4.4944zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9723V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1685a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.872zm16.5963 3.8558L13.1228 8.3829 15.1429 7.2144a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.4307-.6813zM15.214 7.2618l.1043-.0616 2.0152-1.1638a4.4944 4.4944 0 0 1 4.5323 1.2585 4.4755 4.4755 0 0 1 .5347 3.0137l-.142-.0805-4.7865-2.7617a.7948.7948 0 0 0-.7854 0L10.8437 10.835V8.5026a.071.071 0 0 1 .0332-.0616zM8.3365 15.1118l-2.0201-1.1639-.1042.0616-2.0153 1.1638a4.5018 4.5018 0 0 1-1.8984-5.6679L7.086 12.3327a.7853.7853 0 0 0 .4307.6813v5.6819a4.4708 4.4708 0 0 1-2.3396-1.9582zM12 9.049l2.7161 1.5667a.1136.1136 0 0 1 .0568.0994v3.1238a.1183.1183 0 0 1-.0568.1041L12.0047 15.51a.1089.1089 0 0 1-.1136 0L9.175 13.943a.1183.1183 0 0 1-.0568-.1041V10.715a.1136.1136 0 0 1 .0568-.0994z"/></svg>';
+                else if (item.aiModel === 'Grok') iconSvg = '<svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M4.08 4h3.763l-1.882 3.136L4.08 4zm1.881 7.84L2.2 18.239h3.763l1.88-3.136-1.88-3.264zm3.763-6.273L6.907 10.27l2.823 4.706L12.553 10.27 9.724 5.567zm0-1.567h5.646L12.547 8.7 9.724 4zm7.528 0h3.763l-1.882 3.136-1.88-3.136zm-8.47 14.239h7.528l-2.822-4.706H11.605l-2.822 4.706zm4.706-7.84l2.822 4.706 2.823-4.706-2.823-4.706-2.822 4.706zm4.706 7.84h3.763l-3.763-6.4-1.88 3.264 1.88 3.136z"/></svg>';
+
+                const aiBadge = item.aiModel ? `<span class="bg-[#1f1f1f] border border-[#333] text-gray-400 px-2 py-0.5 rounded text-[10px] uppercase tracking-wider flex items-center gap-1">${iconSvg} ${item.aiModel}</span>` : '';
+
+                const card = document.createElement('div');
+                card.className = 'vault-card rounded-lg flex flex-col h-full';
+                card.innerHTML = `
+                    <div class="card-image-container group">
+                        <img src="${item.image}" alt="Prompt Ref" class="card-image">
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        
+                        <!-- Top Right: Copy -->
+                        <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-200 transform translate-y-[-5px] group-hover:translate-y-0">
+                            <button onclick="copyText('${item.id}')" class="icon-btn" title="Copiar Prompt">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                        </div>
+
+                        <!-- Bottom Right: Edit & Delete -->
+                        <div class="absolute bottom-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-200 transform translate-y-[5px] group-hover:translate-y-0">
+                            <!-- EDIT BUTTON (Temporary) -->
+                            <button onclick="editAI('${item.id}')" class="icon-btn" title="Mudar IA">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button onclick="confirmDelete('${item.id}')" class="icon-btn delete" title="Excluir">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+
+                        <!-- Bottom Left: Badge -->
+                        <div class="absolute bottom-2 left-2 flex gap-2">
+                             ${aiBadge}
+                        </div>
+                    </div>
+                    <div class="p-4 flex flex-col flex-grow bg-[#0f0f0f]">
+                        <div class="flex-grow">
+                            <p class="text-[10px] text-gray-500 font-mono mb-2 uppercase tracking-wide flex justify-between">
+                                <span>${date}</span>
+                            </p>
+                            <p class="text-xs text-gray-300 font-mono line-clamp-4 leading-relaxed overflow-hidden text-ellipsis" id="text-${item.id}">${escapeHtml(item.text)}</p>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function resetForm() {
+            document.getElementById('vaultForm').reset();
+            // Reset radio buttons to default (Gemini)
+            const defaultRadio = document.querySelector('input[name="aiModel"][value="Gemini"]');
+            if (defaultRadio) defaultRadio.checked = true;
+
+            currentImageBase64 = null;
+            document.getElementById('imagePreview').src = "";
+            document.getElementById('imagePreview').classList.add('hidden');
+            document.getElementById('uploadPlaceholder').classList.remove('opacity-0');
+        }
+
+        // --- Utils & Helpers ---
+
+        // --- EDIT TOOL (Temporary) ---
+
+        window.editAI = async function (id) {
+            const item = prompts.find(p => p.id === id);
+            if (!item) return;
+
+            const current = item.aiModel || "Gemini";
+            const newModel = prompt(`Mudar IA de "${current}" para (Gemini, ChatGPT, Grok):`, current);
+
+            if (newModel && newModel !== current && ["Gemini", "ChatGPT", "Grok"].includes(newModel)) {
+                try {
+                    const ref = doc(db, DB_COLLECTION, id);
+                    await updateDoc(ref, { aiModel: newModel });
+                    showToast(`Atualizado para ${newModel}`);
+                } catch (e) {
+                    console.error(e);
+                    showToast("Erro ao atualizar: " + e.message, true);
+                }
+            } else if (newModel) {
+                showToast("Modelo inválido ou inalterado.");
+            }
+        }
+
+
+        function setupDragAndDrop() {
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('imageInput');
+
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length) processImage(e.target.files[0]);
+            });
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false);
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                if (files.length) processImage(files[0]);
+            }, false);
+        }
+
+        window.copyText = function (id) {
+            const item = prompts.find(p => p.id === id);
+            if (!item) {
+                console.error("Copy failed: Item not found", id);
+                return;
+            }
+
+            // Try standard API
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(item.text).then(() => {
+                    showToast("Prompt copiado!");
+                }).catch(err => {
+                    console.error("Clipboard API failed:", err);
+                    fallbackCopy(item.text);
+                });
+            } else {
+                fallbackCopy(item.text);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+
+            // Avoid scrolling to bottom
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+            textArea.style.opacity = "0";
+
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) showToast("Prompt copiado!");
+                else showToast("Erro ao copiar.", true);
+            } catch (err) {
+                console.error('Fallback copy failed', err);
+                showToast("Erro ao copiar: " + err, true);
+            }
+
+            document.body.removeChild(textArea);
+        }
+
+        window.confirmDelete = function (id) {
+            itemToDelete = id;
+            const display = document.getElementById('virtualDisplay');
+            display.value = '';
+            display.classList.remove('error');
+
+            document.getElementById('deleteModal').classList.add('open');
+        }
+
+        window.closeModal = function () {
+            document.getElementById('deleteModal').classList.remove('open');
+            itemToDelete = null;
+        }
+
+        window.filterGallery = function () {
+            const term = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = prompts.filter(p => p.text.toLowerCase().includes(term));
+            renderGallery(filtered);
+        }
+
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.backgroundColor = isError ? '#ef4444' : 'var(--accent)';
+            toast.style.color = isError ? '#fff' : '#050505';
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function escapeHtml(text) {
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+
+>>>>>>> b39ffa4 (feat: Implement Prompt Gallery Studio and secure Vault)
+
 </html>
