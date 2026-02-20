@@ -1,0 +1,356 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MovementPromptStudio | Director's Mode</title>
+    <!-- Tailwind CSS offline -->
+    <script src="./movent/vendor/tailwindcdn.js"></script>
+    <!-- Fonte Inter offline -->
+    <link rel="stylesheet" href="./movent/assets/fonts/inter.css">
+
+    <style>
+        :root {
+            --bg-dark: #0a0a0a;
+            --card-bg: #141414;
+            --accent: #e50914;
+            /* Netflix Red */
+            --text-gray: #a3a3a3;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: white;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            /* Evita scroll no body, scroll acontece no grid */
+        }
+
+        /* Scrollbar customizada */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        /* Card Styles */
+        .move-card {
+            transition: transform 0.2s ease, border-color 0.2s ease;
+            border: 1px solid transparent;
+        }
+
+        .move-card:hover {
+            transform: scale(1.02);
+            border-color: #444;
+            z-index: 10;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .move-card:active {
+            transform: scale(0.98);
+            border-color: var(--accent);
+        }
+
+        /* Video Handling */
+        .video-container video {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .move-card:hover .video-container video {
+            opacity: 1;
+        }
+
+        .static-thumb {
+            transition: opacity 0.3s ease;
+        }
+
+        .move-card:hover .static-thumb {
+            opacity: 0;
+        }
+
+        /* Filter Buttons */
+        .filter-btn.active {
+            background-color: white;
+            color: black;
+            font-weight: 600;
+        }
+
+        /* Prompt Builder Animation */
+        @keyframes flash {
+            0% {
+                border-color: #333;
+            }
+
+            50% {
+                border-color: var(--accent);
+            }
+
+            100% {
+                border-color: #333;
+            }
+        }
+
+        .flash-border {
+            animation: flash 0.4s ease;
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+
+    <!-- HEADER -->
+    <header class="flex-none border-b border-gray-800 bg-black/50 backdrop-blur-md z-20 px-6 py-4 flex justify-center">
+        <div class="max-w-6xl w-full flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-3 h-8 bg-red-600 rounded-sm"></div> <!-- Logo Mark -->
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight">MOVEMENT PROMPT <span
+                            class="text-gray-500 font-light">STUDIO</span></h1>
+                    <p class="text-xs text-gray-500 uppercase tracking-widest">AI Cinematography Director</p>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="hidden md:flex gap-2">
+                <button onclick="filterCards('all')"
+                    class="filter-btn active px-4 py-1.5 rounded-full text-sm text-gray-400 border border-gray-800 hover:border-gray-500 transition-colors">All</button>
+                <button onclick="filterCards('dolly')"
+                    class="filter-btn px-4 py-1.5 rounded-full text-sm text-gray-400 border border-gray-800 hover:border-gray-500 transition-colors">Dolly/Track</button>
+                <button onclick="filterCards('zoom')"
+                    class="filter-btn px-4 py-1.5 rounded-full text-sm text-gray-400 border border-gray-800 hover:border-gray-500 transition-colors">Zoom</button>
+                <button onclick="filterCards('pan')"
+                    class="filter-btn px-4 py-1.5 rounded-full text-sm text-gray-400 border border-gray-800 hover:border-gray-500 transition-colors">Pan/Tilt</button>
+                <button onclick="filterCards('drone')"
+                    class="filter-btn px-4 py-1.5 rounded-full text-sm text-gray-400 border border-gray-800 hover:border-gray-500 transition-colors">Drone</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN GRID (Scrollable) -->
+    <main class="flex-grow overflow-y-auto p-6">
+        <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-4 w-full">
+            <div class="col-span-1 lg:col-span-3">
+                <div id="grid-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pb-4">
+                    <!-- Cards will be injected here via JavaScript -->
+                </div>
+            </div>
+            <div class="col-span-1 lg:col-span-2">
+                <div class="bg-[#141414] border border-gray-800 rounded-lg p-4 sticky top-4">
+                    <div class="relative">
+                        <label
+                            class="text-[10px] uppercase text-red-500 font-bold absolute -top-2.5 left-2 bg-[#141414] px-2">Prompt
+                            Final</label>
+                        <textarea id="final-prompt"
+                            class="w-full bg-black border border-gray-700 rounded-lg p-3 text-sm text-gray-200 focus:outline-none focus:border-red-600 transition-colors font-mono resize-none h-40"
+                            placeholder="Descreva sua cena (ex: A samurai standing in the rain...) e clique nos cards a esquerda para adicionar movimentos."></textarea>
+                    </div>
+                    <div class="flex gap-2 mt-3">
+                        <button onclick="copyPrompt()"
+                            class="bg-white text-black font-bold px-6 py-3 rounded hover:bg-gray-200 transition-colors uppercase text-xs tracking-wider flex-1">
+                            Copy Prompt
+                        </button>
+                        <button onclick="clearPrompt()"
+                            class="border border-gray-700 text-gray-500 hover:text-white px-4 py-3 rounded transition-colors uppercase text-xs tracking-wider">
+                            Clear
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // --- DATA SOURCE (FULL 42 MOVEMENTS) ---
+        // Previews carregam da pasta local "./previewfiles/" (offline).
+
+        const movements = [
+            { id: 1, name: "Slow Dolly In", category: "dolly", prompt: "Slow dolly in, camera moves slowly forward toward the subject.", video: "1.-Slow-Dolly-In.mp4" },
+            { id: 2, name: "Slow Dolly Out", category: "dolly", prompt: "Slow dolly out, camera moves slowly backwards away from the subject.", video: "2.-Slow-Dolly-Out.mp4" },
+            { id: 3, name: "Fast Dolly In", category: "dolly", prompt: "Fast dolly in, camera moves rapidly forward toward the subject, urgent motion.", video: "3.-Fast-Dolly-In.mp4" },
+            { id: 4, name: "Vertigo Effect (Zolly)", category: "zoom dolly", prompt: "Vertigo effect, dolly zoom, camera moves backward while zooming in, background expands.", video: "4.-Vertigo-Effect-Zolly.mp4" },
+            { id: 5, name: "Extreme Macro Zoom", category: "zoom", prompt: "Extreme macro zoom, zoom transition from subject to micro details of surface.", video: "5-Extreme-Macro-Zoom.mp4" },
+            { id: 6, name: "Cosmic Hyper Zoom", category: "zoom", prompt: "Cosmic hyper zoom, fast zoom transition from extreme wide view down to macro level.", video: "6-Cosmic-Hyper-Zoom.mp4" },
+            { id: 7, name: "Over the Shoulder (OTS)", category: "pan", prompt: "Over the shoulder shot, camera mounted behind subject A framing subject B.", video: "7.-Over-the-Shoulder-OTS-Shot.mp4" },
+            { id: 8, name: "Fisheye / Peephole", category: "zoom", prompt: "Fisheye lens, extreme wide-angle distortion, circular frame.", video: "8.-Fisheye-or-Peephole-Lens.mp4" },
+            { id: 9, name: "Reveal from Behind", category: "dolly", prompt: "Wipe movement, camera slides laterally from behind foreground object to reveal the scene.", video: "9.-Reveal-from-Behind-Wipe-Movement.mp4" },
+            { id: 10, name: "Through Shot", category: "drone", prompt: "Fly through, camera moves through an opening into the scene.", video: "10.-Through-Shot-Fly-Through-Aperture.mp4" },
+            { id: 11, name: "Reveal from Blur", category: "zoom", prompt: "Rack focus, start completely out of focus, slowly pull focus until sharp.", video: "11.-Reveal-from-Blur-Fade-In.mp4" },
+            { id: 12, name: "Rack Focus", category: "zoom", prompt: "Rack focus, focus shifts from the foreground object to the background subject.", video: "12-Rack-Focus-Foreground-to-Background.mp4" },
+            { id: 13, name: "Tilt Up", category: "pan", prompt: "Tilt up, camera pans vertically up from bottom to top.", video: "13.-Tilt-Up.mp4" },
+            { id: 14, name: "Tilt Down", category: "pan", prompt: "Tilt down, camera pans vertically down from top to bottom.", video: "14.-Tilt-Down.mp4" },
+            { id: 15, name: "Camera Truck Left", category: "dolly", prompt: "Truck left, camera moves sideways on a track to the left.", video: "15.-Camera-Truck-Left.mp4" },
+            { id: 16, name: "Lateral Truck Right", category: "dolly", prompt: "Truck right, camera moves sideways on a track to the right.", video: "16.-Lateral-Truck-Right.mp4" },
+            { id: 17, name: "Orbit 180", category: "pan", prompt: "Orbit 180, camera moves in a half-circle around the subject.", video: "17-Orbit-180.mp4" },
+            { id: 18, name: "Fast 360 Orbit", category: "pan", prompt: "Fast 360 orbit, camera spins rapidly 360 degrees around the subject.", video: "18.-Fast-360-Orbit-The-Spin.mp4" },
+            { id: 19, name: "Slow Cinematic Arc", category: "pan", prompt: "Slow cinematic arc, camera moves in a wide curve to reveal side profile.", video: "19.-Slow-Cinematic-Arc.mp4" },
+            { id: 20, name: "Pedestal Down", category: "dolly", prompt: "Pedestal down, camera lowers vertically straight down.", video: "20-Pedestal-Down.mp4" },
+            { id: 21, name: "Pedestal Up", category: "dolly", prompt: "Pedestal up, camera rises vertically straight up from waist to eye level.", video: "21.-Pedestal-Up.mp4" },
+            { id: 22, name: "Crane Up (Reveal)", category: "drone", prompt: "Crane up, camera lifts high into the air.", video: "22.-Crane-Up-High-Angle-Reveal.mp4" },
+            { id: 23, name: "Crane Down (Landing)", category: "drone", prompt: "Crane down, camera descends slowly to the subject.", video: "23.-Crane-Down-Landing.mp4" },
+            { id: 24, name: "Smooth Optical Zoom In", category: "zoom", prompt: "Smooth optical zoom in, lens magnifies subject, camera stays stationary.", video: "24.-Smooth-Optical-Zoom-In.mp4" },
+            { id: 25, name: "Smooth Optical Zoom Out", category: "zoom", prompt: "Smooth optical zoom out, lens widens, background becomes blurry.", video: "25.-Smooth-Optical-Zoom-Out.mp4" },
+            { id: 26, name: "Snap Zoom (Crash)", category: "zoom", prompt: "Snap zoom, crash zoom, rapid zoom directly into the eyes.", video: "26-Snap-Zoom-Crash-Zoom.mp4" },
+            { id: 27, name: "Drone Fly Over", category: "drone", prompt: "Drone fly over, high altitude flight moving forward over the landscape.", video: "27.-Drone-Fly-Over.mp4" },
+            { id: 28, name: "Epic Drone Reveal", category: "drone", prompt: "Epic drone reveal, rising and tilting down to reveal the scene.", video: "28.-Epic-Drone-Reveal.mp4" },
+            { id: 29, name: "Large Scale Orbit", category: "drone", prompt: "Large scale drone orbit, massive sweeping circle around the landscape.", video: "29.-Large-Scale-Drone-Orbit.mp4" },
+            { id: 30, name: "Top Down (God's Eye)", category: "drone", prompt: "Top down shot, camera pointing straight down, slow twist.", video: "30.-Top-Down-Gods-Eye-View.mp4" },
+            { id: 31, name: "FPV Drone Aggressive", category: "drone", prompt: "FPV drone dive, aggressive diving motion down a vertical structure.", video: "31.-FPV-Drone-Aggressive-Drone-Dive.mp4" },
+            { id: 32, name: "Handheld Documentary", category: "pan", prompt: "Handheld camera, shaky motion, natural movement, documentary style.", video: "32.-Handheld-Documentary-Style.mp4" },
+            { id: 33, name: "Whip Pan", category: "pan", prompt: "Whip pan, camera whips violently to the side with extreme directional motion blur.", video: "33-Whip-Pan.mp4" },
+            { id: 34, name: "Dutch Angle (Roll)", category: "pan", prompt: "Dutch angle, camera roll, tilted sideways on Z-axis.", video: "34.-Dutch-Angle-Roll.mp4" },
+            { id: 35, name: "Leading Shot (Back)", category: "dolly", prompt: "Leading shot, camera moves backward matching the subject's speed.", video: "35.-Leading-Shot-Backward-Tracking.mp4" },
+            { id: 36, name: "Following Shot (Fwd)", category: "dolly", prompt: "Following shot, camera follows behind the subject matching speed.", video: "36.-Following-Shot-Forward-Tracking.mp4" },
+            { id: 37, name: "Side Tracking", category: "dolly", prompt: "Side tracking, camera trucks alongside the subject.", video: "37.-Side-Tracking-Parallel.mp4" },
+            { id: 38, name: "POV Walk", category: "dolly", prompt: "POV walk, first person camera moving forward with bobbing motion.", video: "38.-POV-Walk-First-Person-Walk.mp4" },
+            { id: 39, name: "Hyperlapse", category: "dolly", prompt: "Hyperlapse, camera moves forward rapidly, time accelerated, fast motion, light trails.", video: "39.-Hyperlapse-Moving-Time-Lapse.mp4" },
+            { id: 40, name: "Barrel Roll (Vortex)", category: "pan", prompt: "Barrel roll, camera spins 360 degrees clockwise while moving forward, disorienting.", video: "40.-Barrel-Roll-Vortex-Inception-Shot.mp4" },
+            { id: 41, name: "Bullet Time", category: "pan", prompt: "Bullet time, frozen moment, ultra slow motion, camera orbit right.", video: "41.-Bullet-Time-Frozen-Moment.mp4" },
+            { id: 42, name: "Worm's Eye Tracking", category: "dolly", prompt: "Worm's eye view, low angle tracking, camera moves along the ground looking up.", video: "42.-Worms-Eye-Tracking-Ground-Level.mp4" }
+        ];
+
+        const VIDEO_BASE_PATH = './movent/previewfiles/';
+        movements.forEach(move => {
+            const fileName = move.video.split('/').pop();
+            move.video = `${VIDEO_BASE_PATH}${fileName}`;
+            move.thumb = `${VIDEO_BASE_PATH}${fileName.replace(/\.[^/.]+$/, "")}.jpg`;
+        });
+
+        // --- APP LOGIC ---
+
+        const grid = document.getElementById('grid-container');
+        const promptInput = document.getElementById('final-prompt');
+
+        function renderCards(filter = 'all') {
+            grid.innerHTML = '';
+
+            const filteredData = filter === 'all'
+                ? movements
+                : movements.filter(m => m.category.includes(filter));
+
+            if (filteredData.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center text-gray-600 py-10">No movements found for this category.</div>`;
+                return;
+            }
+
+            filteredData.forEach(move => {
+                const card = document.createElement('div');
+                card.className = "move-card bg-[#141414] rounded-lg overflow-hidden cursor-pointer relative group";
+                card.onclick = () => addPrompt(move.prompt);
+
+                // Setup Video with mouse events
+                card.onmouseenter = function () {
+                    const video = this.querySelector('video');
+                    if (video) {
+                        // FIX: Captura a promessa do play() e trata erros de interrupÃ§Ã£o (AbortError)
+                        // isso acontece quando o mouse sai rÃ¡pido demais do card
+                        const playPromise = video.play();
+                        if (playPromise !== undefined) {
+                            playPromise.catch(error => {
+                                if (error.name !== 'AbortError') {
+                                    console.error('Playback failed:', error);
+                                }
+                            });
+                        }
+                    }
+                };
+                card.onmouseleave = function () {
+                    const video = this.querySelector('video');
+                    if (video) {
+                        video.pause();
+                        video.currentTime = 0;
+                    }
+                };
+
+                // Ajustes no layout do card para acomodar o tamanho menor (padding menor: p-3, textos menores)
+                card.innerHTML = `
+                    <div class="video-container relative aspect-video bg-black w-full overflow-hidden">
+                        <!-- Placeholder/Loading state visual -->
+                        <div class="static-thumb absolute inset-0 flex items-center justify-center bg-[#1a1a1a]">
+                            <img src="${move.thumb}" alt="${move.name} Preview" class="w-full h-full object-cover">
+                        </div>
+                        <video loop muted playsinline class="absolute inset-0 w-full h-full object-cover">
+                            <source src="${move.video}" type="video/mp4">
+                        </video>
+                        <!-- Category Badge -->
+                        <div class="absolute top-2 right-2 bg-black/80 backdrop-blur text-[8px] px-1.5 py-0.5 rounded text-white/70 uppercase tracking-wider border border-white/10">
+                            ${move.category}
+                        </div>
+                    </div>
+                    
+                    <div class="p-3">
+                        <h3 class="font-bold text-xs text-gray-100 mb-1 group-hover:text-red-500 transition-colors">${move.name}</h3>
+                        <p class="text-[10px] text-gray-500 line-clamp-2 leading-relaxed">${move.prompt}</p>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterCards(category) {
+            // UI Update
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            // Find the button that was clicked (approximate match for simplicity in this demo)
+            const clickedBtn = Array.from(document.querySelectorAll('.filter-btn')).find(b => b.innerText.toLowerCase().includes(category) || (category === 'all' && b.innerText === 'All'));
+            if (clickedBtn) clickedBtn.classList.add('active');
+
+            renderCards(category);
+        }
+
+        function addPrompt(text) {
+            promptInput.value = text;
+
+            // Visual feedback on input
+            promptInput.classList.remove('border-gray-700');
+            promptInput.classList.add('border-red-600');
+            setTimeout(() => {
+                promptInput.classList.remove('border-red-600');
+                promptInput.classList.add('border-gray-700');
+            }, 300);
+        }
+
+        function copyPrompt() {
+            promptInput.select();
+            document.execCommand('copy');
+
+            const btn = document.querySelector('button[onclick="copyPrompt()"]');
+            const originalText = btn.innerText;
+
+            btn.innerText = "COPIADO!";
+            btn.classList.add('bg-green-500', 'text-white');
+            btn.classList.remove('bg-white', 'text-black');
+
+            setTimeout(() => {
+                btn.innerText = originalText;
+                btn.classList.remove('bg-green-500', 'text-white');
+                btn.classList.add('bg-white', 'text-black');
+            }, 2000);
+        }
+
+        function clearPrompt() {
+            promptInput.value = '';
+        }
+
+        // Initialize
+        renderCards('all');
+
+    </script>
+</body>
+
+</html>
