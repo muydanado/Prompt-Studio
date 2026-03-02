@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Limpeza do Supabase Storage</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            background-color: #0d0d0f;
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body class="p-8 font-sans">
+    <div class="max-w-5xl mx-auto">
+        <h1 class="text-2xl font-bold mb-2"><i class="fa-solid fa-broom text-blue-500"></i> Faxina do Storage</h1>
+        <p class="text-gray-400 text-sm mb-6">Esta ferramenta compara os arquivos no Storage com os registros no Banco
+            de Dados e encontra imagens "órfãs" (sem uso).</p>
+
+        <div class="flex gap-4 mb-8">
+            <button onclick="scanOrphans()" id="btnScan"
+                class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded text-sm font-bold transition-colors">
+                <i class="fa-solid fa-magnifying-glass mr-2"></i> 1. Escanear Imagens Órfãs
+            </button>
+            <button onclick="deleteAllOrphans()" id="btnDeleteAll"
+                class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded text-sm font-bold transition-colors hidden"
+                disabled>
+                <i class="fa-solid fa-trash-can mr-2"></i> 2. Excluir Todas as Órfãs
+            </button>
+        </div>
+
+        <div id="status" class="mb-4 text-sm font-mono text-gray-300">Aguardando...</div>
+
+        <div id="gallery" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <!-- Images will appear here -->
+        </div>
+    </div>
+
+    <script>
+        const supabaseUrl = 'https://nyhkfbygpvujgembhhpb.supabase.co';
+        const supabaseKey = 'sb_publishable_-Pk0YtIhD-x3ZmjvTCEDLQ_e-4ZF8rc';
+        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        let orphanedFiles = [];
+
+        async function scanOrphans() {
+            const statusEl = document.getElementById('status');
+            const btnScan = document.getElementById('btnScan');
+            const btnDeleteAll = document.getElementById('btnDeleteAll');
+            const gallery = document.getElementById('gallery');
+
+            btnScan.disabled = true;
+            btnScan.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Escaneando...';
+            gallery.innerHTML = '';
+            orphanedFiles = [];
+
+            try {
+                // 1. Fetch DB
+                statusEl.innerText = "Buscando registros do banco de dados...";
+                const { data: prompts, error: dbError } = await supabaseClient.from('prompts').select('image');
+                if (dbError) throw dbError;
+
+                const dbImageUrls = prompts.map(p => p.image).filter(url => url);
+
+                // 2. Fetch Storage
+                statusEl.innerText = `Lendo arquivos do Storage (Bucket: images)...`;
+                const { data: storageFiles, error: storageError } = await supabaseClient.storage.from('images').list('', { limit: 1000 });
+                if (storageError) throw storageError;
+
+                // 3. Compare
+                statusEl.innerText = "Comparando arquivos...";
+
+                // Find storage files whose names are NOT inside ANY database URL
+                for (const file of storageFiles) {
+                    // Ignore placeholders or empty folders
+                    if (file.name === '.emptyFolderPlaceholder') continue;
+
+                    // Check if this filename exists in any of the DB URLs
+                    const isUsed = dbImageUrls.some(url => url.includes(file.name));
+
+                    if (!isUsed) {
+                        orphanedFiles.push(file);
+                    }
+                }
+
+                statusEl.innerHTML = `
+                    <span class="text-green-400">Escaneamento concluído!</span><br>
+                    - Registros no Banco: ${prompts.length}<br>
+                    - Arquivos no Storage: ${storageFiles.length}<br>
+                    - Arquivos Órfãos: <strong class="text-red-400">${orphanedFiles.length}</strong>
+                `;
+
+                if (orphanedFiles.length > 0) {
+                    btnDeleteAll.classList.remove('hidden');
+                    btnDeleteAll.disabled = false;
+                    btnDeleteAll.innerText = `Excluir as ${orphanedFiles.length} Imagens`;
+
+                    // Render them
+                    for (const orphan of orphanedFiles) {
+                        const { data } = supabaseClient.storage.from('images').getPublicUrl(orphan.name);
+                        const publicUrl = data.publicUrl;
+
+                        const imgCard = document.createElement('div');
+                        imgCard.className = 'bg-[#1a1a1c] p-2 rounded border border-[#333] flex flex-col items-center';
+                        imgCard.id = `card-${orphan.name}`;
+                        imgCard.innerHTML = `
+                            <img src="${publicUrl}" class="w-full h-24 object-cover rounded mb-2">
+                            <span class="text-[10px] text-gray-500 truncate w-full mb-2" title="${orphan.name}">${orphan.name}</span>
+                            <button onclick="deleteSingle('${orphan.name}')" class="text-red-500 hover:text-red-400 text-xs w-full py-1 border border-red-500/30 rounded">Excluir</button>
+                        `;
+                        gallery.appendChild(imgCard);
+                    }
+                } else {
+                    btnDeleteAll.classList.add('hidden');
+                }
+
+            } catch (err) {
+                statusEl.innerHTML = `<span class="text-red-500">Erro: ${err.message}</span>`;
+            } finally {
+                btnScan.disabled = false;
+                btnScan.innerHTML = '<i class="fa-solid fa-magnifying-glass mr-2"></i> Escanear Novamente';
+            }
+        }
+
+        async function deleteSingle(fileName) {
+            if (!confirm(`Ecluir a imagem ${fileName}?`)) return;
+
+            const btn = document.querySelector(`#card-${CSS.escape(fileName)} button`);
+            btn.innerText = 'Excluindo...';
+            btn.disabled = true;
+
+            const { error } = await supabaseClient.storage.from('images').remove([fileName]);
+
+            if (error) {
+                alert("Erro ao excluir: " + error.message);
+                btn.innerText = 'Excluir';
+                btn.disabled = false;
+            } else {
+                document.getElementById(`card-${CSS.escape(fileName)}`).remove();
+
+                // Update counter array
+                orphanedFiles = orphanedFiles.filter(f => f.name !== fileName);
+                document.getElementById('btnDeleteAll').innerText = `Excluir as ${orphanedFiles.length} Imagens`;
+                if (orphanedFiles.length === 0) document.getElementById('btnDeleteAll').classList.add('hidden');
+            }
+        }
+
+        async function deleteAllOrphans() {
+            if (!confirm(`TEM CERTEZA? Isso vai excluir ${orphanedFiles.length} imagens permanentemente do Supabase!`)) return;
+
+            const btnDeleteAll = document.getElementById('btnDeleteAll');
+            btnDeleteAll.disabled = true;
+            btnDeleteAll.innerText = 'Excluindo...';
+
+            // Delete in chunks of 50 to avoid overloading the API
+            const fileNames = orphanedFiles.map(f => f.name);
+            const chunkSize = 50;
+            let totalDeleted = 0;
+
+            for (let i = 0; i < fileNames.length; i += chunkSize) {
+                const chunk = fileNames.slice(i, i + chunkSize);
+                const { data, error } = await supabaseClient.storage.from('images').remove(chunk);
+                if (error) {
+                    console.error("Erro no chunk", error);
+                } else {
+                    totalDeleted += chunk.length;
+                }
+            }
+
+            alert(`Limpeza concluída! ${totalDeleted} imagens excluídas.`);
+            scanOrphans(); // Rescan
+        }
+    </script>
+</body>
+
+</html>
