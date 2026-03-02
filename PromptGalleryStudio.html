@@ -80,15 +80,17 @@
         .card-image-container {
             position: relative;
             width: 100%;
-            aspect-ratio: 1/1;
+            /* Removed aspect-ratio for masonry */
             overflow: hidden;
             background: #000;
         }
 
         .card-image {
             width: 100%;
-            height: 100%;
-            object-fit: cover;
+            height: auto;
+            object-fit: contain;
+            /* Changed from cover to contain/auto for masonry */
+            display: block;
             transition: transform 0.5s ease;
         }
 
@@ -260,15 +262,8 @@
             }
         }
     </style>
-    <script type="importmap">
-        {
-            "imports": {
-                "firebase/app": "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js",
-                "firebase/firestore": "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js",
-                "firebase/storage": "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js"
-            }
-        }
-    </script>
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body class="min-h-screen flex flex-col items-center pb-20">
@@ -313,8 +308,8 @@
             </div>
         </div>
 
-        <!-- Grid -->
-        <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+        <!-- Grid (Masonry using CSS columns) -->
+        <div id="galleryGrid" class="columns-1 sm:columns-2 lg:columns-4 xl:columns-5 gap-5 space-y-5">
             <!-- Cards injected here via JS -->
         </div>
 
@@ -374,21 +369,10 @@
 
     <script type="module">
         // --- Configuration & State ---
-        import { initializeApp } from "firebase/app";
-        import { getFirestore, collection, onSnapshot, query, orderBy } from "firebase/firestore";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyC0yRiVwah6N4Z1NCx28U0aW-2qeTgV1Zo",
-            authDomain: "image-prompt-vault-4c50b.firebaseapp.com",
-            projectId: "image-prompt-vault-4c50b",
-            storageBucket: "image-prompt-vault-4c50b.firebasestorage.app",
-            messagingSenderId: "829978048640",
-            appId: "1:829978048640:web:d485b30c9592ec7d020e65"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        // Supabase Initialization
+        const supabaseUrl = 'https://nyhkfbygpvujgembhhpb.supabase.co';
+        const supabaseKey = 'sb_publishable_-Pk0YtIhD-x3ZmjvTCEDLQ_e-4ZF8rc';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         const DB_COLLECTION = 'prompts';
         // A senha "1971" codificada em Base64
@@ -433,10 +417,45 @@
         }
 
         window.copyText = function (id) {
-            const text = document.getElementById(`text-${id}`).innerText;
-            navigator.clipboard.writeText(text).then(() => {
-                showToast("Prompt copiado!");
-            });
+            const textElement = document.getElementById(`text-${id}`);
+            if (!textElement) return;
+            const text = textElement.innerText;
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast("Prompt copiado!");
+                }).catch(err => {
+                    console.error("Clipboard API failed:", err);
+                    fallbackCopy(text);
+                });
+            } else {
+                fallbackCopy(text);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+
+            // Avoid scrolling to bottom
+            textArea.style.top = "0";
+            textArea.style.left = "-9999px";
+            textArea.style.position = "fixed";
+
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) showToast("Prompt copiado!");
+                else showToast("Erro ao copiar.", true);
+            } catch (err) {
+                console.error('Fallback copy failed', err);
+                showToast("Erro ao copiar: " + err, true);
+            }
+
+            document.body.removeChild(textArea);
         }
 
         window.escapeHtml = function (text) {
@@ -483,18 +502,32 @@
         // --- Core Functions ---
 
         function setupRealtimeListener() {
-            const q = query(collection(db, DB_COLLECTION), orderBy("timestamp", "desc"));
+            // Supabase Realtime Subscription
+            supabase
+                .channel('public:prompts')
+                .on('postgres_changes', { event: '*', schema: 'public', table: DB_COLLECTION }, payload => {
+                    loadPrompts();
+                })
+                .subscribe();
 
-            onSnapshot(q, (snapshot) => {
-                prompts = [];
-                snapshot.forEach((doc) => {
-                    prompts.push({ id: doc.id, ...doc.data() });
-                });
-                renderGallery();
-            }, (error) => {
+            // Initial load
+            loadPrompts();
+        }
+
+        async function loadPrompts() {
+            const { data, error } = await supabase
+                .from(DB_COLLECTION)
+                .select('*')
+                .order('timestamp', { ascending: false });
+
+            if (error) {
                 console.error("Error getting documents: ", error);
-                showToast("Erro LEITURA DB: " + error.code, true);
-            });
+                showToast("Erro LEITURA DB: " + error.message, true);
+                return;
+            }
+
+            prompts = data || [];
+            renderGallery();
         }
 
         window.filterGallery = function () {
@@ -523,22 +556,33 @@
             dataToRender.forEach(item => {
                 const date = new Date(item.timestamp).toLocaleDateString('pt-PT');
 
-                let iconSvg = '';
-                if (item.aiModel === 'Gemini') iconSvg = '<svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M12 24c0-6 6-12 12-12-6 0-12-6-12-12 0 6-6 12-12 12 6 0 12 6 12 12z"/></svg>';
-                else if (item.aiModel === 'ChatGPT') iconSvg = '<svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a.071.071 0 0 1 .038.052v5.5826a4.504 4.504 0 0 1-4.4945 4.4944zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9723V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1685a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.872zm16.5963 3.8558L13.1228 8.3829 15.1429 7.2144a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.4307-.6813zM15.214 7.2618l.1043-.0616 2.0152-1.1638a4.4944 4.4944 0 0 1 4.5323 1.2585 4.4755 4.4755 0 0 1 .5347 3.0137l-.142-.0805-4.7865-2.7617a.7948.7948 0 0 0-.7854 0L10.8437 10.835V8.5026a.071.071 0 0 1 .0332-.0616zM8.3365 15.1118l-2.0201-1.1639-.1042.0616-2.0153 1.1638a4.5018 4.5018 0 0 1-1.8984-5.6679L7.086 12.3327a.7853.7853 0 0 0 .4307.6813v5.6819a4.4708 4.4708 0 0 1-2.3396-1.9582zM12 9.049l2.7161 1.5667a.1136.1136 0 0 1 .0568.0994v3.1238a.1183.1183 0 0 1-.0568.1041L12.0047 15.51a.1089.1089 0 0 1-.1136 0L9.175 13.943a.1183.1183 0 0 1-.0568-.1041V10.715a.1136.1136 0 0 1 .0568-.0994z"/></svg>';
-                else if (item.aiModel === 'Grok') iconSvg = '<svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M4.08 4h3.763l-1.882 3.136L4.08 4zm1.881 7.84L2.2 18.239h3.763l1.88-3.136-1.88-3.264zm3.763-6.273L6.907 10.27l2.823 4.706L12.553 10.27 9.724 5.567zm0-1.567h5.646L12.547 8.7 9.724 4zm7.528 0h3.763l-1.882 3.136-1.88-3.136zm-8.47 14.239h7.528l-2.822-4.706H11.605l-2.822 4.706zm4.706-7.84l2.822 4.706 2.823-4.706-2.823-4.706-2.822 4.706zm4.706 7.84h3.763l-3.763-6.4-1.88 3.264 1.88 3.136z"/></svg>';
+                // Helper function to get Icon SVG
+                function getIconSvg(modelName) {
+                    if (modelName === 'Gemini') return '<svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M12 24c0-6 6-12 12-12-6 0-12-6-12-12 0 6-6 12-12 12 6 0 12 6 12 12z"/></svg>';
+                    if (modelName === 'ChatGPT') return '<svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a.071.071 0 0 1 .038.052v5.5826a4.504 4.504 0 0 1-4.4945 4.4944zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9723V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1685a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.872zm16.5963 3.8558L13.1228 8.3829 15.1429 7.2144a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.4307-.6813zM15.214 7.2618l.1043-.0616 2.0152-1.1638a4.4944 4.4944 0 0 1 4.5323 1.2585 4.4755 4.4755 0 0 1 .5347 3.0137l-.142-.0805-4.7865-2.7617a.7948.7948 0 0 0-.7854 0L10.8437 10.835V8.5026a.071.071 0 0 1 .0332-.0616zM8.3365 15.1118l-2.0201-1.1639-.1042.0616-2.0153 1.1638a4.5018 4.5018 0 0 1-1.8984-5.6679L7.086 12.3327a.7853.7853 0 0 0 .4307.6813v5.6819a4.4708 4.4708 0 0 1-2.3396-1.9582zM12 9.049l2.7161 1.5667a.1136.1136 0 0 1 .0568.0994v3.1238a.1183.1183 0 0 1-.0568.1041L12.0047 15.51a.1089.1089 0 0 1-.1136 0L9.175 13.943a.1183.1183 0 0 1-.0568-.1041V10.715a.1136.1136 0 0 1 .0568-.0994z"/></svg>';
+                    if (modelName === 'Grok') return '<svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M4.08 4h3.763l-1.882 3.136L4.08 4zm1.881 7.84L2.2 18.239h3.763l1.88-3.136-1.88-3.264zm3.763-6.273L6.907 10.27l2.823 4.706L12.553 10.27 9.724 5.567zm0-1.567h5.646L12.547 8.7 9.724 4zm7.528 0h3.763l-1.882 3.136-1.88-3.136zm-8.47 14.239h7.528l-2.822-4.706H11.605l-2.822 4.706zm4.706-7.84l2.822 4.706 2.823-4.706-2.823-4.706-2.822 4.706zm4.706 7.84h3.763l-3.763-6.4-1.88 3.264 1.88 3.136z"/></svg>';
+                    if (modelName === 'Midjourney') return '<svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M21.996 11.231v4.618l-3.877 6.302-6.12 1.34-6.155-1.34-3.837-6.3V11.267l1.096-2.482 2.748-4.225 4.67-3.033 1.474-1.042.062-.036h.023l.16.14.3.263 1.25.938 1.41.972 3.2 2.052 2.768 4.148zM12.016 1.889l-1.583.999-4.57 2.924-2.585 3.99-1.01 2.29-.009 5.8 3.6 5.856 5.674 1.258h.933l.056-.013 5.67-1.245 3.59-5.854v-5.8l-.946-2.163-2.58-3.896zm7.258 9.54l-5.748-8.157-.905.518 6.43 9.1v5.61l-3.21 5.253-3.844.832v-16.19l-.988-.002v16.19l-3.79-.822-3.184-5.263v-5.592l5.503-8.134-2.316.326-4.99 7.377v6.074l3.52 5.82 5.074 1.1h.366l5.093-1.1 3.54-5.82v-6.076z"/></svg>';
+                    if (modelName === 'Kling') return '<svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>';
+                    return '';
+                }
 
-                const aiBadge = item.aiModel ? `<span class="bg-[#1f1f1f] border border-[#333] text-gray-400 px-2 py-0.5 rounded text-[10px] uppercase tracking-wider flex items-center gap-1">${iconSvg} ${item.aiModel}</span>` : '';
+                let aiBadge = '';
+                const models = item.aimodels && item.aimodels.length > 0 ? item.aimodels : (item.aimodel ? [item.aimodel] : []);
+
+                if (models.length > 0) {
+                    const iconsHtml = models.map(m => getIconSvg(m)).join(' ');
+                    aiBadge = `<span class="bg-[#1f1f1f]/80 backdrop-blur-sm border border-[#333] text-gray-400 p-1.5 rounded flex items-center gap-1.5" title="${models.join(', ')}">${iconsHtml}</span>`;
+                }
 
                 const card = document.createElement('div');
-                card.className = 'vault-card rounded-lg flex flex-col h-full';
+                card.className = 'vault-card rounded-lg flex flex-col h-full break-inside-avoid mb-5';
                 card.innerHTML = `
-                    <div class="card-image-container group">
-                        <img src="${item.image}" alt="Prompt Ref" class="card-image">
+                    <div class="card-image-container group" style="aspect-ratio: auto;">
+                        <img src="${item.image}" alt="Prompt Ref" class="card-image w-full h-auto block">
                         <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         
                         <!-- Top Right: Copy -->
-                        <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-200 transform translate-y-[-5px] group-hover:translate-y-0">
+                        <div class="absolute top-2 right-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-all duration-200 transform translate-y-0 md:translate-y-[-5px] group-hover:translate-y-0 z-10">
                             <button onclick="copyText('${item.id}')" class="icon-btn" title="Copiar Prompt">
                                 <i class="fa-regular fa-copy"></i>
                             </button>
